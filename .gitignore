@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.turbo/
+.vite/
+.idea/
+.DS_Store
+coverage/
+pnpm-lock.yaml
+apps/web/dev-dist/
+apps/web/src/vite-env.d.ts
+apps/api/.env
+apps/api/generated/
+apps/api/data/

@@ -1,0 +1,35 @@
+{
+  "name": "@hotel-crm/shared",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./reservations": "./dist/reservations.js",
+    "./rooms": "./dist/rooms.js",
+    "./housekeeping": "./dist/housekeeping.js",
+    "./payments": "./dist/payments.js",
+    "./guests": "./dist/guests.js",
+    "./maintenance": "./dist/maintenance.js",
+    "./notifications": "./dist/notifications.js",
+    "./compliance": "./dist/compliance.js",
+    "./jobs": "./dist/jobs.js",
+    "./sync": "./dist/sync.js",
+    "./ai": "./dist/ai.js",
+    "./stays": "./dist/stays.js",
+    "./audit": "./dist/audit.js",
+    "./auth": "./dist/auth.js",
+    "./properties": "./dist/properties.js",
+    "./features/azhotel_core": "./dist/features/azhotel_core/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

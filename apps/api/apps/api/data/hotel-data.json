@@ -1,0 +1,1864 @@
+{
+  "schemaVersion": 2,
+  "properties": [
+    {
+      "id": "prop_1774459301441",
+      "name": "111",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "111",
+      "active": true
+    },
+    {
+      "id": "prop_1774457591850",
+      "name": "Channel Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Канальная, 2",
+      "active": true
+    },
+    {
+      "id": "prop_1774457207871",
+      "name": "Reports Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Отчётная, 11",
+      "active": true
+    },
+    {
+      "id": "prop_1774456671484",
+      "name": "Today Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Новая, 8",
+      "active": true
+    },
+    {
+      "id": "prop_1774456347428",
+      "name": "Users Demo 2",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Полевая, 4",
+      "active": true
+    },
+    {
+      "id": "prop_1774456312898",
+      "name": "Users Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Мира, 9",
+      "active": true
+    },
+    {
+      "id": "prop_1774455877776",
+      "name": "HK Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Садовая, 3",
+      "active": true
+    },
+    {
+      "id": "prop_1774455483219",
+      "name": "Frontdesk Demo 2",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Победы, 7",
+      "active": true
+    },
+    {
+      "id": "prop_1774455433520",
+      "name": "Frontdesk Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Ленина, 5",
+      "active": true
+    },
+    {
+      "id": "prop_1774454708958",
+      "name": "Az Hotel 2",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Тестовая, 2",
+      "active": true
+    },
+    {
+      "id": "prop_1774454682790",
+      "name": "AzHotel Demo",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "ул. Центральная, 1",
+      "active": true
+    },
+    {
+      "id": "prop_1774452922132",
+      "name": "aaaaaaa",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "aaaaaa aaaaa",
+      "active": true
+    },
+    {
+      "id": "prop_1774452897635",
+      "name": "Отель 20260325183457",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Тула, Ленина 10",
+      "active": true
+    },
+    {
+      "id": "prop_1774452067244",
+      "name": "Отель 20260325182107",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Тула, Ленина 10",
+      "active": true
+    },
+    {
+      "id": "prop_1774450633410",
+      "name": "Smoke Hotel",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Moscow",
+      "active": true
+    },
+    {
+      "id": "prop_1774450517033",
+      "name": "QA Checkout 20260325175516",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Moscow",
+      "active": true
+    },
+    {
+      "id": "prop_1774450493705",
+      "name": "QA Flow 20260325175453",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Moscow",
+      "active": true
+    },
+    {
+      "id": "prop_1774450474955",
+      "name": "QA Hotel 20260325175434",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Moscow",
+      "active": true
+    },
+    {
+      "id": "prop_demo_1",
+      "name": "Demo Hotel",
+      "timezone": "Europe/Moscow",
+      "currency": "RUB",
+      "address": "Demo street 1",
+      "active": true
+    }
+  ],
+  "users": [
+    {
+      "id": "user_1774459301442",
+      "propertyId": "prop_1774459301441",
+      "name": "111",
+      "email": "aaa@a1.com",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "password": "aaaaaaaa",
+      "active": true
+    },
+    {
+      "id": "user_1774457591888_k124",
+      "propertyId": "prop_1774457591850",
+      "name": "Игорь Админ",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "pin": "1212",
+      "active": true
+    },
+    {
+      "id": "user_1774457591850",
+      "propertyId": "prop_1774457591850",
+      "name": "Владелец",
+      "email": "owner.channel.1774457591640@example.com",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "password": "secret123",
+      "active": true
+    },
+    {
+      "id": "user_1774457207929_pbi1",
+      "propertyId": "prop_1774457207871",
+      "name": "Анна Админ",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "pin": "9999",
+      "active": true
+    },
+    {
+      "id": "user_1774457207871",
+      "propertyId": "prop_1774457207871",
+      "name": "Владелец",
+      "email": "owner.report.1774457207482@example.com",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "password": "secret123",
+      "active": true
+    },
+    {
+      "id": "user_1774456671558_t37w",
+      "propertyId": "prop_1774456671484",
+      "name": "Ольга Смена",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "pin": "7777",
+      "active": true
+    },
+    {
+      "id": "user_1774456671485",
+      "propertyId": "prop_1774456671484",
+      "name": "Владелец",
+      "email": "owner.today.1774456671098@example.com",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "password": "secret123",
+      "active": true
+    },
+    {
+      "id": "user_1774456347473_dzfa",
+      "propertyId": "prop_1774456347428",
+      "name": "Нина Смена",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "pin": "8888",
+      "active": true
+    },
+    {
+      "id": "user_1774456347469_kmtm",
+      "propertyId": "prop_1774456347428",
+      "name": "Ольга Смена",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "pin": "7777",
+      "active": true
+    },
+    {
+      "id": "user_1774456347464_21ki",
+      "propertyId": "prop_1774456347428",
+      "name": "Мария Админ",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "pin": "6666",
+      "active": true
+    },
+    {
+      "id": "user_1774456347428",
+      "propertyId": "prop_1774456347428",
+      "name": "Владелец",
+      "email": "owner.users2.1774456347261@example.com",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "password": "secret123",
+      "active": true
+    },
+    {
+      "id": "user_1774456312941_99ub",
+      "propertyId": "prop_1774456312898",
+      "name": "Нина Смена",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "pin": "8888",
+      "active": true
+    },
+    {
+      "id": "user_1774456312936_7xse",
+      "propertyId": "prop_1774456312898",
+      "name": "Ольга Смена",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "pin": "7777",
+      "active": true
+    },
+    {
+      "id": "user_1774456312923_im83",
+      "propertyId": "prop_1774456312898",
+      "name": "Мария Админ",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "pin": "6666",
+      "active": true
+    },
+    {
+      "id": "user_1774456312898",
+      "propertyId": "prop_1774456312898",
+      "name": "Владелец",
+      "email": "owner.users.1774456312727@example.com",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "password": "secret123",
+      "active": true
+    },
+    {
+      "id": "user_1774455877809_gsdo",
+      "propertyId": "prop_1774455877776",
+      "name": "Ольга Уборка",
+      "role": "housekeeping",
+      "pin": "5555",
+      "active": true,
+      "azAccessRole": "staff"
+    },
+    {
+      "id": "user_1774455877776",
+      "propertyId": "prop_1774455877776",
+      "name": "Хозяин",
+      "email": "owner.hk.1774455877601@example.com",
+      "role": "owner",
+      "password": "secret123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774455483219",
+      "propertyId": "prop_1774455483219",
+      "name": "Оператор",
+      "email": "owner.frontdesk2.1774455483010@example.com",
+      "role": "owner",
+      "password": "secret123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774455433520",
+      "propertyId": "prop_1774455433520",
+      "name": "Оператор",
+      "email": "owner.frontdesk.1774455433298@example.com",
+      "role": "owner",
+      "password": "secret123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774454708958",
+      "propertyId": "prop_1774454708958",
+      "name": "Владелец",
+      "email": "owner.az2.1774454708640@example.com",
+      "role": "owner",
+      "password": "secret123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774454682790",
+      "propertyId": "prop_1774454682790",
+      "name": "Тестовый Владелец",
+      "email": "owner.az.1774454682466@example.com",
+      "role": "owner",
+      "password": "secret123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774452922132",
+      "propertyId": "prop_1774452922132",
+      "name": "aaaaaaa",
+      "email": "aaa@a.com",
+      "role": "owner",
+      "password": "aaaaaaaa",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774452897635",
+      "propertyId": "prop_1774452897635",
+      "name": "Проверка Регистрации",
+      "email": "check+20260325183457@example.com",
+      "role": "owner",
+      "password": "owner123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774452067244",
+      "propertyId": "prop_1774452067244",
+      "name": "Анна Петрова",
+      "email": "anna+20260325182107@example.com",
+      "role": "owner",
+      "password": "owner123",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774450633410",
+      "propertyId": "prop_1774450633410",
+      "name": "Smoke Owner",
+      "email": "smoke-owner@example.com",
+      "role": "owner",
+      "password": "Password123!",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774450517033",
+      "propertyId": "prop_1774450517033",
+      "name": "QA Owner",
+      "email": "checkout+20260325175516@example.com",
+      "role": "owner",
+      "password": "Password123!",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774450493705",
+      "propertyId": "prop_1774450493705",
+      "name": "QA Owner",
+      "email": "flow+20260325175453@example.com",
+      "role": "owner",
+      "password": "Password123!",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_1774450474955",
+      "propertyId": "prop_1774450474955",
+      "name": "QA Owner",
+      "email": "owner+20260325175434@example.com",
+      "role": "owner",
+      "password": "Password123!",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_owner",
+      "propertyId": "prop_demo_1",
+      "name": "Elena Owner",
+      "email": "owner@demo.hotel",
+      "role": "owner",
+      "password": "owner123",
+      "pin": "1111",
+      "active": true,
+      "azAccessRole": "admin"
+    },
+    {
+      "id": "user_frontdesk",
+      "propertyId": "prop_demo_1",
+      "name": "Maksim Front Desk",
+      "role": "frontdesk",
+      "pin": "2222",
+      "active": true,
+      "azAccessRole": "staff"
+    },
+    {
+      "id": "user_housekeeping",
+      "propertyId": "prop_demo_1",
+      "name": "Olga Housekeeping",
+      "role": "housekeeping",
+      "pin": "3333",
+      "active": true,
+      "azAccessRole": "staff"
+    },
+    {
+      "id": "user_accountant",
+      "propertyId": "prop_demo_1",
+      "name": "Irina Accountant",
+      "role": "accountant",
+      "pin": "4444",
+      "active": true,
+      "azAccessRole": "staff"
+    }
+  ],
+  "authSessions": [
+    {
+      "token": "sess_1774459301442_20ifipe9",
+      "userId": "user_1774459301442",
+      "userName": "111",
+      "propertyId": "prop_1774459301441",
+      "propertyName": "111",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T17:21:41.442Z"
+    },
+    {
+      "token": "sess_1774457591894_1vk7hu9o",
+      "userId": "user_1774457591888_k124",
+      "userName": "Игорь Админ",
+      "propertyId": "prop_1774457591850",
+      "propertyName": "Channel Demo",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:53:11.894Z"
+    },
+    {
+      "token": "sess_1774457591850_6wa7nyu7",
+      "userId": "user_1774457591850",
+      "userName": "Владелец",
+      "propertyId": "prop_1774457591850",
+      "propertyName": "Channel Demo",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:53:11.850Z"
+    },
+    {
+      "token": "sess_1774457208084_ul1bjjfo",
+      "userId": "user_1774457207929_pbi1",
+      "userName": "Анна Админ",
+      "propertyId": "prop_1774457207871",
+      "propertyName": "Reports Demo",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:46:48.084Z"
+    },
+    {
+      "token": "sess_1774457207871_9727eoc5",
+      "userId": "user_1774457207871",
+      "userName": "Владелец",
+      "propertyId": "prop_1774457207871",
+      "propertyName": "Reports Demo",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:46:47.871Z"
+    },
+    {
+      "token": "sess_1774456672012_6gv7has3",
+      "userId": "user_1774456671558_t37w",
+      "userName": "Ольга Смена",
+      "propertyId": "prop_1774456671484",
+      "propertyName": "Today Demo",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "createdAt": "2026-03-25T16:37:52.012Z"
+    },
+    {
+      "token": "sess_1774456671485_h6gg6449",
+      "userId": "user_1774456671485",
+      "userName": "Владелец",
+      "propertyId": "prop_1774456671484",
+      "propertyName": "Today Demo",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:37:51.485Z"
+    },
+    {
+      "token": "sess_1774456347529_j1yo7skh",
+      "userId": "user_1774456347473_dzfa",
+      "userName": "Нина Смена",
+      "propertyId": "prop_1774456347428",
+      "propertyName": "Users Demo 2",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "createdAt": "2026-03-25T16:32:27.529Z"
+    },
+    {
+      "token": "sess_1774456347525_pwqunglm",
+      "userId": "user_1774456347469_kmtm",
+      "userName": "Ольга Смена",
+      "propertyId": "prop_1774456347428",
+      "propertyName": "Users Demo 2",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "createdAt": "2026-03-25T16:32:27.525Z"
+    },
+    {
+      "token": "sess_1774456347478_prw9l5bj",
+      "userId": "user_1774456347464_21ki",
+      "userName": "Мария Админ",
+      "propertyId": "prop_1774456347428",
+      "propertyName": "Users Demo 2",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:32:27.478Z"
+    },
+    {
+      "token": "sess_1774456347428_j6jeprdw",
+      "userId": "user_1774456347428",
+      "userName": "Владелец",
+      "propertyId": "prop_1774456347428",
+      "propertyName": "Users Demo 2",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:32:27.428Z"
+    },
+    {
+      "token": "sess_1774456313171_bri6l486",
+      "userId": "user_1774456312941_99ub",
+      "userName": "Нина Смена",
+      "propertyId": "prop_1774456312898",
+      "propertyName": "Users Demo",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "createdAt": "2026-03-25T16:31:53.171Z"
+    },
+    {
+      "token": "sess_1774456313166_gsph2e9v",
+      "userId": "user_1774456312936_7xse",
+      "userName": "Ольга Смена",
+      "propertyId": "prop_1774456312898",
+      "propertyName": "Users Demo",
+      "role": "housekeeping",
+      "azAccessRole": "staff",
+      "createdAt": "2026-03-25T16:31:53.166Z"
+    },
+    {
+      "token": "sess_1774456312946_jl9lhx9f",
+      "userId": "user_1774456312923_im83",
+      "userName": "Мария Админ",
+      "propertyId": "prop_1774456312898",
+      "propertyName": "Users Demo",
+      "role": "frontdesk",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:31:52.946Z"
+    },
+    {
+      "token": "sess_1774456312898_66w89pub",
+      "userId": "user_1774456312898",
+      "userName": "Владелец",
+      "propertyId": "prop_1774456312898",
+      "propertyName": "Users Demo",
+      "role": "owner",
+      "azAccessRole": "admin",
+      "createdAt": "2026-03-25T16:31:52.898Z"
+    },
+    {
+      "token": "sess_1774455877776_t4mf05ky",
+      "userId": "user_1774455877776",
+      "userName": "Хозяин",
+      "propertyId": "prop_1774455877776",
+      "propertyName": "HK Demo",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:24:37.776Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774455483219_dq2kgr4g",
+      "userId": "user_1774455483219",
+      "userName": "Оператор",
+      "propertyId": "prop_1774455483219",
+      "propertyName": "Frontdesk Demo 2",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:18:03.219Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774455433520_jigtiurv",
+      "userId": "user_1774455433520",
+      "userName": "Оператор",
+      "propertyId": "prop_1774455433520",
+      "propertyName": "Frontdesk Demo",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:17:13.520Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774454708958_i2sl1622",
+      "userId": "user_1774454708958",
+      "userName": "Владелец",
+      "propertyId": "prop_1774454708958",
+      "propertyName": "Az Hotel 2",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:05:08.958Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774454682790_ovxhuslm",
+      "userId": "user_1774454682790",
+      "userName": "Тестовый Владелец",
+      "propertyId": "prop_1774454682790",
+      "propertyName": "AzHotel Demo",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:04:42.790Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774454441469_59ha6zeo",
+      "userId": "user_owner",
+      "userName": "Elena Owner",
+      "propertyId": "prop_demo_1",
+      "propertyName": "Demo Hotel",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:00:41.469Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774454441418_4r9tgi54",
+      "userId": "user_owner",
+      "userName": "Elena Owner",
+      "propertyId": "prop_demo_1",
+      "propertyName": "Demo Hotel",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:00:41.418Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774454441398_vkud658w",
+      "userId": "user_owner",
+      "userName": "Elena Owner",
+      "propertyId": "prop_demo_1",
+      "propertyName": "Demo Hotel",
+      "role": "owner",
+      "createdAt": "2026-03-25T16:00:41.398Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774454054701_48efilwq",
+      "userId": "user_owner",
+      "userName": "Elena Owner",
+      "propertyId": "prop_demo_1",
+      "propertyName": "Demo Hotel",
+      "role": "owner",
+      "createdAt": "2026-03-25T15:54:14.701Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774452897635_oih6q4le",
+      "userId": "user_1774452897635",
+      "userName": "Проверка Регистрации",
+      "propertyId": "prop_1774452897635",
+      "propertyName": "Отель 20260325183457",
+      "role": "owner",
+      "createdAt": "2026-03-25T15:34:57.635Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774452067244_4o37iaat",
+      "userId": "user_1774452067244",
+      "userName": "Анна Петрова",
+      "propertyId": "prop_1774452067244",
+      "propertyName": "Отель 20260325182107",
+      "role": "owner",
+      "createdAt": "2026-03-25T15:21:07.244Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774450633410_l1zp97oo",
+      "userId": "user_1774450633410",
+      "userName": "Smoke Owner",
+      "propertyId": "prop_1774450633410",
+      "propertyName": "Smoke Hotel",
+      "role": "owner",
+      "createdAt": "2026-03-25T14:57:13.410Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774450517034_20tyyvg5",
+      "userId": "user_1774450517033",
+      "userName": "QA Owner",
+      "propertyId": "prop_1774450517033",
+      "propertyName": "QA Checkout 20260325175516",
+      "role": "owner",
+      "createdAt": "2026-03-25T14:55:17.034Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774450493705_bz8utk36",
+      "userId": "user_1774450493705",
+      "userName": "QA Owner",
+      "propertyId": "prop_1774450493705",
+      "propertyName": "QA Flow 20260325175453",
+      "role": "owner",
+      "createdAt": "2026-03-25T14:54:53.705Z",
+      "azAccessRole": "admin"
+    },
+    {
+      "token": "sess_1774450474955_tjhxmgz0",
+      "userId": "user_1774450474955",
+      "userName": "QA Owner",
+      "propertyId": "prop_1774450474955",
+      "propertyName": "QA Hotel 20260325175434",
+      "role": "owner",
+      "createdAt": "2026-03-25T14:54:34.955Z",
+      "azAccessRole": "admin"
+    }
+  ],
+  "reservations": [
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "resv_resv_20260325175516_checkout",
+      "guestName": "Checkout Guest",
+      "roomLabel": "301",
+      "checkInDate": "2026-03-26",
+      "checkOutDate": "2026-03-27",
+      "status": "checked_out",
+      "balanceDue": 0
+    },
+    {
+      "propertyId": "prop_1774450493705",
+      "id": "resv_resv_20260325175453_001",
+      "guestName": "Test Guest",
+      "roomLabel": "201",
+      "checkInDate": "2026-03-26",
+      "checkOutDate": "2026-03-28",
+      "status": "confirmed",
+      "balanceDue": 900
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "resv_demo_1",
+      "guestName": "Anna Petrova",
+      "roomLabel": "203",
+      "checkInDate": "2026-03-25",
+      "checkOutDate": "2026-03-28",
+      "status": "confirmed",
+      "balanceDue": 4500
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "resv_demo_2",
+      "guestName": "Sergey Ivanov",
+      "roomLabel": "UNASSIGNED",
+      "checkInDate": "2026-03-26",
+      "checkOutDate": "2026-03-29",
+      "status": "draft",
+      "balanceDue": 9600
+    }
+  ],
+  "rooms": [
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "room_301",
+      "number": "301",
+      "roomType": "Deluxe",
+      "status": "dirty",
+      "housekeepingNote": "Requires cleaning",
+      "nextAction": "Send to housekeeping queue",
+      "occupancyLabel": "Free tonight",
+      "priority": "normal"
+    },
+    {
+      "propertyId": "prop_1774450493705",
+      "id": "room_201",
+      "number": "201",
+      "roomType": "Standard",
+      "status": "reserved",
+      "housekeepingNote": "Reserved for upcoming guest",
+      "nextAction": "Protect from reassignment",
+      "occupancyLabel": "Free tonight",
+      "priority": "normal"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "room_101",
+      "number": "101",
+      "roomType": "Standard",
+      "status": "available",
+      "housekeepingNote": "Ready for check-in",
+      "nextAction": "Keep open for arrivals",
+      "occupancyLabel": "Free tonight",
+      "priority": "normal"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "room_118",
+      "number": "118",
+      "roomType": "Standard",
+      "status": "inspected",
+      "housekeepingNote": "Awaiting release after inspection",
+      "nextAction": "Approve room to available",
+      "occupancyLabel": "Inspection passed",
+      "priority": "normal"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "room_203",
+      "number": "203",
+      "roomType": "Double",
+      "status": "dirty",
+      "housekeepingNote": "Checkout completed, cleaner needed",
+      "nextAction": "Start cleaning before 13:30 arrival",
+      "occupancyLabel": "Arrival due today",
+      "priority": "arrival_soon"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "room_305",
+      "number": "305",
+      "roomType": "Family",
+      "status": "blocked_maintenance",
+      "housekeepingNote": "Bathroom leak reported",
+      "nextAction": "Keep blocked until inspection",
+      "occupancyLabel": "Unavailable",
+      "priority": "blocked"
+    }
+  ],
+  "housekeepingTasks": [
+    {
+      "propertyId": "prop_demo_1",
+      "id": "task_203_checkout",
+      "roomId": "room_203",
+      "roomNumber": "203",
+      "priority": "urgent",
+      "status": "queued",
+      "taskType": "checkout_clean",
+      "note": "Arrival due at 13:30",
+      "dueLabel": "Due before 13:00"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "task_118_inspection",
+      "roomId": "room_118",
+      "roomNumber": "118",
+      "priority": "normal",
+      "status": "in_progress",
+      "taskType": "inspection",
+      "note": "Cleaner reported minibar issue",
+      "dueLabel": "Inspect this shift"
+    }
+  ],
+  "folios": [
+    {
+      "propertyId": "prop_1774450517033",
+      "reservationId": "resv_resv_20260325175516_checkout",
+      "guestName": "Checkout Guest",
+      "totalAmount": 500,
+      "paidAmount": 500,
+      "balanceDue": 0,
+      "status": "paid",
+      "charges": [
+        {
+          "id": "charge_charge_20260325175516_checkout",
+          "reservationId": "resv_resv_20260325175516_checkout",
+          "guestName": "Checkout Guest",
+          "type": "parking",
+          "description": "Parking",
+          "amount": 500,
+          "postedAt": "2026-03-25T14:55:17.134Z"
+        }
+      ],
+      "payments": [
+        {
+          "id": "pay_pay_20260325175516_checkout",
+          "reservationId": "resv_resv_20260325175516_checkout",
+          "guestName": "Checkout Guest",
+          "amount": 500,
+          "method": "card",
+          "receivedAt": "2026-03-25T14:55:17.172Z",
+          "note": "Settle parking"
+        }
+      ]
+    },
+    {
+      "propertyId": "prop_1774450493705",
+      "reservationId": "resv_resv_20260325175453_001",
+      "guestName": "Test Guest",
+      "totalAmount": 900,
+      "paidAmount": 0,
+      "balanceDue": 900,
+      "status": "unpaid",
+      "charges": [
+        {
+          "id": "charge_charge_20260325175453_001",
+          "reservationId": "resv_resv_20260325175453_001",
+          "guestName": "Test Guest",
+          "type": "breakfast",
+          "description": "Breakfast for 2",
+          "amount": 900,
+          "postedAt": "2026-03-25T14:54:53.771Z"
+        }
+      ],
+      "payments": []
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "reservationId": "resv_demo_1",
+      "guestName": "Anna Petrova",
+      "totalAmount": 12000,
+      "paidAmount": 7500,
+      "balanceDue": 4500,
+      "status": "partially_paid",
+      "charges": [
+        {
+          "id": "charge_room_resv_demo_1",
+          "reservationId": "resv_demo_1",
+          "guestName": "Anna Petrova",
+          "type": "room",
+          "description": "Room charge",
+          "amount": 12000,
+          "postedAt": "2026-03-25T08:00:00.000Z"
+        }
+      ],
+      "payments": []
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "reservationId": "resv_demo_2",
+      "guestName": "Sergey Ivanov",
+      "totalAmount": 9600,
+      "paidAmount": 0,
+      "balanceDue": 9600,
+      "status": "unpaid",
+      "charges": [
+        {
+          "id": "charge_room_resv_demo_2",
+          "reservationId": "resv_demo_2",
+          "guestName": "Sergey Ivanov",
+          "type": "room",
+          "description": "Room charge",
+          "amount": 9600,
+          "postedAt": "2026-03-25T08:00:00.000Z"
+        }
+      ],
+      "payments": []
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay_pay_20260325175516_checkout",
+      "reservationId": "resv_resv_20260325175516_checkout",
+      "guestName": "Checkout Guest",
+      "amount": 500,
+      "method": "card",
+      "receivedAt": "2026-03-25T14:55:17.172Z",
+      "note": "Settle parking",
+      "propertyId": "prop_1774450517033"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "pay_demo_1",
+      "reservationId": "resv_demo_1",
+      "guestName": "Anna Petrova",
+      "amount": 7500,
+      "method": "card",
+      "receivedAt": "2026-03-25T09:00:00.000Z",
+      "note": "Deposit at arrival"
+    }
+  ],
+  "stays": [
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "stay_1774450517129",
+      "reservationId": "resv_resv_20260325175516_checkout",
+      "roomId": "room_301",
+      "roomLabel": "301",
+      "guestName": "Checkout Guest",
+      "status": "checked_out",
+      "checkedInAt": "2026-03-25T14:55:17.129Z",
+      "checkedOutAt": "2026-03-25T14:55:17.177Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "audit_1774450517178_8",
+      "createdAt": "2026-03-25T14:55:17.178Z",
+      "entityType": "stay",
+      "entityId": "resv_resv_20260325175516_checkout",
+      "action": "checked_out",
+      "reason": "Guest checked out"
+    },
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "audit_1774450517130_7",
+      "createdAt": "2026-03-25T14:55:17.130Z",
+      "entityType": "stay",
+      "entityId": "resv_resv_20260325175516_checkout",
+      "action": "checked_in",
+      "reason": "Guest checked in"
+    },
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "audit_1774450517123_6",
+      "createdAt": "2026-03-25T14:55:17.123Z",
+      "entityType": "reservation",
+      "entityId": "resv_resv_20260325175516_checkout",
+      "action": "room_reassigned",
+      "reason": "Room changed to 301"
+    },
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "audit_1774450517115_5",
+      "createdAt": "2026-03-25T14:55:17.115Z",
+      "entityType": "reservation",
+      "entityId": "resv_resv_20260325175516_checkout",
+      "action": "reservation_confirmed",
+      "reason": "Manual confirmation"
+    },
+    {
+      "propertyId": "prop_1774450517033",
+      "id": "audit_1774450517109_4",
+      "createdAt": "2026-03-25T14:55:17.109Z",
+      "entityType": "reservation",
+      "entityId": "resv_resv_20260325175516_checkout",
+      "action": "reservation_created",
+      "reason": "Created from quick reservation flow"
+    },
+    {
+      "propertyId": "prop_1774450493705",
+      "id": "audit_1774450493764_3",
+      "createdAt": "2026-03-25T14:54:53.764Z",
+      "entityType": "reservation",
+      "entityId": "resv_resv_20260325175453_001",
+      "action": "room_reassigned",
+      "reason": "Room changed to 201"
+    },
+    {
+      "propertyId": "prop_1774450493705",
+      "id": "audit_1774450493757_2",
+      "createdAt": "2026-03-25T14:54:53.757Z",
+      "entityType": "reservation",
+      "entityId": "resv_resv_20260325175453_001",
+      "action": "reservation_confirmed",
+      "reason": "Manual confirmation"
+    },
+    {
+      "propertyId": "prop_1774450493705",
+      "id": "audit_1774450493750_1",
+      "createdAt": "2026-03-25T14:54:53.750Z",
+      "entityType": "reservation",
+      "entityId": "resv_resv_20260325175453_001",
+      "action": "reservation_created",
+      "reason": "Created from quick reservation flow"
+    }
+  ],
+  "syncQueue": [
+    {
+      "propertyId": "prop_demo_1",
+      "id": "sync_1",
+      "entityType": "reservation",
+      "entityId": "resv_demo_2",
+      "operation": "create",
+      "action": "create_reservation",
+      "payloadJson": "{\"idempotencyKey\":\"demo_2\"}",
+      "localVersion": 1,
+      "status": "queued",
+      "summary": "Reservation for Sergey Ivanov waiting for upload",
+      "lastAttemptLabel": "Not sent yet",
+      "retryCount": 0
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "sync_2",
+      "entityType": "room",
+      "entityId": "room_203",
+      "operation": "update",
+      "action": "update_room_status",
+      "payloadJson": "{\"status\":\"dirty\"}",
+      "localVersion": 4,
+      "status": "failed_conflict",
+      "summary": "Room 203 marked dirty locally",
+      "lastAttemptLabel": "Conflict detected 2 min ago",
+      "retryCount": 1
+    }
+  ],
+  "syncConflicts": [
+    {
+      "propertyId": "prop_demo_1",
+      "id": "conflict_room_203",
+      "entityType": "room",
+      "entityId": "room_203",
+      "localSummary": "Local device says room is dirty after checkout",
+      "serverSummary": "Server says room is already cleaning by another user",
+      "recommendedAction": "Keep server state and re-open cleaning task"
+    }
+  ],
+  "assistantItems": [],
+  "azRooms": [
+    {
+      "propertyId": "prop_1774457591850",
+      "id": "az_room_1774457591901_pghi",
+      "type": "standard",
+      "number": "CM-1",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 3500
+        }
+      ],
+      "status": "clean"
+    },
+    {
+      "propertyId": "prop_1774457207871",
+      "id": "az_room_1774457207990_etil",
+      "type": "double",
+      "number": "R-2",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 5000
+        }
+      ],
+      "status": "clean"
+    },
+    {
+      "propertyId": "prop_1774457207871",
+      "id": "az_room_1774457207957_b6j2",
+      "type": "standard",
+      "number": "R-1",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 3000
+        }
+      ],
+      "status": "clean"
+    },
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_room_1774456671683_1yg8",
+      "type": "double",
+      "number": "TD-2",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 4500
+        }
+      ],
+      "status": "clean"
+    },
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_room_1774456671642_x57g",
+      "type": "standard",
+      "number": "TD-1",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 3000
+        }
+      ],
+      "status": "dirty"
+    },
+    {
+      "propertyId": "prop_1774456347428",
+      "id": "az_room_1774456347485_jsx3",
+      "type": "standard",
+      "number": "U-2",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 3000
+        }
+      ],
+      "status": "dirty"
+    },
+    {
+      "propertyId": "prop_1774455877776",
+      "id": "az_room_1774455877817_8toi",
+      "type": "standard",
+      "number": "HK-1",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 3000
+        }
+      ],
+      "status": "clean"
+    },
+    {
+      "propertyId": "prop_1774455483219",
+      "id": "az_room_1774455483270_kew5",
+      "type": "double",
+      "number": "D-201",
+      "priceRules": [
+        {
+          "id": "base",
+          "title": "База",
+          "daysOfWeek": [],
+          "multiplier": 1,
+          "fixedPrice": 4000
+        }
+      ],
+      "status": "dirty"
+    },
+    {
+      "propertyId": "prop_1774455433520",
+      "id": "az_room_1774455433595_w45u",
+      "type": "standard",
+      "number": "C-101",
+      "priceRules": [
+        {
+          "id": "weekday",
+          "title": "Будни",
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "multiplier": 1,
+          "fixedPrice": 3200
+        },
+        {
+          "id": "weekend",
+          "title": "Выходные",
+          "daysOfWeek": [
+            5,
+            6,
+            0
+          ],
+          "multiplier": 1,
+          "fixedPrice": 3800
+        }
+      ],
+      "status": "dirty"
+    },
+    {
+      "propertyId": "prop_1774454708958",
+      "id": "az_room_1774454709016_u527",
+      "type": "standard",
+      "number": "B-101",
+      "priceRules": [
+        {
+          "id": "rule_base",
+          "title": "База",
+          "daysOfWeek": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "multiplier": 1,
+          "fixedPrice": 2500
+        }
+      ],
+      "status": "available"
+    },
+    {
+      "propertyId": "prop_1774454682790",
+      "id": "az_room_1774454682861_7n7v",
+      "type": "standard",
+      "number": "A-101",
+      "priceRules": [
+        {
+          "id": "rule_weekday",
+          "title": "Базовый тариф",
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            0
+          ],
+          "multiplier": 1,
+          "fixedPrice": 3200
+        }
+      ],
+      "status": "available"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_room_101",
+      "type": "standard",
+      "number": "101",
+      "priceRules": [
+        {
+          "id": "weekday_standard",
+          "title": "Будний день",
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "multiplier": 1
+        },
+        {
+          "id": "weekend_standard",
+          "title": "Выходной день",
+          "daysOfWeek": [
+            5,
+            6
+          ],
+          "multiplier": 1.15
+        }
+      ],
+      "status": "clean"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_room_203",
+      "type": "double",
+      "number": "203",
+      "priceRules": [
+        {
+          "id": "base_double",
+          "title": "Базовый тариф",
+          "daysOfWeek": [],
+          "multiplier": 1
+        }
+      ],
+      "status": "dirty"
+    }
+  ],
+  "azBookings": [
+    {
+      "propertyId": "prop_1774457207871",
+      "id": "az_booking_1774457208060_qjkj",
+      "guestId": "az_guest_1774457208060_rle3",
+      "roomId": "az_room_1774457207990_etil",
+      "dates": {
+        "checkIn": "2026-03-02",
+        "checkOut": "2026-03-04"
+      },
+      "status": "checked_out",
+      "services": [],
+      "total": 10000,
+      "channel": "ota"
+    },
+    {
+      "propertyId": "prop_1774457207871",
+      "id": "az_booking_1774457208017_9r5a",
+      "guestId": "az_guest_1774457208018_2f2u",
+      "roomId": "az_room_1774457207957_b6j2",
+      "dates": {
+        "checkIn": "2026-03-01",
+        "checkOut": "2026-03-03"
+      },
+      "status": "checked_out",
+      "services": [],
+      "total": 6000,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_booking_1774456671761_0spo",
+      "guestId": "az_guest_1774456671761_d895",
+      "roomId": "az_room_1774456671683_1yg8",
+      "dates": {
+        "checkIn": "2026-03-25",
+        "checkOut": "2026-03-25"
+      },
+      "status": "checked_in",
+      "services": [],
+      "total": 0,
+      "channel": "walk_in"
+    },
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_booking_1774456671733_igtt",
+      "guestId": "az_guest_1774456671734_1fy7",
+      "roomId": "az_room_1774456671642_x57g",
+      "dates": {
+        "checkIn": "2026-03-25",
+        "checkOut": "2026-03-26"
+      },
+      "status": "checked_out",
+      "services": [],
+      "total": 3000,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_1774456347428",
+      "id": "az_booking_1774456347490_8yqj",
+      "guestId": "az_guest_1774456347490_mmea",
+      "roomId": "az_room_1774456347485_jsx3",
+      "dates": {
+        "checkIn": "2026-04-12",
+        "checkOut": "2026-04-13"
+      },
+      "status": "checked_out",
+      "services": [],
+      "total": 3000,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_1774455877776",
+      "id": "az_booking_1774455877824_fq2c",
+      "guestId": "az_guest_1774455877824_e66l",
+      "roomId": "az_room_1774455877817_8toi",
+      "dates": {
+        "checkIn": "2026-04-10",
+        "checkOut": "2026-04-11"
+      },
+      "status": "checked_out",
+      "services": [],
+      "total": 3000,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_1774455483219",
+      "id": "az_booking_1774455483279_osvh",
+      "guestId": "az_guest_1774455483279_om99",
+      "roomId": "az_room_1774455483270_kew5",
+      "dates": {
+        "checkIn": "2026-04-06",
+        "checkOut": "2026-04-08"
+      },
+      "status": "checked_out",
+      "services": [],
+      "total": 8000,
+      "channel": "walk_in"
+    },
+    {
+      "propertyId": "prop_1774455433520",
+      "id": "az_booking_1774455433605_o497",
+      "guestId": "az_guest_1774455433606_58a1",
+      "roomId": "az_room_1774455433595_w45u",
+      "dates": {
+        "checkIn": "2026-04-03",
+        "checkOut": "2026-04-05"
+      },
+      "status": "checked_out",
+      "services": [
+        {
+          "id": "svc_breakfast",
+          "name": "Завтрак",
+          "quantity": 2,
+          "price": 450,
+          "total": 900
+        },
+        {
+          "id": "svc_late",
+          "name": "Поздний выезд",
+          "quantity": 1,
+          "price": 1000,
+          "total": 1000
+        }
+      ],
+      "total": 9500,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_1774454708958",
+      "id": "az_booking_1774454709035_g5q5",
+      "guestId": "az_guest_1774454709035_5fyq",
+      "roomId": "az_room_1774454709016_u527",
+      "dates": {
+        "checkIn": "2026-05-01",
+        "checkOut": "2026-05-03"
+      },
+      "status": "confirmed",
+      "services": [],
+      "total": 5000,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_1774454682790",
+      "id": "az_booking_1774454682882_onx4",
+      "guestId": "az_guest_1774454682882_kj76",
+      "roomId": "az_room_1774454682861_7n7v",
+      "dates": {
+        "checkIn": "2026-04-01",
+        "checkOut": "2026-04-03"
+      },
+      "status": "confirmed",
+      "services": [],
+      "total": 6400,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_booking_1774454441437_oflj",
+      "guestId": "az_guest_1774454441437_nolx",
+      "roomId": "az_room_101",
+      "dates": {
+        "checkIn": "2026-04-03",
+        "checkOut": "2026-04-05"
+      },
+      "status": "confirmed",
+      "services": [],
+      "total": 5000,
+      "channel": "ota"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_booking_demo_anna",
+      "guestId": "az_guest_demo_anna",
+      "roomId": "az_room_203",
+      "dates": {
+        "checkIn": "2026-03-25",
+        "checkOut": "2026-03-28"
+      },
+      "status": "confirmed",
+      "services": [
+        {
+          "id": "az_service_breakfast_anna",
+          "name": "Завтрак",
+          "quantity": 2,
+          "price": 450,
+          "total": 900
+        }
+      ],
+      "total": 12900,
+      "channel": "phone"
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_booking_demo_sergey",
+      "guestId": "az_guest_demo_sergey",
+      "roomId": "az_room_101",
+      "dates": {
+        "checkIn": "2026-03-26",
+        "checkOut": "2026-03-29"
+      },
+      "status": "draft",
+      "services": [],
+      "total": 9600,
+      "channel": "whatsapp"
+    }
+  ],
+  "azGuests": [
+    {
+      "propertyId": "prop_1774457207871",
+      "id": "az_guest_1774457208060_rle3",
+      "name": "Мария",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774457208060_qjkj"
+      ]
+    },
+    {
+      "propertyId": "prop_1774457207871",
+      "id": "az_guest_1774457208018_2f2u",
+      "name": "Иван",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774457208017_9r5a"
+      ]
+    },
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_guest_1774456671761_d895",
+      "name": "Борис",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774456671761_0spo"
+      ]
+    },
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_guest_1774456671734_1fy7",
+      "name": "Анна",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774456671733_igtt"
+      ]
+    },
+    {
+      "propertyId": "prop_1774456347428",
+      "id": "az_guest_1774456347490_mmea",
+      "name": "Гость",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774456347490_8yqj"
+      ]
+    },
+    {
+      "propertyId": "prop_1774455877776",
+      "id": "az_guest_1774455877824_e66l",
+      "name": "Гость",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774455877824_fq2c"
+      ]
+    },
+    {
+      "propertyId": "prop_1774455483219",
+      "id": "az_guest_1774455483279_om99",
+      "name": "Павел Орлов",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774455483279_osvh"
+      ]
+    },
+    {
+      "propertyId": "prop_1774455433520",
+      "id": "az_guest_1774455433606_58a1",
+      "name": "Ирина Соколова",
+      "contact": {
+        "phone": "+79991112233",
+        "email": "irina@example.com"
+      },
+      "history": [
+        "az_booking_1774455433605_o497"
+      ]
+    },
+    {
+      "propertyId": "prop_1774454708958",
+      "id": "az_guest_1774454709035_5fyq",
+      "name": "Первый Гость",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774454709035_g5q5"
+      ]
+    },
+    {
+      "propertyId": "prop_1774454682790",
+      "id": "az_guest_1774454682882_kj76",
+      "name": "Иван Петров",
+      "contact": {
+        "phone": "+79990000000",
+        "email": "ivan@example.com"
+      },
+      "history": [
+        "az_booking_1774454682882_onx4"
+      ]
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_guest_1774454441437_nolx",
+      "name": "Конфликтный Гость",
+      "contact": {
+        "phone": "",
+        "email": ""
+      },
+      "history": [
+        "az_booking_1774454441437_oflj"
+      ]
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_guest_demo_anna",
+      "name": "Anna Petrova",
+      "contact": {
+        "phone": "+79990000001",
+        "email": "anna@example.com"
+      },
+      "history": [
+        "az_booking_demo_anna"
+      ]
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_guest_demo_sergey",
+      "name": "Sergey Ivanov",
+      "contact": {
+        "phone": "+79990000002",
+        "email": "sergey@example.com"
+      },
+      "history": [
+        "az_booking_demo_sergey"
+      ]
+    }
+  ],
+  "azHousekeepingTasks": [
+    {
+      "propertyId": "prop_1774456671484",
+      "id": "az_hk_az_room_1774456671642_x57g_1774456671832",
+      "roomId": "az_room_1774456671642_x57g",
+      "date": "2026-03-25",
+      "status": "in_progress",
+      "assignee": "Ольга Смена"
+    },
+    {
+      "propertyId": "prop_1774456347428",
+      "id": "az_hk_az_room_1774456347485_jsx3_1774456347502",
+      "roomId": "az_room_1774456347485_jsx3",
+      "date": "2026-03-25",
+      "status": "queued",
+      "assignee": "Ольга Смена"
+    },
+    {
+      "propertyId": "prop_1774455877776",
+      "id": "az_hk_az_room_1774455877817_8toi_1774455877840",
+      "roomId": "az_room_1774455877817_8toi",
+      "date": "2026-03-25",
+      "status": "done",
+      "assignee": "Ольга Уборка"
+    },
+    {
+      "propertyId": "prop_1774455483219",
+      "id": "az_hk_az_room_1774455483270_kew5_1774455483300",
+      "roomId": "az_room_1774455483270_kew5",
+      "date": "2026-03-25",
+      "status": "queued",
+      "assignee": ""
+    },
+    {
+      "propertyId": "prop_1774455433520",
+      "id": "az_hk_az_room_1774455433595_w45u_1774455433641",
+      "roomId": "az_room_1774455433595_w45u",
+      "date": "2026-03-25",
+      "status": "queued",
+      "assignee": ""
+    },
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_hk_203_20260325",
+      "roomId": "az_room_203",
+      "date": "2026-03-25",
+      "status": "queued",
+      "assignee": "Olga Housekeeping"
+    }
+  ],
+  "azReportData": [
+    {
+      "propertyId": "prop_demo_1",
+      "id": "az_report_20260325",
+      "date": "2026-03-25",
+      "occupancyRate": 50,
+      "revenue": 12900,
+      "bookings": 2,
+      "adr": 6450,
+      "channels": [
+        {
+          "channel": "phone",
+          "bookings": 1,
+          "revenue": 12900
+        },
+        {
+          "channel": "whatsapp",
+          "bookings": 1,
+          "revenue": 9600
+        }
+      ]
+    }
+  ],
+  "azChannelSyncRecords": [
+    {
+      "propertyId": "prop_1774457591850",
+      "id": "az_channel_prices_1774457591914_91n9",
+      "roomId": "az_room_1774457591901_pghi",
+      "channel": "ostrovok",
+      "action": "prices",
+      "status": "success",
+      "syncedAt": "2026-03-25T16:53:11.914Z",
+      "message": "Цена обновлена в mock OTA"
+    },
+    {
+      "propertyId": "prop_1774457591850",
+      "id": "az_channel_inventory_1774457591909_uvpq",
+      "roomId": "az_room_1774457591901_pghi",
+      "channel": "booking_com",
+      "action": "inventory",
+      "status": "success",
+      "syncedAt": "2026-03-25T16:53:11.909Z",
+      "message": "Инвентарь обновлён в mock OTA"
+    }
+  ]
+}
