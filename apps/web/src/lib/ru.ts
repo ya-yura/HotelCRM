@@ -239,8 +239,12 @@ export function paymentLinkStatusLabel(status: PaymentLink["status"]) {
 
 export function reservationSourceLabel(source: ReservationCreate["source"]) {
   switch (source) {
+    case "direct":
+      return "Прямое бронирование";
     case "phone":
       return "Телефон";
+    case "partner":
+      return "Партнёр";
     case "walk_in":
       return "С улицы";
     case "whatsapp":

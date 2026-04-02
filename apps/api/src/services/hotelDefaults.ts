@@ -6,7 +6,7 @@ import { propertySummarySchema, type PropertySummary, type PropertyType } from "
 import { createPinHint, hashSecret } from "../lib/credentials";
 import type { PropertyScoped, HotelData } from "./hotelDataTypes";
 
-export const schemaVersion = 6;
+export const schemaVersion = 7;
 export const demoPropertyId = "prop_demo_1";
 export const hostelPropertyId = "prop_hostel_1";
 export const glampPropertyId = "prop_glamp_1";
@@ -202,10 +202,10 @@ export const defaultData: HotelData = {
     { propertyId: glampPropertyId, id: "guest_glamp_maria", fullName: "Maria Volkova", phone: "+79992222222", email: "maria@example.com", birthDate: "", notes: "Needs late arrival instructions", preferences: ["late_arrival"], stayHistory: ["resv_glamp_1"], mergedGuestIds: [], mergedIntoGuestId: null }
   ],
   reservations: [
-    { propertyId: demoPropertyId, id: "resv_demo_1", guestId: "guest_demo_anna", guestName: "Anna Petrova", guestPhone: "+79990000001", guestEmail: "anna@example.com", roomLabel: "203", roomTypeId: "double", checkInDate: "2026-03-25", checkOutDate: "2026-03-28", status: "confirmed", source: "phone", totalAmount: 12000, paidAmount: 7500, balanceDue: 4500, notes: "Prefers quiet room", createdAt: "2026-03-20T09:00:00.000Z", updatedAt: "2026-03-25T09:00:00.000Z" },
-    { propertyId: demoPropertyId, id: "resv_demo_2", guestName: "Sergey Ivanov", roomLabel: "UNASSIGNED", roomTypeId: "family", checkInDate: "2026-03-26", checkOutDate: "2026-03-29", status: "draft", source: "whatsapp", totalAmount: 9600, paidAmount: 0, balanceDue: 9600, depositRequired: 3000, notes: "Family arriving after lunch", createdAt: "2026-03-24T11:15:00.000Z", updatedAt: "2026-03-24T11:15:00.000Z" },
-    { propertyId: hostelPropertyId, id: "resv_hostel_1", guestId: "guest_hostel_oleg", guestName: "Oleg Sidorov", guestPhone: "+79991111111", roomLabel: "B-12", roomTypeId: "dorm", checkInDate: "2026-03-27", checkOutDate: "2026-03-30", status: "confirmed", source: "walk_in", totalAmount: 2100, paidAmount: 0, balanceDue: 2100, createdAt: "2026-03-26T18:00:00.000Z", updatedAt: "2026-03-26T18:00:00.000Z" },
-    { propertyId: glampPropertyId, id: "resv_glamp_1", guestId: "guest_glamp_maria", guestName: "Maria Volkova", guestPhone: "+79992222222", guestEmail: "maria@example.com", roomLabel: "A-Frame 2", roomTypeId: "a-frame", checkInDate: "2026-03-28", checkOutDate: "2026-03-31", status: "pending_confirmation", source: "ota", totalAmount: 7200, paidAmount: 3000, balanceDue: 4200, notes: "Needs heater check", createdAt: "2026-03-23T13:40:00.000Z", updatedAt: "2026-03-26T12:00:00.000Z" }
+    { propertyId: demoPropertyId, id: "resv_demo_1", guestId: "guest_demo_anna", guestName: "Anna Petrova", guestPhone: "+79990000001", guestEmail: "anna@example.com", roomLabel: "203", roomTypeId: "double", checkInDate: "2026-03-25", checkOutDate: "2026-03-28", status: "confirmed", source: "phone", sourceAttribution: { channel: "", externalBookingId: "", externalRoomTypeId: "", externalRatePlanId: "", partnerName: "", campaignCode: "", commissionRate: 0 }, totalAmount: 12000, paidAmount: 7500, balanceDue: 4500, notes: "Prefers quiet room", createdAt: "2026-03-20T09:00:00.000Z", updatedAt: "2026-03-25T09:00:00.000Z" },
+    { propertyId: demoPropertyId, id: "resv_demo_2", guestName: "Sergey Ivanov", roomLabel: "UNASSIGNED", roomTypeId: "family", checkInDate: "2026-03-26", checkOutDate: "2026-03-29", status: "draft", source: "whatsapp", sourceAttribution: { channel: "", externalBookingId: "", externalRoomTypeId: "", externalRatePlanId: "", partnerName: "", campaignCode: "spring-family", commissionRate: 0 }, totalAmount: 9600, paidAmount: 0, balanceDue: 9600, depositRequired: 3000, notes: "Family arriving after lunch", createdAt: "2026-03-24T11:15:00.000Z", updatedAt: "2026-03-24T11:15:00.000Z" },
+    { propertyId: hostelPropertyId, id: "resv_hostel_1", guestId: "guest_hostel_oleg", guestName: "Oleg Sidorov", guestPhone: "+79991111111", roomLabel: "B-12", roomTypeId: "dorm", checkInDate: "2026-03-27", checkOutDate: "2026-03-30", status: "confirmed", source: "walk_in", sourceAttribution: { channel: "", externalBookingId: "", externalRoomTypeId: "", externalRatePlanId: "", partnerName: "", campaignCode: "", commissionRate: 0 }, totalAmount: 2100, paidAmount: 0, balanceDue: 2100, createdAt: "2026-03-26T18:00:00.000Z", updatedAt: "2026-03-26T18:00:00.000Z" },
+    { propertyId: glampPropertyId, id: "resv_glamp_1", guestId: "guest_glamp_maria", guestName: "Maria Volkova", guestPhone: "+79992222222", guestEmail: "maria@example.com", roomLabel: "A-Frame 2", roomTypeId: "a-frame", checkInDate: "2026-03-28", checkOutDate: "2026-03-31", status: "pending_confirmation", source: "ota", sourceAttribution: { channel: "ostrovok", externalBookingId: "ost_48151", externalRoomTypeId: "afr_2", externalRatePlanId: "flex_01", partnerName: "", campaignCode: "", commissionRate: 0.18 }, totalAmount: 7200, paidAmount: 3000, balanceDue: 4200, notes: "Needs heater check", createdAt: "2026-03-23T13:40:00.000Z", updatedAt: "2026-03-26T12:00:00.000Z" }
   ],
   rooms: [
     { propertyId: demoPropertyId, id: "room_101", number: "101", roomType: "Standard", unitKind: "room", status: "available", readiness: "clean", readinessLabel: "Готов", housekeepingNote: "Ready for check-in", nextAction: "Keep open for arrivals", occupancyLabel: "Free tonight", priority: "normal", floor: "1", zone: "Main", occupancyLimit: 2, amenities: ["wifi", "desk", "shower"], minibarEnabled: false, lastCleanedAt: "2026-03-25T09:10:00.000Z", nextArrivalLabel: "", outOfOrderReason: "", activeMaintenanceIncidentId: null, glampingMetadata: null },
@@ -255,7 +255,31 @@ export const defaultData: HotelData = {
   azGuests: azSeeds.flatMap((seed) => seed.guests),
   azHousekeepingTasks: azSeeds.flatMap((seed) => seed.housekeepingTasks),
   azReportData: azSeeds.flatMap((seed) => seed.reportData),
-  azChannelSyncRecords: []
+  azChannelSyncRecords: [],
+  azChannelAccounts: [
+    { propertyId: demoPropertyId, id: "acct_booking_demo", channel: "booking_com", title: "Booking.com Moscow", status: "sandbox", credentialsMask: "book-demo-***", pullBookingsEnabled: true, pushInventoryEnabled: true, pushRatesEnabled: true, defaultCommissionRate: 0.17, lastSuccessfulSyncAt: "2026-03-27T08:10:00.000Z", lastError: "" },
+    { propertyId: demoPropertyId, id: "acct_ostrovok_demo", channel: "ostrovok", title: "Ostrovok Demo", status: "connected", credentialsMask: "ostr-demo-***", pullBookingsEnabled: true, pushInventoryEnabled: true, pushRatesEnabled: true, defaultCommissionRate: 0.15, lastSuccessfulSyncAt: "2026-03-27T08:15:00.000Z", lastError: "" },
+    { propertyId: glampPropertyId, id: "acct_yandex_glamp", channel: "yandex_travel", title: "Yandex Travel Glamp", status: "sandbox", credentialsMask: "ya-glamp-***", pullBookingsEnabled: true, pushInventoryEnabled: true, pushRatesEnabled: true, defaultCommissionRate: 0.14, lastSuccessfulSyncAt: null, lastError: "" }
+  ],
+  azRoomTypeMappings: [
+    { propertyId: demoPropertyId, id: "map_booking_double", channel: "booking_com", roomTypeId: "double", roomTypeLabel: "Double", unitCount: 1, externalRoomTypeId: "dbl_std", externalRoomTypeName: "Double Standard", syncEnabled: true },
+    { propertyId: demoPropertyId, id: "map_ostrovok_family", channel: "ostrovok", roomTypeId: "family", roomTypeLabel: "Family", unitCount: 1, externalRoomTypeId: "family_suite", externalRoomTypeName: "Family Suite", syncEnabled: true },
+    { propertyId: glampPropertyId, id: "map_yandex_aframe", channel: "yandex_travel", roomTypeId: "a-frame", roomTypeLabel: "A-Frame", unitCount: 2, externalRoomTypeId: "aframe_glamp", externalRoomTypeName: "A-Frame Cabin", syncEnabled: true }
+  ],
+  azRatePlanMappings: [
+    { propertyId: demoPropertyId, id: "rate_booking_double", channel: "booking_com", roomTypeId: "double", ratePlanCode: "direct-flex", ratePlanName: "Flexible", mealPlan: "room_only", cancellationPolicy: "Free until 24h before arrival", externalRatePlanId: "flex_01", syncEnabled: true, baseRate: 4300 },
+    { propertyId: demoPropertyId, id: "rate_ostrovok_family", channel: "ostrovok", roomTypeId: "family", ratePlanCode: "family-flex", ratePlanName: "Family Flexible", mealPlan: "breakfast", cancellationPolicy: "Free until 48h before arrival", externalRatePlanId: "family_02", syncEnabled: true, baseRate: 4800 },
+    { propertyId: glampPropertyId, id: "rate_yandex_aframe", channel: "yandex_travel", roomTypeId: "a-frame", ratePlanCode: "glamp-direct", ratePlanName: "Glamp Flexible", mealPlan: "breakfast_basket", cancellationPolicy: "Non-refundable after payment", externalRatePlanId: "glamp_01", syncEnabled: true, baseRate: 3600 }
+  ],
+  azChannelSyncTasks: [
+    { propertyId: demoPropertyId, id: "task_channel_inventory_1", channel: "booking_com", action: "inventory", scope: "all", roomTypeId: null, reservationId: null, status: "success", queuedAt: "2026-03-27T08:00:00.000Z", startedAt: "2026-03-27T08:00:10.000Z", finishedAt: "2026-03-27T08:00:15.000Z", processedItems: 3, message: "Night audit inventory push completed", correlationId: "chan_inv_1" },
+    { propertyId: demoPropertyId, id: "task_channel_booking_pull", channel: "ostrovok", action: "bookings", scope: "all", roomTypeId: null, reservationId: null, status: "queued", queuedAt: "2026-03-27T08:20:00.000Z", startedAt: null, finishedAt: null, processedItems: 0, message: "Waiting to ingest OTA bookings", correlationId: "chan_pull_1" }
+  ],
+  azChannelMessageLogs: [
+    { propertyId: demoPropertyId, id: "msg_inventory_1", channel: "booking_com", direction: "outbound", type: "inventory", status: "success", createdAt: "2026-03-27T08:00:15.000Z", relatedRoomTypeId: "double", relatedReservationId: null, externalBookingId: "", payloadSummary: "Updated 1 available unit for Double", correlationId: "chan_inv_1" },
+    { propertyId: glampPropertyId, id: "msg_booking_1", channel: "yandex_travel", direction: "inbound", type: "booking", status: "pending", createdAt: "2026-03-27T09:10:00.000Z", relatedRoomTypeId: "a-frame", relatedReservationId: null, externalBookingId: "yt_77191", payloadSummary: "Incoming booking awaiting ingestion for 2026-04-02..2026-04-04", correlationId: "chan_in_1" }
+  ],
+  azDirectQuotes: []
 };
 
 export function cloneDefaults() {
@@ -353,7 +377,16 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
       createdAt: item.createdAt ?? new Date().toISOString(),
       updatedAt: item.updatedAt ?? item.createdAt ?? new Date().toISOString(),
       mergedReservationIds: item.mergedReservationIds ?? [],
-      paymentLinkSentAt: item.paymentLinkSentAt ?? null
+      paymentLinkSentAt: item.paymentLinkSentAt ?? null,
+      sourceAttribution: {
+        channel: item.sourceAttribution?.channel ?? "",
+        externalBookingId: item.sourceAttribution?.externalBookingId ?? "",
+        externalRoomTypeId: item.sourceAttribution?.externalRoomTypeId ?? "",
+        externalRatePlanId: item.sourceAttribution?.externalRatePlanId ?? "",
+        partnerName: item.sourceAttribution?.partnerName ?? "",
+        campaignCode: item.sourceAttribution?.campaignCode ?? "",
+        commissionRate: item.sourceAttribution?.commissionRate ?? 0
+      }
     })),
     rooms: (raw.rooms ?? defaults.rooms).map((item) => ({
       ...withPropertyId(item, fallbackPropertyId),
@@ -460,6 +493,49 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
     azGuests: (raw.azGuests ?? defaults.azGuests).map((item) => ({ ...withPropertyId(item, fallbackPropertyId), history: item.history ?? [], contact: item.contact ?? { phone: "", email: "" } })),
     azHousekeepingTasks: (raw.azHousekeepingTasks ?? defaults.azHousekeepingTasks).map((item) => withPropertyId(item, fallbackPropertyId)),
     azReportData: (raw.azReportData ?? defaults.azReportData).map((item) => ({ ...withPropertyId(item, fallbackPropertyId), channels: item.channels ?? [] })),
-    azChannelSyncRecords: (raw.azChannelSyncRecords ?? defaults.azChannelSyncRecords).map((item) => withPropertyId(item, fallbackPropertyId))
+    azChannelSyncRecords: (raw.azChannelSyncRecords ?? defaults.azChannelSyncRecords).map((item) => withPropertyId(item, fallbackPropertyId)),
+    azChannelAccounts: (raw.azChannelAccounts ?? defaults.azChannelAccounts).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      status: item.status ?? "sandbox",
+      credentialsMask: item.credentialsMask ?? "",
+      lastSuccessfulSyncAt: item.lastSuccessfulSyncAt ?? null,
+      lastError: item.lastError ?? ""
+    })),
+    azRoomTypeMappings: (raw.azRoomTypeMappings ?? defaults.azRoomTypeMappings).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      syncEnabled: item.syncEnabled ?? true
+    })),
+    azRatePlanMappings: (raw.azRatePlanMappings ?? defaults.azRatePlanMappings).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      mealPlan: item.mealPlan ?? "room_only",
+      cancellationPolicy: item.cancellationPolicy ?? "Flexible",
+      syncEnabled: item.syncEnabled ?? true,
+      baseRate: item.baseRate ?? 0
+    })),
+    azChannelSyncTasks: (raw.azChannelSyncTasks ?? defaults.azChannelSyncTasks).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      scope: item.scope ?? "all",
+      roomTypeId: item.roomTypeId ?? null,
+      reservationId: item.reservationId ?? null,
+      startedAt: item.startedAt ?? null,
+      finishedAt: item.finishedAt ?? null,
+      processedItems: item.processedItems ?? 0,
+      message: item.message ?? "",
+      correlationId: item.correlationId ?? ""
+    })),
+    azChannelMessageLogs: (raw.azChannelMessageLogs ?? defaults.azChannelMessageLogs).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      status: item.status ?? "success",
+      relatedRoomTypeId: item.relatedRoomTypeId ?? null,
+      relatedReservationId: item.relatedReservationId ?? null,
+      externalBookingId: item.externalBookingId ?? "",
+      payloadSummary: item.payloadSummary ?? "",
+      correlationId: item.correlationId ?? ""
+    })),
+    azDirectQuotes: (raw.azDirectQuotes ?? defaults.azDirectQuotes).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      promoCode: item.promoCode ?? "",
+      cancellationPolicy: item.cancellationPolicy ?? "Flexible"
+    }))
   };
 }

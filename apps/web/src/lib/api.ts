@@ -9,10 +9,17 @@ import type { AuthSession, AuthUserSummary } from "@hotel-crm/shared/auth";
 import type {
   AzBookingCreate,
   AzChannelDashboard,
+  AzChannelBookingIngest,
   AzChannelSyncRequest,
   AzChannelSyncResult,
   AzCheckInRequest,
   AzCheckOutRequest,
+  AzDirectAvailabilityRequest,
+  AzDirectAvailabilityResponse,
+  AzDirectBookingConfirmation,
+  AzDirectProvisionalReservationRequest,
+  AzDirectQuote,
+  AzDirectQuoteRequest,
   AzHousekeepingDashboard,
   AzHousekeepingTaskUpdate,
   AzHousekeepingTaskView,
@@ -413,7 +420,7 @@ export async function downloadAzReportCsvRequest(filters?: { from?: string; to?:
 export async function loadAzChannelManagerRequest() {
   return request<{
     dashboard: AzChannelDashboard;
-    mock: { today: string; bookingComApi: string; plannedRealIntegration: string };
+    mock: { today: string; providers: Array<"booking_com" | "ostrovok" | "yandex_travel">; bookingComApi: string; plannedRealIntegration: string };
   }>("/azhotel/channel-manager");
 }
 
@@ -428,6 +435,48 @@ export async function syncAzPricesRequest(input?: AzChannelSyncRequest) {
   return request<AzChannelSyncResult>("/azhotel/channel-manager/sync-prices", {
     method: "POST",
     body: JSON.stringify(input ?? {})
+  });
+}
+
+export async function syncAzBookingsRequest(input?: AzChannelSyncRequest) {
+  return request<AzChannelSyncResult>("/azhotel/channel-manager/sync-bookings", {
+    method: "POST",
+    body: JSON.stringify(input ?? {})
+  });
+}
+
+export async function ingestAzChannelBookingRequest(input: AzChannelBookingIngest) {
+  return request<ReservationSummary>("/azhotel/channel-manager/ingest-booking", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function requestDirectAvailabilityPublic(propertyId: string, input: AzDirectAvailabilityRequest) {
+  return request<AzDirectAvailabilityResponse>(`/public/properties/${propertyId}/booking-engine/availability`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function createDirectQuotePublic(propertyId: string, input: AzDirectQuoteRequest) {
+  return request<AzDirectQuote>(`/public/properties/${propertyId}/booking-engine/quote`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function createDirectProvisionalPublic(propertyId: string, input: AzDirectProvisionalReservationRequest) {
+  return request<AzDirectBookingConfirmation>(`/public/properties/${propertyId}/booking-engine/provisional-reservations`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function confirmDirectReservationPublic(propertyId: string, reservationId: string) {
+  return request<AzDirectBookingConfirmation>(`/public/properties/${propertyId}/booking-engine/provisional-reservations/${reservationId}/confirm`, {
+    method: "POST",
+    body: "{}"
   });
 }
 

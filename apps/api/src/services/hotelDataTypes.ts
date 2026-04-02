@@ -5,11 +5,17 @@ import type { BackgroundJob } from "@hotel-crm/shared/jobs";
 import type { ComplianceSubmission } from "@hotel-crm/shared/compliance";
 import type {
   AzBooking,
+  AzChannelMessageLog,
+  AzChannelSyncTask,
   AzChannelSyncRecord,
+  AzDirectQuote,
+  AzDistributionAccount,
   AzGuest,
   AzHousekeepingTask,
+  AzRatePlanMapping,
   AzReportData,
-  AzRoom
+  AzRoom,
+  AzRoomTypeMapping
 } from "@hotel-crm/shared/features/azhotel_core";
 import type { GuestProfile } from "@hotel-crm/shared/guests";
 import type { HousekeepingTaskSummary } from "@hotel-crm/shared/housekeeping";
@@ -66,4 +72,10 @@ export type HotelData = {
   azHousekeepingTasks: PropertyScoped<AzHousekeepingTask>[];
   azReportData: PropertyScoped<AzReportData>[];
   azChannelSyncRecords: PropertyScoped<AzChannelSyncRecord>[];
+  azChannelAccounts: PropertyScoped<AzDistributionAccount>[];
+  azRoomTypeMappings: PropertyScoped<AzRoomTypeMapping>[];
+  azRatePlanMappings: PropertyScoped<AzRatePlanMapping>[];
+  azChannelSyncTasks: PropertyScoped<AzChannelSyncTask>[];
+  azChannelMessageLogs: PropertyScoped<AzChannelMessageLog>[];
+  azDirectQuotes: PropertyScoped<AzDirectQuote>[];
 };

@@ -6,6 +6,8 @@ export function channelLabel(channel: AzChannelName) {
       return "Booking.com";
     case "ostrovok":
       return "Ostrovok";
+    case "yandex_travel":
+      return "Yandex Travel";
   }
 }
 

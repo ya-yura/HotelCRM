@@ -17,6 +17,7 @@ import { registerGuestRoutes } from "./routes/guests";
 import { registerHousekeepingRoutes } from "./routes/housekeeping";
 import { registerMaintenanceRoutes } from "./routes/maintenance";
 import { registerPaymentRoutes } from "./routes/payments";
+import { registerPublicBookingEngineRoutes } from "./routes/publicBookingEngine";
 import { registerPropertyRoutes } from "./routes/properties";
 import { registerReservationRoutes } from "./routes/reservations";
 import { registerRoomRoutes } from "./routes/rooms";
@@ -73,6 +74,7 @@ export function buildApp() {
   app.register(registerHousekeepingRoutes, { prefix: "/api" });
   app.register(registerMaintenanceRoutes, { prefix: "/api" });
   app.register(registerPaymentRoutes, { prefix: "/api" });
+  app.register(registerPublicBookingEngineRoutes, { prefix: "/api" });
   app.register(registerPropertyRoutes, { prefix: "/api" });
   app.register(registerReservationRoutes, { prefix: "/api" });
   app.register(registerRoomRoutes, { prefix: "/api" });

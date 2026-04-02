@@ -13,12 +13,24 @@ export const reservationStatusSchema = z.enum([
 ]);
 
 export const reservationSourceSchema = z.enum([
+  "direct",
   "phone",
+  "partner",
   "walk_in",
   "whatsapp",
   "ota",
   "manual"
 ]);
+
+export const reservationSourceAttributionSchema = z.object({
+  channel: z.string().default(""),
+  externalBookingId: z.string().default(""),
+  externalRoomTypeId: z.string().default(""),
+  externalRatePlanId: z.string().default(""),
+  partnerName: z.string().default(""),
+  campaignCode: z.string().default(""),
+  commissionRate: z.number().min(0).max(1).default(0)
+});
 
 export const reservationCreateSchema = z.object({
   guestName: z.string().min(2),
@@ -35,6 +47,7 @@ export const reservationCreateSchema = z.object({
   depositAmount: z.number().nonnegative().optional(),
   notes: z.string().optional(),
   source: reservationSourceSchema,
+  sourceAttribution: reservationSourceAttributionSchema.optional(),
   idempotencyKey: z.string().min(8)
 });
 
@@ -64,7 +77,8 @@ export const reservationSummarySchema = z.object({
   lateCheckoutGranted: z.boolean().optional(),
   splitFromReservationId: z.string().nullable().optional(),
   mergedReservationIds: z.array(z.string()).optional(),
-  paymentLinkSentAt: z.string().nullable().optional()
+  paymentLinkSentAt: z.string().nullable().optional(),
+  sourceAttribution: reservationSourceAttributionSchema.optional()
 });
 
 export const reservationUpdateSchema = reservationSummarySchema
@@ -92,3 +106,4 @@ export type ReservationCreate = z.infer<typeof reservationCreateSchema>;
 export type ReservationSummary = z.infer<typeof reservationSummarySchema>;
 export type ReservationSource = z.infer<typeof reservationSourceSchema>;
 export type ReservationUpdate = z.infer<typeof reservationUpdateSchema>;
+export type ReservationSourceAttribution = z.infer<typeof reservationSourceAttributionSchema>;
