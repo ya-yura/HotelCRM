@@ -46,6 +46,8 @@ export function azAccessRoleLabel(role?: AzAccessRole | null) {
 
 export function reservationStatusLabel(status: ReservationSummary["status"]) {
   switch (status) {
+    case "inquiry":
+      return "Запрос";
     case "draft":
       return "Черновик";
     case "pending_confirmation":

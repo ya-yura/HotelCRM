@@ -25,6 +25,12 @@ import type {
   AzRoomCreate,
   AzRoomUpdate
 } from "@hotel-crm/shared/features/azhotel_core";
+import type {
+  GuestDuplicateCandidate,
+  GuestMergeResult,
+  GuestProfile,
+  GuestUpsert
+} from "@hotel-crm/shared/guests";
 import type { HousekeepingTaskSummary } from "@hotel-crm/shared/housekeeping";
 import type {
   CreateCharge,
@@ -38,7 +44,11 @@ import type {
   PropertyType,
   PropertyUpdateRequest
 } from "@hotel-crm/shared/properties";
-import type { ReservationCreate, ReservationSummary } from "@hotel-crm/shared/reservations";
+import type {
+  ReservationCreate,
+  ReservationSummary,
+  ReservationUpdate
+} from "@hotel-crm/shared/reservations";
 import type { RoomCreate, RoomStatus, RoomSummary } from "@hotel-crm/shared/rooms";
 import type { StayRecord } from "@hotel-crm/shared/stays";
 import type { SyncConflict } from "@hotel-crm/shared/sync";
@@ -167,10 +177,31 @@ export async function confirmReservationRequest(reservationId: string) {
   });
 }
 
+export async function updateReservationRequest(reservationId: string, patch: ReservationUpdate) {
+  return request<ReservationSummary>(`/reservations/${reservationId}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch)
+  });
+}
+
 export async function checkInReservationRequest(reservationId: string) {
   return request<ReservationSummary>(`/reservations/${reservationId}/check-in`, {
     method: "POST",
     body: "{}"
+  });
+}
+
+export async function checkInReservationWithDepositRequest(input: {
+  reservationId: string;
+  depositAmount?: number;
+  paymentMethod?: "cash" | "card" | "bank_transfer";
+}) {
+  return request<ReservationSummary>(`/reservations/${input.reservationId}/check-in`, {
+    method: "POST",
+    body: JSON.stringify({
+      depositAmount: input.depositAmount,
+      paymentMethod: input.paymentMethod
+    })
   });
 }
 
@@ -181,10 +212,34 @@ export async function checkOutReservationRequest(reservationId: string) {
   });
 }
 
+export async function cancelReservationRequest(reservationId: string) {
+  return request<ReservationSummary>(`/reservations/${reservationId}/cancel`, {
+    method: "POST",
+    body: "{}"
+  });
+}
+
+export async function markReservationNoShowRequest(reservationId: string) {
+  return request<ReservationSummary>(`/reservations/${reservationId}/no-show`, {
+    method: "POST",
+    body: "{}"
+  });
+}
+
 export async function reassignReservationRoomRequest(reservationId: string, roomLabel: string) {
   return request<ReservationSummary>(`/reservations/${reservationId}/reassign-room`, {
     method: "POST",
     body: JSON.stringify({ roomLabel })
+  });
+}
+
+export async function sendReservationPaymentLinkRequest(
+  reservationId: string,
+  channel: "sms" | "whatsapp" | "email"
+) {
+  return request<ReservationSummary>(`/reservations/${reservationId}/payment-link`, {
+    method: "POST",
+    body: JSON.stringify({ channel })
   });
 }
 
@@ -440,6 +495,32 @@ export async function loadOccupancyRecommendations(reservationId: string) {
 
 export async function listAuthUsersRequest() {
   return request<AuthUserSummary[]>("/auth/users");
+}
+
+export async function listGuestsRequest() {
+  return request<GuestProfile[]>("/guests");
+}
+
+export async function loadGuestRequest(id: string) {
+  return request<GuestProfile>(`/guests/${id}`);
+}
+
+export async function updateGuestRequest(id: string, input: Partial<GuestUpsert>) {
+  return request<GuestProfile>(`/guests/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function loadGuestDuplicatesRequest(id: string) {
+  return request<GuestDuplicateCandidate[]>(`/guests/${id}/duplicates`);
+}
+
+export async function mergeGuestsRequest(primaryGuestId: string, duplicateGuestId: string) {
+  return request<GuestMergeResult>("/guests/merge", {
+    method: "POST",
+    body: JSON.stringify({ primaryGuestId, duplicateGuestId })
+  });
 }
 
 export async function createStaffUserRequest(input: {

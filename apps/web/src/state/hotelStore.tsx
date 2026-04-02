@@ -691,11 +691,29 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     const reservation: ReservationSummary = {
       id: reservationId,
       guestName: input.guestName,
+      guestPhone: input.guestPhone,
+      guestEmail: input.guestEmail,
       roomLabel: "UNASSIGNED",
+      roomTypeId: input.roomTypeId,
       checkInDate: input.checkInDate,
       checkOutDate: input.checkOutDate,
-      status: "draft",
-      balanceDue: input.totalAmount
+      status: input.source === "walk_in" ? "confirmed" : "draft",
+      source: input.source,
+      adultCount: input.adultCount,
+      childCount: input.childCount,
+      totalAmount: input.totalAmount,
+      paidAmount: 0,
+      balanceDue: input.totalAmount,
+      depositRequired: input.depositRequired ?? 0,
+      depositAmount: input.depositAmount ?? 0,
+      notes: input.notes,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      earlyCheckInGranted: false,
+      lateCheckoutGranted: false,
+      splitFromReservationId: null,
+      mergedReservationIds: [],
+      paymentLinkSentAt: null
     };
 
     setReservations((current) => [reservation, ...current]);

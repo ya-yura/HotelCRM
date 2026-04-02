@@ -197,15 +197,15 @@ export const defaultData: HotelData = {
   ],
   authSessions: [],
   guests: [
-    { propertyId: demoPropertyId, id: "guest_demo_anna", fullName: "Anna Petrova", phone: "+79990000001", email: "anna@example.com", birthDate: "", notes: "Prefers quiet room", preferences: ["quiet_room"], stayHistory: ["resv_demo_1"], mergedIntoGuestId: null },
-    { propertyId: hostelPropertyId, id: "guest_hostel_oleg", fullName: "Oleg Sidorov", phone: "+79991111111", email: "", birthDate: "", notes: "", preferences: [], stayHistory: ["resv_hostel_1"], mergedIntoGuestId: null },
-    { propertyId: glampPropertyId, id: "guest_glamp_maria", fullName: "Maria Volkova", phone: "+79992222222", email: "maria@example.com", birthDate: "", notes: "Needs late arrival instructions", preferences: ["late_arrival"], stayHistory: ["resv_glamp_1"], mergedIntoGuestId: null }
+    { propertyId: demoPropertyId, id: "guest_demo_anna", fullName: "Anna Petrova", phone: "+79990000001", email: "anna@example.com", birthDate: "", notes: "Prefers quiet room", preferences: ["quiet_room"], stayHistory: ["resv_demo_1"], mergedGuestIds: [], mergedIntoGuestId: null },
+    { propertyId: hostelPropertyId, id: "guest_hostel_oleg", fullName: "Oleg Sidorov", phone: "+79991111111", email: "", birthDate: "", notes: "", preferences: [], stayHistory: ["resv_hostel_1"], mergedGuestIds: [], mergedIntoGuestId: null },
+    { propertyId: glampPropertyId, id: "guest_glamp_maria", fullName: "Maria Volkova", phone: "+79992222222", email: "maria@example.com", birthDate: "", notes: "Needs late arrival instructions", preferences: ["late_arrival"], stayHistory: ["resv_glamp_1"], mergedGuestIds: [], mergedIntoGuestId: null }
   ],
   reservations: [
-    { propertyId: demoPropertyId, id: "resv_demo_1", guestName: "Anna Petrova", roomLabel: "203", checkInDate: "2026-03-25", checkOutDate: "2026-03-28", status: "confirmed", balanceDue: 4500 },
-    { propertyId: demoPropertyId, id: "resv_demo_2", guestName: "Sergey Ivanov", roomLabel: "UNASSIGNED", checkInDate: "2026-03-26", checkOutDate: "2026-03-29", status: "draft", balanceDue: 9600 },
-    { propertyId: hostelPropertyId, id: "resv_hostel_1", guestName: "Oleg Sidorov", roomLabel: "B-12", checkInDate: "2026-03-27", checkOutDate: "2026-03-30", status: "confirmed", balanceDue: 2100 },
-    { propertyId: glampPropertyId, id: "resv_glamp_1", guestName: "Maria Volkova", roomLabel: "A-Frame 2", checkInDate: "2026-03-28", checkOutDate: "2026-03-31", status: "pending_confirmation", balanceDue: 7200 }
+    { propertyId: demoPropertyId, id: "resv_demo_1", guestId: "guest_demo_anna", guestName: "Anna Petrova", guestPhone: "+79990000001", guestEmail: "anna@example.com", roomLabel: "203", roomTypeId: "double", checkInDate: "2026-03-25", checkOutDate: "2026-03-28", status: "confirmed", source: "phone", totalAmount: 12000, paidAmount: 7500, balanceDue: 4500, notes: "Prefers quiet room", createdAt: "2026-03-20T09:00:00.000Z", updatedAt: "2026-03-25T09:00:00.000Z" },
+    { propertyId: demoPropertyId, id: "resv_demo_2", guestName: "Sergey Ivanov", roomLabel: "UNASSIGNED", roomTypeId: "family", checkInDate: "2026-03-26", checkOutDate: "2026-03-29", status: "draft", source: "whatsapp", totalAmount: 9600, paidAmount: 0, balanceDue: 9600, depositRequired: 3000, notes: "Family arriving after lunch", createdAt: "2026-03-24T11:15:00.000Z", updatedAt: "2026-03-24T11:15:00.000Z" },
+    { propertyId: hostelPropertyId, id: "resv_hostel_1", guestId: "guest_hostel_oleg", guestName: "Oleg Sidorov", guestPhone: "+79991111111", roomLabel: "B-12", roomTypeId: "dorm", checkInDate: "2026-03-27", checkOutDate: "2026-03-30", status: "confirmed", source: "walk_in", totalAmount: 2100, paidAmount: 0, balanceDue: 2100, createdAt: "2026-03-26T18:00:00.000Z", updatedAt: "2026-03-26T18:00:00.000Z" },
+    { propertyId: glampPropertyId, id: "resv_glamp_1", guestId: "guest_glamp_maria", guestName: "Maria Volkova", guestPhone: "+79992222222", guestEmail: "maria@example.com", roomLabel: "A-Frame 2", roomTypeId: "a-frame", checkInDate: "2026-03-28", checkOutDate: "2026-03-31", status: "pending_confirmation", source: "ota", totalAmount: 7200, paidAmount: 3000, balanceDue: 4200, notes: "Needs heater check", createdAt: "2026-03-23T13:40:00.000Z", updatedAt: "2026-03-26T12:00:00.000Z" }
   ],
   rooms: [
     { propertyId: demoPropertyId, id: "room_101", number: "101", roomType: "Standard", status: "available", housekeepingNote: "Ready for check-in", nextAction: "Keep open for arrivals", occupancyLabel: "Free tonight", priority: "normal" },
@@ -324,8 +324,37 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
       quickUnlockEnabled: session.quickUnlockEnabled ?? true,
       recentAuthAt: session.recentAuthAt ?? session.createdAt
     })),
-    guests: (raw.guests ?? defaults.guests).map((item) => withPropertyId(item, fallbackPropertyId)),
-    reservations: (raw.reservations ?? defaults.reservations).map((item) => withPropertyId(item, fallbackPropertyId)),
+    guests: (raw.guests ?? defaults.guests).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      phone: item.phone ?? "",
+      email: item.email ?? "",
+      birthDate: item.birthDate ?? "",
+      notes: item.notes ?? "",
+      preferences: item.preferences ?? [],
+      stayHistory: item.stayHistory ?? [],
+      mergedGuestIds: item.mergedGuestIds ?? [],
+      mergedIntoGuestId: item.mergedIntoGuestId ?? null
+    })),
+    reservations: (raw.reservations ?? defaults.reservations).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      guestId:
+        item.guestId ??
+        (raw.guests ?? defaults.guests).find(
+          (guest) =>
+            (guest.propertyId ?? fallbackPropertyId) === (item.propertyId ?? fallbackPropertyId) &&
+            guest.fullName === item.guestName &&
+            !guest.mergedIntoGuestId
+        )?.id,
+      source: item.source ?? "manual",
+      totalAmount: item.totalAmount ?? item.balanceDue ?? 0,
+      paidAmount: item.paidAmount ?? Math.max((item.totalAmount ?? item.balanceDue ?? 0) - (item.balanceDue ?? 0), 0),
+      depositRequired: item.depositRequired ?? 0,
+      depositAmount: item.depositAmount ?? 0,
+      createdAt: item.createdAt ?? new Date().toISOString(),
+      updatedAt: item.updatedAt ?? item.createdAt ?? new Date().toISOString(),
+      mergedReservationIds: item.mergedReservationIds ?? [],
+      paymentLinkSentAt: item.paymentLinkSentAt ?? null
+    })),
     rooms: (raw.rooms ?? defaults.rooms).map((item) => withPropertyId(item, fallbackPropertyId)),
     housekeepingTasks: (raw.housekeepingTasks ?? defaults.housekeepingTasks).map((item) => withPropertyId(item, fallbackPropertyId)),
     maintenanceIncidents: (raw.maintenanceIncidents ?? defaults.maintenanceIncidents).map((item) => withPropertyId(item, fallbackPropertyId)),

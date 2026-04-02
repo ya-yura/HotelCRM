@@ -43,14 +43,22 @@ function buildDefaultFolio(propertyId: string, reservationId: string, guestName:
   };
 }
 
-function syncReservationBalance(data: Awaited<ReturnType<typeof getHotelData>>, propertyId: string, reservationId: string, balanceDue: number) {
+function syncReservationBalance(
+  data: Awaited<ReturnType<typeof getHotelData>>,
+  propertyId: string,
+  reservationId: string,
+  balanceDue: number,
+  totals?: { totalAmount?: number; paidAmount?: number }
+) {
   const reservationIndex = data.reservations.findIndex(
     (reservation) => reservation.propertyId === propertyId && reservation.id === reservationId
   );
   if (reservationIndex >= 0) {
     data.reservations[reservationIndex] = {
       ...data.reservations[reservationIndex],
-      balanceDue
+      balanceDue,
+      totalAmount: totals?.totalAmount ?? data.reservations[reservationIndex].totalAmount,
+      paidAmount: totals?.paidAmount ?? data.reservations[reservationIndex].paidAmount
     };
   }
 }
@@ -135,7 +143,10 @@ export async function createCharge(propertyId: string, input: CreateCharge) {
       data.folios.unshift(updatedFolio);
     }
 
-    syncReservationBalance(data, propertyId, input.reservationId, updatedFolio.balanceDue);
+    syncReservationBalance(data, propertyId, input.reservationId, updatedFolio.balanceDue, {
+      totalAmount: updatedFolio.totalAmount,
+      paidAmount: updatedFolio.paidAmount
+    });
 
     return {
       charge,
@@ -192,7 +203,10 @@ export async function createPayment(propertyId: string, input: CreatePayment) {
       data.folios.unshift(updatedFolio);
     }
 
-    syncReservationBalance(data, propertyId, updatedFolio.reservationId, updatedFolio.balanceDue);
+    syncReservationBalance(data, propertyId, updatedFolio.reservationId, updatedFolio.balanceDue, {
+      totalAmount: updatedFolio.totalAmount,
+      paidAmount: updatedFolio.paidAmount
+    });
 
     return {
       payment,
@@ -233,7 +247,10 @@ export async function negatePayment(propertyId: string, id: string, note: string
         payments: [reversal, ...currentFolio.payments]
       };
       data.folios[folioIndex] = updatedFolio;
-      syncReservationBalance(data, propertyId, existing.reservationId, updatedFolio.balanceDue);
+      syncReservationBalance(data, propertyId, existing.reservationId, updatedFolio.balanceDue, {
+        totalAmount: updatedFolio.totalAmount,
+        paidAmount: updatedFolio.paidAmount
+      });
     }
 
     return reversal;

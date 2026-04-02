@@ -33,12 +33,16 @@ function buildBoardDays(reservations: { checkInDate: string }[]) {
 function createDefaultForm(): ReservationCreate {
   return {
     guestName: "",
+    guestPhone: "",
+    guestEmail: "",
     checkInDate: "2026-03-25",
     checkOutDate: "2026-03-26",
     adultCount: 2,
     childCount: 0,
     roomTypeId: "standard",
     totalAmount: 0,
+    depositRequired: 0,
+    notes: "",
     source: "phone",
     idempotencyKey: `local_${Date.now()}`
   };
@@ -100,6 +104,24 @@ export function ReservationsPage() {
             </label>
 
             <label>
+              <span>Телефон</span>
+              <input
+                value={form.guestPhone ?? ""}
+                onChange={(event) => updateField("guestPhone", event.target.value)}
+                placeholder="+7 999 000 00 00"
+              />
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input
+                value={form.guestEmail ?? ""}
+                onChange={(event) => updateField("guestEmail", event.target.value)}
+                placeholder="guest@example.com"
+              />
+            </label>
+
+            <label>
               <span>Заезд</span>
               <input
                 type="date"
@@ -152,6 +174,25 @@ export function ReservationsPage() {
                 min="0"
                 value={form.totalAmount}
                 onChange={(event) => updateField("totalAmount", Number(event.target.value))}
+              />
+            </label>
+
+            <label>
+              <span>Депозит</span>
+              <input
+                type="number"
+                min="0"
+                value={form.depositRequired ?? 0}
+                onChange={(event) => updateField("depositRequired", Number(event.target.value))}
+              />
+            </label>
+
+            <label>
+              <span>Комментарий</span>
+              <input
+                value={form.notes ?? ""}
+                onChange={(event) => updateField("notes", event.target.value)}
+                placeholder="Поздний заезд, нужна детская кровать"
               />
             </label>
 
@@ -209,8 +250,9 @@ export function ReservationsPage() {
                     <div
                       className={match ? "booking-board-cell booked" : "booking-board-cell"}
                       key={`${row}_${dayKey}`}
+                      title={match ? `${match.guestName} • ${match.status}` : "Свободно"}
                     >
-                      {match ? match.guestName.split(" ")[0] : ""}
+                      {match ? `${match.guestName.split(" ")[0]} · ${match.status === "confirmed" ? "Подтвержд." : match.status === "checked_in" ? "Прож." : match.status === "draft" ? "Черн." : "Бронь"}` : ""}
                     </div>
                   );
                 })}
@@ -229,6 +271,7 @@ export function ReservationsPage() {
               {formatDateLabel(reservation.checkInDate)} - {formatDateLabel(reservation.checkOutDate)}
             </p>
             <p className="muted">К оплате: {reservation.balanceDue}</p>
+            <p className="muted">Источник: {reservationSourceLabel(reservation.source ?? "manual")}</p>
             <Link className="secondary-link" to={`/reservations/${reservation.id}`}>
               Открыть бронь
             </Link>

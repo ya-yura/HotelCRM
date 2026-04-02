@@ -13,6 +13,9 @@ export const guestDocumentSchema = z.object({
   number: z.string().default(""),
   issuedBy: z.string().default(""),
   issuedAt: z.string().default(""),
+  issuerCode: z.string().default(""),
+  birthPlace: z.string().default(""),
+  registrationAddress: z.string().default(""),
   citizenship: z.string().default("RU")
 });
 
@@ -26,9 +29,41 @@ export const guestProfileSchema = z.object({
   preferences: z.array(z.string()).default([]),
   document: guestDocumentSchema.optional(),
   stayHistory: z.array(z.string()).default([]),
+  mergedGuestIds: z.array(z.string()).default([]),
   mergedIntoGuestId: z.string().nullable().default(null)
+});
+
+export const guestUpsertSchema = guestProfileSchema
+  .omit({
+    id: true,
+    stayHistory: true,
+    mergedGuestIds: true,
+    mergedIntoGuestId: true
+  })
+  .extend({
+    preferences: z.array(z.string()).default([])
+  });
+
+export const guestDuplicateCandidateSchema = z.object({
+  guest: guestProfileSchema,
+  reasons: z.array(z.string()).min(1)
+});
+
+export const guestMergeRequestSchema = z.object({
+  primaryGuestId: z.string(),
+  duplicateGuestId: z.string()
+});
+
+export const guestMergeResultSchema = z.object({
+  primaryGuest: guestProfileSchema,
+  mergedGuestId: z.string(),
+  updatedReservationIds: z.array(z.string())
 });
 
 export type GuestProfile = z.infer<typeof guestProfileSchema>;
 export type GuestDocument = z.infer<typeof guestDocumentSchema>;
 export type GuestDocumentType = z.infer<typeof guestDocumentTypeSchema>;
+export type GuestUpsert = z.infer<typeof guestUpsertSchema>;
+export type GuestDuplicateCandidate = z.infer<typeof guestDuplicateCandidateSchema>;
+export type GuestMergeRequest = z.infer<typeof guestMergeRequestSchema>;
+export type GuestMergeResult = z.infer<typeof guestMergeResultSchema>;

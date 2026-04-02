@@ -4,6 +4,7 @@ import type {
   BookingParseResult,
   OccupancyRecommendation
 } from "@hotel-crm/shared/ai";
+import { listGuests } from "./guestStore";
 import { listHousekeepingTasks } from "./housekeepingStore";
 import { listFolios } from "./paymentStore";
 import { listReservations, getReservation } from "./reservationStore";
@@ -155,6 +156,7 @@ export async function searchWithAI(propertyId: string, query: string): Promise<A
   const normalized = query.toLowerCase();
   const reservations = await listReservations(propertyId);
   const rooms = await listRooms(propertyId);
+  const guests = await listGuests(propertyId);
 
   const base: AISearchResult[] = [
     ...reservations.map((reservation) => ({
@@ -163,6 +165,15 @@ export async function searchWithAI(propertyId: string, query: string): Promise<A
       title: reservation.guestName,
       subtitle: `Reservation arriving ${reservation.checkInDate}, room ${reservation.roomLabel}`,
       reason: `Balance due ${reservation.balanceDue}`
+    })),
+    ...guests.map((guest) => ({
+      id: guest.id,
+      entityType: "guest" as const,
+      title: guest.fullName,
+      subtitle: `${guest.phone || "без телефона"} • ${guest.email || "без email"}`,
+      reason: guest.document?.number
+        ? `Документ ${guest.document.number}`
+        : guest.notes || "Guest profile"
     })),
     ...rooms.map((room) => ({
       id: room.id,
