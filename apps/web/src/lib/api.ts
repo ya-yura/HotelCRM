@@ -33,6 +33,11 @@ import type {
 } from "@hotel-crm/shared/guests";
 import type { HousekeepingTaskSummary } from "@hotel-crm/shared/housekeeping";
 import type {
+  MaintenanceCreate,
+  MaintenanceIncident,
+  MaintenanceUpdate
+} from "@hotel-crm/shared/maintenance";
+import type {
   CreateCharge,
   FolioCharge,
   FolioDetails,
@@ -126,6 +131,7 @@ export async function loadRemoteSnapshot() {
     reservations,
     rooms,
     housekeepingTasks,
+    maintenanceIncidents,
     payments,
     folios,
     folioDetails,
@@ -137,6 +143,7 @@ export async function loadRemoteSnapshot() {
     safeRequest<ReservationSummary[]>("/reservations", []),
     safeRequest<RoomSummary[]>("/rooms", []),
     safeRequest<HousekeepingTaskSummary[]>("/housekeeping/tasks", []),
+    safeRequest<MaintenanceIncident[]>("/maintenance/incidents", []),
     safeRequest<PaymentRecord[]>("/payments", []),
     safeRequest<FolioSummary[]>("/payments/folios", []),
     safeRequest<FolioDetails[]>("/payments/folio-details", []),
@@ -153,6 +160,7 @@ export async function loadRemoteSnapshot() {
     reservations,
     rooms,
     housekeepingTasks,
+    maintenanceIncidents,
     payments,
     folios,
     folioDetails,
@@ -419,18 +427,68 @@ export async function syncAzPricesRequest(input?: AzChannelSyncRequest) {
 }
 
 export async function updateHousekeepingTaskRequest(taskId: string, status: HousekeepingTaskSummary["status"]) {
-  const path =
-    status === "in_progress"
-      ? `/housekeeping/tasks/${taskId}/start`
-      : status === "completed"
-        ? `/housekeeping/tasks/${taskId}/complete`
-        : status === "cancelled"
-          ? `/housekeeping/tasks/${taskId}/cancel`
-          : `/housekeeping/tasks/${taskId}`;
+  let path = `/housekeeping/tasks/${taskId}`;
+
+  if (status === "in_progress") {
+    path = `/housekeeping/tasks/${taskId}/start`;
+  } else if (status === "paused") {
+    path = `/housekeeping/tasks/${taskId}/pause`;
+  } else if (status === "inspection_requested") {
+    path = `/housekeeping/tasks/${taskId}/request-inspection`;
+  } else if (status === "problem_reported") {
+    path = `/housekeeping/tasks/${taskId}/problem`;
+  } else if (status === "completed") {
+    path = `/housekeeping/tasks/${taskId}/complete`;
+  } else if (status === "cancelled") {
+    path = `/housekeeping/tasks/${taskId}/cancel`;
+  }
 
   return request<HousekeepingTaskSummary>(path, {
     method: status === "queued" ? "PATCH" : "POST",
     body: status === "queued" ? JSON.stringify({ status }) : "{}"
+  });
+}
+
+export async function patchHousekeepingTaskRequest(taskId: string, input: {
+  status?: HousekeepingTaskSummary["status"];
+  note?: string;
+  dueLabel?: string;
+  assigneeName?: string;
+  shiftLabel?: string;
+  problemNote?: string;
+  requestedInspection?: boolean;
+  checklist?: HousekeepingTaskSummary["checklist"];
+  evidence?: HousekeepingTaskSummary["evidence"];
+  consumables?: HousekeepingTaskSummary["consumables"];
+}) {
+  return request<HousekeepingTaskSummary>(`/housekeeping/tasks/${taskId}`, {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function listMaintenanceIncidentsRequest() {
+  return request<MaintenanceIncident[]>("/maintenance/incidents");
+}
+
+export async function createMaintenanceIncidentRequest(input: MaintenanceCreate) {
+  return request<MaintenanceIncident>("/maintenance/incidents", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function updateMaintenanceIncidentRequest(id: string, input: MaintenanceUpdate) {
+  return request<MaintenanceIncident>(`/maintenance/incidents/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function resolveMaintenanceIncidentRequest(id: string, input?: MaintenanceUpdate) {
+  return request<MaintenanceIncident>(`/maintenance/incidents/${id}/resolve`, {
+    method: "POST",
+    body: JSON.stringify(input ?? {})
   });
 }
 

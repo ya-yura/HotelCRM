@@ -1,6 +1,7 @@
 import type { AIAssistantItem } from "@hotel-crm/shared/ai";
 import type { AzAccessRole, HotelRole } from "@hotel-crm/shared/auth";
 import type { HousekeepingTaskStatus } from "@hotel-crm/shared/housekeeping";
+import type { MaintenancePriority, MaintenanceStatus } from "@hotel-crm/shared/maintenance";
 import type { CreateCharge, CreatePayment, FolioSummary } from "@hotel-crm/shared/payments";
 import type { PropertyType, PropertyVatRate } from "@hotel-crm/shared/properties";
 import type { ReservationCreate, ReservationSummary } from "@hotel-crm/shared/reservations";
@@ -92,10 +93,42 @@ export function housekeepingStatusLabel(status: HousekeepingTaskStatus) {
       return "В очереди";
     case "in_progress":
       return "В работе";
+    case "paused":
+      return "Пауза";
+    case "inspection_requested":
+      return "Нужна проверка";
+    case "problem_reported":
+      return "Есть проблема";
     case "completed":
       return "Завершено";
     case "cancelled":
       return "Отменено";
+  }
+}
+
+export function maintenanceStatusLabel(status: MaintenanceStatus) {
+  switch (status) {
+    case "open":
+      return "Открыта";
+    case "in_progress":
+      return "В работе";
+    case "resolved":
+      return "Решена";
+    case "cancelled":
+      return "Отменена";
+  }
+}
+
+export function maintenancePriorityLabel(priority: MaintenancePriority) {
+  switch (priority) {
+    case "low":
+      return "Низкий";
+    case "normal":
+      return "Обычный";
+    case "high":
+      return "Высокий";
+    case "critical":
+      return "Критичный";
   }
 }
 
@@ -191,6 +224,8 @@ export function conflictEntityLabel(entityType: SyncConflict["entityType"]) {
       return "Номер";
     case "housekeeping_task":
       return "Задача уборки";
+    case "maintenance_incident":
+      return "Техзаявка";
     case "payment":
       return "Платёж";
     default:

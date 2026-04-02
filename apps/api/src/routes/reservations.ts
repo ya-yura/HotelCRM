@@ -239,7 +239,17 @@ export async function registerReservationRoutes(app: FastifyInstance) {
       status: "queued",
       taskType: "checkout_clean",
       note: "Auto-created after checkout",
-      dueLabel: "Before next arrival"
+      dueLabel: "Before next arrival",
+      assigneeName: "",
+      shiftLabel: "Next shift",
+      problemNote: "",
+      requestedInspection: false,
+      checklist: [
+        { label: "Refresh bathroom", done: false },
+        { label: "Change linen", done: false }
+      ],
+      evidence: [],
+      consumables: []
     });
     await appendAuditLog(propertyId, {
       entityType: "stay",

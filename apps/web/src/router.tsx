@@ -18,6 +18,7 @@ import { RoomListPage } from "./features/azhotel_rooms/RoomListPage";
 import { azhotelBookingsEnabled, azhotelChannelManagerEnabled, azhotelDashboardEnabled, azhotelFrontdeskEnabled, azhotelFullEnabled, azhotelHousekeepingEnabled, azhotelReportsEnabled, azhotelRoomsEnabled } from "./lib/featureFlags";
 import { AppShell } from "./shell/AppShell";
 import { LoginPage } from "./screens/LoginPage";
+import { MaintenancePage } from "./screens/MaintenancePage";
 import { ReservationDetailPage } from "./screens/ReservationDetailPage";
 import { TodayPage } from "./screens/TodayPage";
 import { ReservationsPage } from "./screens/ReservationsPage";
@@ -104,6 +105,7 @@ export const router = createBrowserRouter([
       { path: "rooms", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><RoomsPage /></RequireRoles> },
       { path: "rooms/:id", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><RoomDetailPage /></RequireRoles> },
       { path: "housekeeping", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><HousekeepingPage /></RequireRoles> },
+      { path: "maintenance", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><MaintenancePage /></RequireRoles> },
       { path: "payments", element: <RequireRoles roles={["owner", "manager", "frontdesk", "accountant"]}><PaymentsPage /></RequireRoles> },
       { path: "search", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"]}><SearchPage /></RequireRoles> },
       ...(azhotelFullEnabled

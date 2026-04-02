@@ -12,6 +12,7 @@ export const syncEntityTypeSchema = z.enum([
   "reservation",
   "room",
   "housekeeping_task",
+  "maintenance_incident",
   "payment"
 ]);
 

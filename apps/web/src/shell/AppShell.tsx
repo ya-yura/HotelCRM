@@ -14,6 +14,7 @@ const navItems = [
   { to: "/reservations", label: "Брони", roles: ["owner", "manager", "frontdesk", "housekeeping", "accountant"] as HotelRole[] },
   { to: "/rooms", label: "Номера", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as HotelRole[] },
   { to: "/housekeeping", label: "Уборка", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as HotelRole[] },
+  { to: "/maintenance", label: "Техслужба", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as HotelRole[] },
   { to: "/payments", label: "Оплаты", roles: ["owner", "manager", "frontdesk", "accountant"] as HotelRole[] },
   { to: "/search", label: "Поиск", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"] as HotelRole[] },
   ...(azhotelFullEnabled

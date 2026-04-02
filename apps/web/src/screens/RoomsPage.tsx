@@ -1,10 +1,11 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../state/authStore";
 import { useHotelStore } from "../state/hotelStore";
 import { roomStatusLabel, roomTypeLabel } from "../lib/ru";
 
 export function RoomsPage() {
   const { hasAnyRole } = useAuth();
-  const { rooms, updateRoomStatus, getAllowedRoomTransitions } = useHotelStore();
+  const { rooms, maintenanceIncidents, updateRoomStatus, getAllowedRoomTransitions } = useHotelStore();
   const canOperateRooms = hasAnyRole(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]);
 
   return (
@@ -54,15 +55,33 @@ export function RoomsPage() {
             <div className="room-header">
               <div>
                 <p className="eyebrow">
-                  Номер {room.number} • {roomTypeLabel(room.roomType)}
+                  Номер {room.number} • {roomTypeLabel(room.roomType)} • {room.zone || room.floor || "без зоны"}
                 </p>
                 <h3>{roomStatusLabel(room.status)}</h3>
               </div>
-              <span className={`status-badge status-${room.status}`}>{room.occupancyLabel}</span>
+              <span className={`status-badge status-${room.status}`}>{room.readinessLabel}</span>
             </div>
 
             <p className="muted">{room.housekeepingNote}</p>
             <p className="muted">{room.nextAction}</p>
+            <p className="muted">
+              Вместимость: {room.occupancyLimit} • Удобства: {room.amenities.length > 0 ? room.amenities.join(", ") : "не заданы"}
+            </p>
+            {room.nextArrivalLabel ? <p className="muted">Ближайший заезд: {room.nextArrivalLabel}</p> : null}
+            {room.outOfOrderReason ? <p className="muted">Причина блока: {room.outOfOrderReason}</p> : null}
+            {room.glampingMetadata ? (
+              <p className="muted">
+                Глэмпинг: {room.glampingMetadata.unitType || "юнит"} • {room.glampingMetadata.outdoorAreaLabel || "наружная зона не указана"}
+              </p>
+            ) : null}
+            {room.activeMaintenanceIncidentId ? (
+              <p className="muted">
+                Активная техзаявка:{" "}
+                {maintenanceIncidents.find((entry) => entry.id === room.activeMaintenanceIncidentId)?.title || "есть активная заявка"}.
+                {" "}
+                <Link to="/maintenance">Открыть техслужбу</Link>
+              </p>
+            ) : null}
 
             <div className="status-actions">
               {canOperateRooms ? getAllowedRoomTransitions(room).map((nextStatus) => (
@@ -75,6 +94,9 @@ export function RoomsPage() {
                   {roomStatusLabel(nextStatus)}
                 </button>
               )) : null}
+              <Link className="secondary-link" to="/maintenance">
+                Техслужба
+              </Link>
             </div>
           </article>
         ))}

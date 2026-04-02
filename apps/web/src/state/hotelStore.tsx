@@ -12,6 +12,11 @@ import type {
   HousekeepingTaskSummary
 } from "@hotel-crm/shared/housekeeping";
 import type {
+  MaintenanceCreate,
+  MaintenanceIncident,
+  MaintenanceUpdate
+} from "@hotel-crm/shared/maintenance";
+import type {
   CreateCharge,
   CreatePayment,
   FolioDetails,
@@ -24,6 +29,7 @@ import type { StayRecord } from "@hotel-crm/shared/stays";
 import type { SyncConflict, SyncQueueItem } from "@hotel-crm/shared/sync";
 import { initialAssistantItems } from "../lib/aiFixtures";
 import { initialAuditLogs } from "../lib/auditFixtures";
+import { initialMaintenanceIncidents } from "../lib/maintenanceFixtures";
 import { loadRemoteSnapshot, resolveSyncConflictRequest } from "../lib/api";
 import { initialHousekeepingTasks } from "../lib/housekeepingFixtures";
 import { initialFolios, initialPayments } from "../lib/paymentFixtures";
@@ -35,10 +41,24 @@ import { readSnapshot, writeSnapshot } from "../lib/indexedDb";
 import { useAuth } from "./authStore";
 import { replaySyncItem, type SyncReplayResult } from "./syncEngine";
 
+type HousekeepingTaskPatch = {
+  status?: HousekeepingTaskStatus;
+  note?: string;
+  dueLabel?: string;
+  assigneeName?: string;
+  shiftLabel?: string;
+  problemNote?: string;
+  requestedInspection?: boolean;
+  checklist?: HousekeepingTaskSummary["checklist"];
+  evidence?: HousekeepingTaskSummary["evidence"];
+  consumables?: HousekeepingTaskSummary["consumables"];
+};
+
 type HotelStoreValue = {
   reservations: ReservationSummary[];
   rooms: RoomSummary[];
   housekeepingTasks: HousekeepingTaskSummary[];
+  maintenanceIncidents: MaintenanceIncident[];
   folios: FolioSummary[];
   folioDetails: FolioDetails[];
   payments: PaymentRecord[];
@@ -57,7 +77,10 @@ type HotelStoreValue = {
   reassignReservationRoom: (reservationId: string, roomId: string) => void;
   updateRoomStatus: (roomId: string, status: RoomStatus) => void;
   getAllowedRoomTransitions: (room: RoomSummary) => RoomStatus[];
-  updateHousekeepingTask: (taskId: string, status: HousekeepingTaskStatus) => void;
+  updateHousekeepingTask: (taskId: string, input: HousekeepingTaskStatus | HousekeepingTaskPatch) => void;
+  createMaintenanceIncident: (input: MaintenanceCreate) => void;
+  updateMaintenanceIncident: (incidentId: string, input: MaintenanceUpdate) => void;
+  resolveMaintenanceIncident: (incidentId: string, resolutionNote?: string) => void;
   addFolioCharge: (input: CreateCharge) => void;
   recordPayment: (input: CreatePayment) => void;
   searchRecords: (query: string) => AISearchResult[];
@@ -68,6 +91,7 @@ type HotelStoreSnapshot = Pick<
   | "reservations"
   | "rooms"
   | "housekeepingTasks"
+  | "maintenanceIncidents"
   | "folios"
   | "folioDetails"
   | "payments"
@@ -115,6 +139,10 @@ function localizeSyncText(text: string) {
     .replace("Room API update failed", "Не удалось обновить номер на сервере")
     .replace("Housekeeping synced", "Изменение по уборке синхронизировано")
     .replace("Housekeeping API update failed", "Не удалось обновить уборку на сервере")
+    .replace("Maintenance incident synced", "Техзаявка синхронизирована")
+    .replace("Maintenance API update failed", "Не удалось обновить техзаявку на сервере")
+    .replace("Maintenance ticket created", "Техзаявка создана")
+    .replace("Maintenance ticket queued", "Техзаявка поставлена в локальную очередь")
     .replace("Charge synced", "Начисление синхронизировано")
     .replace("Charge API sync failed", "Не удалось отправить начисление")
     .replace("Payment synced", "Оплата синхронизирована")
@@ -186,48 +214,64 @@ function getRoomStatusPresentation(status: RoomStatus) {
   switch (status) {
     case "available":
       return {
+        readiness: "clean" as const,
+        readinessLabel: "Готов",
         housekeepingNote: "Готов к заселению",
         nextAction: "Можно назначать сразу",
         occupancyLabel: "Свободен сегодня"
       };
     case "reserved":
       return {
+        readiness: "clean" as const,
+        readinessLabel: "Под заезд",
         housekeepingNote: "Зарезервирован под ближайший заезд",
         nextAction: "Держать готовым для назначенного гостя",
         occupancyLabel: "Ждёт заезд"
       };
     case "occupied":
       return {
+        readiness: "occupied" as const,
+        readinessLabel: "Заселен",
         housekeepingNote: "Гость сейчас в номере",
         nextAction: "Ждать выезда перед уборкой",
         occupancyLabel: "Заселён"
       };
     case "dirty":
       return {
+        readiness: "dirty" as const,
+        readinessLabel: "Грязный",
         housekeepingNote: "Нужна уборка",
         nextAction: "Отправить в очередь уборки",
         occupancyLabel: "Не готов"
       };
     case "cleaning":
       return {
+        readiness: "dirty" as const,
+        readinessLabel: "Уборка идет",
         housekeepingNote: "Уборка в процессе",
         nextAction: "Дождаться завершения и проверки",
         occupancyLabel: "Убирается"
       };
     case "inspected":
       return {
+        readiness: "inspected" as const,
+        readinessLabel: "Проверен",
         housekeepingNote: "Уборка завершена, ждёт выпуска",
         nextAction: "Вернуть номер в продажу",
         occupancyLabel: "Проверен"
       };
     case "blocked_maintenance":
       return {
+        readiness: "blocked" as const,
+        readinessLabel: "Заблокирован",
         housekeepingNote: "Номер заблокирован по техпричине",
         nextAction: "Не продавать до устранения проблемы",
         occupancyLabel: "Недоступен"
       };
     case "out_of_service":
       return {
+        readiness: "maintenance_required" as const,
+        readinessLabel: "Вне сервиса",
         housekeepingNote: "Выведен из эксплуатации",
         nextAction: "Нужен ручной возврат в работу",
         occupancyLabel: "Недоступен"
@@ -262,7 +306,8 @@ function derivePaymentStatus(totalAmount: number, paidAmount: number): FolioSumm
 function toSearchResults(
   query: string,
   reservations: ReservationSummary[],
-  rooms: RoomSummary[]
+  rooms: RoomSummary[],
+  maintenanceIncidents: MaintenanceIncident[]
 ): AISearchResult[] {
   const normalized = query.trim().toLowerCase();
 
@@ -280,6 +325,13 @@ function toSearchResults(
       title: `Номер ${room.number}`,
       subtitle: `${room.roomType} • ${room.status.replaceAll("_", " ")}`,
       reason: room.nextAction
+    })),
+    ...maintenanceIncidents.map((incident) => ({
+      id: incident.id,
+      entityType: "room" as const,
+      title: `Техзаявка ${incident.roomNumber}`,
+      subtitle: `${incident.title} • ${incident.status.replaceAll("_", " ")}`,
+      reason: incident.assignee || incident.description
     }))
   ];
 
@@ -304,6 +356,7 @@ function deriveAssistantItems(
   reservations: ReservationSummary[],
   rooms: RoomSummary[],
   housekeepingTasks: HousekeepingTaskSummary[],
+  maintenanceIncidents: MaintenanceIncident[],
   folios: FolioSummary[],
   syncConflicts: SyncConflict[]
 ): AIAssistantItem[] {
@@ -316,6 +369,7 @@ function deriveAssistantItems(
     return (folio?.balanceDue ?? entry.balanceDue) > 0;
   });
   const dirtyRooms = rooms.filter((entry) => entry.status === "dirty" || entry.status === "cleaning");
+  const activeMaintenance = maintenanceIncidents.filter((entry) => entry.status === "open" || entry.status === "in_progress");
   const unassignedConfirmed = reservations.filter(
     (entry) => entry.status === "confirmed" && entry.roomLabel === "UNASSIGNED"
   );
@@ -356,6 +410,17 @@ function deriveAssistantItems(
     });
   }
 
+  if (activeMaintenance.length > 0) {
+    items.push({
+      id: "ai_maintenance_watch",
+      type: "anomaly",
+      title: `${activeMaintenance.length} техзаяв${activeMaintenance.length > 1 ? "ки" : "ка"} влияет на инвентарь`,
+      detail: "Проверьте блокировки номеров и сроки возврата в продажу.",
+      confidence: 0.9,
+      actionLabel: "Открыть техслужбу"
+    });
+  }
+
   if (syncConflicts.length > 0) {
     items.push({
       id: "ai_sync_conflicts",
@@ -375,6 +440,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
   const [reservations, setReservations] = useState(initialReservations);
   const [rooms, setRooms] = useState(initialRooms);
   const [housekeepingTasks, setHousekeepingTasks] = useState(initialHousekeepingTasks);
+  const [maintenanceIncidents, setMaintenanceIncidents] = useState(initialMaintenanceIncidents);
   const [folios, setFolios] = useState(initialFolios);
   const [folioDetails, setFolioDetails] = useState<FolioDetails[]>(
     deriveFolioDetails(initialFolios, initialPayments)
@@ -391,6 +457,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     setReservations(snapshot.reservations);
     setRooms(snapshot.rooms);
     setHousekeepingTasks(snapshot.housekeepingTasks);
+    setMaintenanceIncidents(snapshot.maintenanceIncidents);
     setPayments(snapshot.payments);
     setFolios(snapshot.folios);
     setFolioDetails(
@@ -425,6 +492,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         setReservations(snapshot.reservations);
         setRooms(snapshot.rooms);
         setHousekeepingTasks(snapshot.housekeepingTasks);
+        setMaintenanceIncidents(snapshot.maintenanceIncidents ?? initialMaintenanceIncidents);
         setFolios(snapshot.folios);
         setFolioDetails(snapshot.folioDetails ?? deriveFolioDetails(snapshot.folios, snapshot.payments));
         setPayments(snapshot.payments);
@@ -444,6 +512,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reservations,
       rooms,
       housekeepingTasks,
+      maintenanceIncidents,
       folios,
       folioDetails,
       payments,
@@ -455,13 +524,13 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     }).catch(() => {
       // Persistence is best-effort in the scaffold phase.
     });
-  }, [assistantItems, auditLogs, folioDetails, folios, housekeepingTasks, payments, reservations, rooms, stays, syncConflicts, syncQueue]);
+  }, [assistantItems, auditLogs, folioDetails, folios, housekeepingTasks, maintenanceIncidents, payments, reservations, rooms, stays, syncConflicts, syncQueue]);
 
   useEffect(() => {
     setAssistantItems(
-      deriveAssistantItems(reservations, rooms, housekeepingTasks, folios, syncConflicts)
+      deriveAssistantItems(reservations, rooms, housekeepingTasks, maintenanceIncidents, folios, syncConflicts)
     );
-  }, [folios, housekeepingTasks, reservations, rooms, syncConflicts]);
+  }, [folios, housekeepingTasks, maintenanceIncidents, reservations, rooms, syncConflicts]);
 
   useEffect(() => {
     const retryableItem = syncQueue.find((item) => item.status === "failed_retryable");
@@ -562,11 +631,36 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         }
         break;
       case "update_housekeeping":
+      case "patch_housekeeping":
         if (result) {
           const remoteTask = result as HousekeepingTaskSummary;
           setHousekeepingTasks((current) =>
-            current.map((entry) => (entry.id === remoteTask.id ? remoteTask : entry))
+            current.map((entry) =>
+              entry.id === remoteTask.id || entry.id === item.entityId ? remoteTask : entry
+            )
           );
+        }
+        break;
+      case "create_maintenance_incident":
+      case "update_maintenance_incident":
+      case "resolve_maintenance_incident":
+        if (result) {
+          const remoteIncident = result as MaintenanceIncident;
+          setMaintenanceIncidents((current) => {
+            const exists = current.some(
+              (entry) => entry.id === remoteIncident.id || entry.id === item.entityId
+            );
+            if (!exists) {
+              return [remoteIncident, ...current];
+            }
+
+            return current.map((entry) =>
+              entry.id === remoteIncident.id || entry.id === item.entityId
+                ? remoteIncident
+                : entry
+            );
+          });
+          syncRoomFromMaintenanceIncident(remoteIncident);
         }
         break;
       case "record_payment":
@@ -958,6 +1052,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
           ? {
               ...room,
               status: "dirty",
+              readiness: "dirty",
+              readinessLabel: "Грязный",
               housekeepingNote: "Requires cleaning",
               nextAction: "Send to housekeeping queue",
               occupancyLabel: "Not ready"
@@ -985,7 +1081,20 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
           status: "queued",
           taskType: "checkout_clean",
           note: "Auto-created from checkout",
-          dueLabel: "Clean before next arrival"
+          dueLabel: "Clean before next arrival",
+          assigneeName: "",
+          shiftLabel: "Next shift",
+          problemNote: "",
+          requestedInspection: false,
+          checklist: [
+            { label: "Refresh bathroom", done: false },
+            { label: "Change linen", done: false },
+            { label: "Restock room", done: false }
+          ],
+          evidence: [],
+          consumables: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         },
         ...current
       ];
@@ -1029,6 +1138,46 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     return transitions.filter((status) => status !== "available");
   }
 
+  function syncRoomFromMaintenanceIncident(incident: MaintenanceIncident) {
+    setRooms((current) =>
+      current.map((room) => {
+        if (room.id !== incident.roomId) {
+          return room;
+        }
+
+        if ((incident.status === "open" || incident.status === "in_progress") && (incident.roomBlocked || incident.impact === "block_from_sale")) {
+          const presentation = getRoomStatusPresentation("blocked_maintenance");
+          return {
+            ...room,
+            status: "blocked_maintenance",
+            readiness: presentation.readiness,
+            readinessLabel: presentation.readinessLabel,
+            housekeepingNote: incident.title,
+            nextAction: incident.assignee ? `Назначено: ${incident.assignee}` : "Номер ждёт техслужбу",
+            occupancyLabel: "Недоступен",
+            priority: "blocked",
+            outOfOrderReason: incident.title,
+            activeMaintenanceIncidentId: incident.id
+          };
+        }
+
+        const presentation = getRoomStatusPresentation("dirty");
+        return {
+          ...room,
+          status: "dirty",
+          readiness: presentation.readiness,
+          readinessLabel: "После ремонта",
+          housekeepingNote: "Нужна уборка после ремонта",
+          nextAction: "Провести уборку и инспекцию перед продажей",
+          occupancyLabel: "После ремонта",
+          priority: "normal",
+          outOfOrderReason: "",
+          activeMaintenanceIncidentId: null
+        };
+      })
+    );
+  }
+
   function updateRoomStatus(roomId: string, status: RoomStatus) {
     const room = rooms.find((entry) => entry.id === roomId);
     if (!room) {
@@ -1057,10 +1206,24 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
           ? {
               ...entry,
               status,
+              readiness: presentation.readiness,
+              readinessLabel: presentation.readinessLabel,
               housekeepingNote: presentation.housekeepingNote,
               nextAction: presentation.nextAction,
               occupancyLabel: presentation.occupancyLabel,
-              priority: derivePriority(status, entry.priority)
+              priority: derivePriority(status, entry.priority),
+              lastCleanedAt:
+                status === "available" || status === "inspected"
+                  ? new Date().toISOString()
+                  : entry.lastCleanedAt,
+              outOfOrderReason:
+                status === "blocked_maintenance" || status === "out_of_service"
+                  ? entry.outOfOrderReason
+                  : "",
+              activeMaintenanceIncidentId:
+                status === "blocked_maintenance" || status === "out_of_service"
+                  ? entry.activeMaintenanceIncidentId
+                  : null
             }
           : entry
       )
@@ -1082,7 +1245,16 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
             status: "queued",
             taskType: "manual_clean",
             note: "Created from room status change",
-            dueLabel: "Queue now"
+            dueLabel: "Queue now",
+            assigneeName: "",
+            shiftLabel: "Current shift",
+            problemNote: "",
+            requestedInspection: false,
+            checklist: [],
+            evidence: [],
+            consumables: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
           },
           ...current
         ];
@@ -1094,11 +1266,11 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         }
 
         if (status === "cleaning") {
-          return { ...task, status: "in_progress", dueLabel: "Cleaning now" };
+          return { ...task, status: "in_progress", dueLabel: "Cleaning now", updatedAt: new Date().toISOString() };
         }
 
         if (status === "inspected") {
-          return { ...task, status: "completed", dueLabel: "Done" };
+          return { ...task, status: "completed", dueLabel: "Done", updatedAt: new Date().toISOString() };
         }
 
         return task;
@@ -1130,11 +1302,27 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     });
   }
 
-  function updateHousekeepingTask(taskId: string, status: HousekeepingTaskStatus) {
+  function updateHousekeepingTask(taskId: string, input: HousekeepingTaskStatus | HousekeepingTaskPatch) {
     const task = housekeepingTasks.find((entry) => entry.id === taskId);
     if (!task) {
       return;
     }
+
+    const patch = typeof input === "string" ? { status: input } : input;
+    const status = patch.status ?? task.status;
+    const dueLabel =
+      patch.dueLabel ??
+      (status === "completed"
+        ? "Done"
+        : status === "in_progress"
+          ? "Cleaning now"
+          : status === "inspection_requested"
+            ? "Inspection requested"
+            : status === "paused"
+              ? "Paused this shift"
+              : status === "problem_reported"
+                ? "Waiting for maintenance"
+                : task.dueLabel);
 
     setHousekeepingTasks((current) =>
       current.map((entry) =>
@@ -1142,7 +1330,12 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
           ? {
               ...entry,
               status,
-              dueLabel: status === "completed" ? "Done" : status === "in_progress" ? "Cleaning now" : entry.dueLabel
+              ...patch,
+              requestedInspection:
+                (patch.requestedInspection ?? entry.requestedInspection ?? false) ||
+                status === "inspection_requested",
+              dueLabel,
+              updatedAt: new Date().toISOString()
             }
           : entry
       )
@@ -1151,6 +1344,9 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     const roomStatusMap: Record<HousekeepingTaskStatus, RoomStatus | null> = {
       queued: "dirty",
       in_progress: "cleaning",
+      paused: "dirty",
+      inspection_requested: "inspected",
+      problem_reported: "dirty",
       completed: "inspected",
       cancelled: "dirty"
     };
@@ -1164,21 +1360,57 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
             ? {
                 ...room,
                 status: nextRoomStatus,
+                readiness: presentation.readiness,
+                readinessLabel:
+                  status === "inspection_requested" ? "Ждет проверки" : presentation.readinessLabel,
                 housekeepingNote: presentation.housekeepingNote,
                 nextAction: presentation.nextAction,
-                occupancyLabel: presentation.occupancyLabel
+                occupancyLabel: presentation.occupancyLabel,
+                lastCleanedAt:
+                  status === "completed" || status === "inspection_requested"
+                    ? new Date().toISOString()
+                    : room.lastCleanedAt
               }
             : room
         )
       );
     }
 
+    if (status === "completed" && task.status !== "completed") {
+      const billableConsumables = (patch.consumables ?? task.consumables).filter(
+        (item) => item.postToFolio && item.unitPrice > 0
+      );
+      const activeReservation = reservations.find(
+        (reservation) => reservation.status === "checked_in" && reservation.roomLabel === task.roomNumber
+      );
+
+      if (activeReservation) {
+        billableConsumables.forEach((item) => {
+          addFolioCharge({
+            reservationId: activeReservation.id,
+            guestName: activeReservation.guestName,
+            type: "minibar",
+            description: `${item.item} x${item.quantity}`,
+            amount: item.unitPrice * item.quantity,
+            idempotencyKey: `${taskId}_${item.id}`
+          });
+        });
+      }
+    }
+
     const syncItem = enqueueSyncItem({
       entityType: "housekeeping_task",
       entityId: taskId,
       operation: "update",
-      action: "update_housekeeping",
-      payloadJson: JSON.stringify({ taskId, status }),
+      action:
+        Object.keys(patch).length === 1 && patch.status
+          ? "update_housekeeping"
+          : "patch_housekeeping",
+      payloadJson: JSON.stringify(
+        Object.keys(patch).length === 1 && patch.status
+          ? { taskId, status }
+          : { taskId, patch: { ...patch, status, dueLabel } }
+      ),
       localVersion: 1,
       status: "queued",
       summary: `Housekeeping task for room ${task.roomNumber} changed to ${status.replaceAll("_", " ")}`,
@@ -1195,6 +1427,155 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     void syncNow(syncItem, {
       successLabel: "Housekeeping synced",
       failureLabel: "Housekeeping API update failed"
+    });
+  }
+
+  function createMaintenanceIncident(input: MaintenanceCreate) {
+    const incident: MaintenanceIncident = {
+      id: `maint_${input.roomId}_${Date.now()}`,
+      roomId: input.roomId,
+      roomNumber: input.roomNumber,
+      title: input.title,
+      description: input.description,
+      priority: input.priority,
+      status: "open",
+      assignee: input.assignee,
+      reportedBy: input.reportedBy,
+      locationLabel: input.locationLabel,
+      impact: input.impact,
+      roomBlocked: input.roomBlocked,
+      resolutionNote: "",
+      linkedHousekeepingTaskId: input.linkedHousekeepingTaskId,
+      evidence: input.evidence,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      resolvedAt: null
+    };
+
+    setMaintenanceIncidents((current) => [incident, ...current]);
+    syncRoomFromMaintenanceIncident(incident);
+    appendAuditLog({
+      entityType: "room",
+      entityId: input.roomId,
+      action: "maintenance_created",
+      reason: input.title
+    });
+
+    const syncItem = enqueueSyncItem({
+      entityType: "maintenance_incident",
+      entityId: incident.id,
+      operation: "create",
+      action: "create_maintenance_incident",
+      payloadJson: JSON.stringify(input),
+      localVersion: 1,
+      status: "queued",
+      summary: `Maintenance ticket created for room ${input.roomNumber}`,
+      lastAttemptLabel: "Maintenance ticket queued",
+      retryCount: 0
+    });
+
+    void syncNow(syncItem, {
+      successLabel: "Maintenance incident synced",
+      failureLabel: "Maintenance API update failed"
+    });
+  }
+
+  function updateMaintenanceIncident(incidentId: string, input: MaintenanceUpdate) {
+    const currentIncident = maintenanceIncidents.find((entry) => entry.id === incidentId);
+    if (!currentIncident) {
+      return;
+    }
+
+    const nextStatus = input.status ?? currentIncident.status;
+    const updatedIncident: MaintenanceIncident = {
+      ...currentIncident,
+      ...input,
+      status: nextStatus,
+      updatedAt: new Date().toISOString(),
+      resolvedAt:
+        nextStatus === "resolved"
+          ? currentIncident.resolvedAt ?? new Date().toISOString()
+          : nextStatus === "cancelled"
+            ? currentIncident.resolvedAt
+            : null
+    };
+
+    setMaintenanceIncidents((current) =>
+      current.map((entry) => (entry.id === incidentId ? updatedIncident : entry))
+    );
+    syncRoomFromMaintenanceIncident(updatedIncident);
+
+    if (nextStatus === "resolved" || nextStatus === "cancelled") {
+      const hasOpenResetTask = housekeepingTasks.some(
+        (entry) =>
+          entry.roomId === updatedIncident.roomId &&
+          entry.status !== "completed" &&
+          entry.status !== "cancelled"
+      );
+
+      if (!hasOpenResetTask) {
+        setHousekeepingTasks((current) => [
+          {
+            id: `task_post_maint_${updatedIncident.roomId}_${Date.now()}`,
+            roomId: updatedIncident.roomId,
+            roomNumber: updatedIncident.roomNumber,
+            priority: "urgent",
+            status: "queued",
+            taskType: "inspection",
+            note: "Вернуть номер в продажу после ремонта",
+            dueLabel: "До открытия продаж",
+            assigneeName: "",
+            shiftLabel: "Следующая смена",
+            problemNote: "",
+            requestedInspection: true,
+            checklist: [
+              { label: "Проверить качество ремонта", done: false },
+              { label: "Освежить номер", done: false }
+            ],
+            evidence: [],
+            consumables: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          ...current
+        ]);
+      }
+    }
+
+    appendAuditLog({
+      entityType: "room",
+      entityId: updatedIncident.roomId,
+      action: "maintenance_updated",
+      reason: `${updatedIncident.title} -> ${nextStatus}`
+    });
+
+    const syncItem = enqueueSyncItem({
+      entityType: "maintenance_incident",
+      entityId: updatedIncident.id,
+      operation: "update",
+      action:
+        nextStatus === "resolved" ? "resolve_maintenance_incident" : "update_maintenance_incident",
+      payloadJson: JSON.stringify({
+        incidentId: updatedIncident.id,
+        patch: input
+      }),
+      localVersion: 1,
+      status: "queued",
+      summary: `Maintenance task for room ${updatedIncident.roomNumber} changed to ${nextStatus.replaceAll("_", " ")}`,
+      lastAttemptLabel: "Queued locally",
+      retryCount: 0
+    });
+
+    void syncNow(syncItem, {
+      successLabel: "Maintenance incident synced",
+      failureLabel: "Maintenance API update failed"
+    });
+  }
+
+  function resolveMaintenanceIncident(incidentId: string, resolutionNote = "Resolved from mobile") {
+    updateMaintenanceIncident(incidentId, {
+      status: "resolved",
+      resolutionNote
     });
   }
 
@@ -1479,6 +1860,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         reservations,
         rooms,
         housekeepingTasks,
+        maintenanceIncidents,
         folios,
         folioDetails,
         payments,
@@ -1498,9 +1880,12 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         updateRoomStatus,
         getAllowedRoomTransitions,
         updateHousekeepingTask,
+        createMaintenanceIncident,
+        updateMaintenanceIncident,
+        resolveMaintenanceIncident,
         addFolioCharge,
         recordPayment,
-        searchRecords: (query) => toSearchResults(query, reservations, rooms)
+        searchRecords: (query) => toSearchResults(query, reservations, rooms, maintenanceIncidents)
       }}
     >
       {children}

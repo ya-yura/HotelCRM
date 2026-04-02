@@ -52,7 +52,15 @@ export function SettingsPage() {
   const [roomForm, setRoomForm] = useState({
     number: "",
     roomType: "Стандарт",
-    priority: "normal" as "normal" | "arrival_soon" | "blocked"
+    priority: "normal" as "normal" | "arrival_soon" | "blocked",
+    unitKind: "room" as "room" | "bed" | "glamp_unit",
+    floor: "",
+    zone: "",
+    occupancyLimit: 2,
+    amenities: [] as string[],
+    minibarEnabled: false,
+    nextArrivalLabel: "",
+    glampingMetadata: null as null
   });
   const [propertyForm, setPropertyForm] = useState<PropertySummary>(emptyProperty);
   const [propertySecret, setPropertySecret] = useState("");
@@ -104,7 +112,19 @@ export function SettingsPage() {
     try {
       await createRoomRequest(roomForm);
       await reloadFromRemote();
-      setRoomForm({ number: "", roomType: "Стандарт", priority: "normal" });
+      setRoomForm({
+        number: "",
+        roomType: "Стандарт",
+        priority: "normal",
+        unitKind: "room",
+        floor: "",
+        zone: "",
+        occupancyLimit: 2,
+        amenities: [],
+        minibarEnabled: false,
+        nextArrivalLabel: "",
+        glampingMetadata: null
+      });
       setRoomMessage("Номер добавлен.");
     } catch (cause) {
       setRoomMessage(cause instanceof Error ? cause.message : "Не удалось добавить номер.");

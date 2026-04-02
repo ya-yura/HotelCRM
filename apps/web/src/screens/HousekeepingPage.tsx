@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type {
   HousekeepingTaskStatus,
 } from "@hotel-crm/shared/housekeeping";
@@ -6,16 +7,20 @@ import { useHotelStore } from "../state/hotelStore";
 import { housekeepingStatusLabel } from "../lib/ru";
 
 const transitions: Record<HousekeepingTaskStatus, HousekeepingTaskStatus[]> = {
-  queued: ["in_progress", "cancelled"],
-  in_progress: ["completed", "cancelled"],
+  queued: ["in_progress", "paused", "problem_reported", "cancelled"],
+  in_progress: ["inspection_requested", "completed", "problem_reported", "paused"],
+  paused: ["in_progress", "problem_reported", "cancelled"],
+  inspection_requested: ["completed", "problem_reported"],
+  problem_reported: ["paused", "cancelled"],
   completed: [],
   cancelled: ["queued"]
 };
 
 export function HousekeepingPage() {
-  const { hasAnyRole } = useAuth();
-  const { housekeepingTasks: tasks, updateHousekeepingTask } = useHotelStore();
+  const { hasAnyRole, session } = useAuth();
+  const { housekeepingTasks: tasks, createMaintenanceIncident, updateHousekeepingTask } = useHotelStore();
   const canOperateHousekeeping = hasAnyRole(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]);
+  const [problemDrafts, setProblemDrafts] = useState<Record<string, string>>({});
 
   return (
     <div className="screen">
@@ -56,7 +61,11 @@ export function HousekeepingPage() {
               </div>
               <span
                 className={
-                  task.priority === "urgent" ? "status-badge status-dirty" : "status-badge status-inspected"
+                  task.priority === "urgent" || task.status === "problem_reported"
+                    ? "status-badge status-dirty"
+                    : task.status === "inspection_requested"
+                      ? "status-badge status-inspected"
+                      : "status-badge status-available"
                 }
               >
                 {task.dueLabel}
@@ -64,6 +73,20 @@ export function HousekeepingPage() {
             </div>
 
             <p className="muted">{task.note}</p>
+            <p className="muted">
+              Исполнитель: {task.assigneeName || "не назначен"} • Смена: {task.shiftLabel || "без смены"}
+            </p>
+            {task.checklist.length > 0 ? (
+              <p className="muted">
+                Чек-лист: {task.checklist.map((item) => `${item.done ? "✓" : "○"} ${item.label}`).join(" • ")}
+              </p>
+            ) : null}
+            {task.consumables.length > 0 ? (
+              <p className="muted">
+                Расходники: {task.consumables.map((item) => `${item.item} x${item.quantity}`).join(", ")}
+              </p>
+            ) : null}
+            {task.problemNote ? <p className="muted">Проблема: {task.problemNote}</p> : null}
 
             <div className="status-actions">
               {canOperateHousekeeping ? transitions[task.status].map((nextStatus) => (
@@ -76,6 +99,49 @@ export function HousekeepingPage() {
                   {housekeepingStatusLabel(nextStatus)}
                 </button>
               )) : null}
+            </div>
+
+            <div className="status-actions">
+              <input
+                placeholder="Поломка или заметка для техслужбы"
+                value={problemDrafts[task.id] ?? ""}
+                onChange={(event) =>
+                  setProblemDrafts((current) => ({ ...current, [task.id]: event.target.value }))
+                }
+              />
+              <button
+                className="secondary-button"
+                disabled={!canOperateHousekeeping || (problemDrafts[task.id] ?? "").trim().length < 3}
+                onClick={() => {
+                  const description = (problemDrafts[task.id] ?? "").trim();
+                  if (description.length < 3) {
+                    return;
+                  }
+
+                  updateHousekeepingTask(task.id, {
+                    status: "problem_reported",
+                    problemNote: description
+                  });
+                  createMaintenanceIncident({
+                    roomId: task.roomId,
+                    roomNumber: task.roomNumber,
+                    title: description,
+                    description,
+                    priority: task.priority === "urgent" ? "high" : "normal",
+                    assignee: "",
+                    reportedBy: session?.userName ?? "",
+                    locationLabel: task.roomNumber,
+                    impact: "block_from_sale",
+                    roomBlocked: true,
+                    linkedHousekeepingTaskId: task.id,
+                    evidence: []
+                  });
+                  setProblemDrafts((current) => ({ ...current, [task.id]: "" }));
+                }}
+                type="button"
+              >
+                Передать в техслужбу
+              </button>
             </div>
           </article>
         ))}
