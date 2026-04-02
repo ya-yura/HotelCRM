@@ -15,7 +15,7 @@ import {
 export async function registerAzHousekeepingRoutes(app: FastifyInstance) {
   app.get(
     "/azhotel/housekeeping/dashboard",
-    { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -30,7 +30,7 @@ export async function registerAzHousekeepingRoutes(app: FastifyInstance) {
 
   app.get(
     "/azhotel/housekeeping/tasks",
-    { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -45,7 +45,7 @@ export async function registerAzHousekeepingRoutes(app: FastifyInstance) {
 
   app.patch<{ Params: { id: string } }>(
     "/azhotel/housekeeping/tasks/:id",
-    { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {

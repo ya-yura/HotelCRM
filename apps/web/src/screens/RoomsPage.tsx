@@ -5,7 +5,7 @@ import { roomStatusLabel, roomTypeLabel } from "../lib/ru";
 export function RoomsPage() {
   const { hasAnyRole } = useAuth();
   const { rooms, updateRoomStatus, getAllowedRoomTransitions } = useHotelStore();
-  const canOperateRooms = hasAnyRole(["owner", "frontdesk", "housekeeping"]);
+  const canOperateRooms = hasAnyRole(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]);
 
   return (
     <div className="screen">

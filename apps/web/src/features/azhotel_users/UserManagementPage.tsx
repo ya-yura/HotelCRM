@@ -14,9 +14,11 @@ export function UserManagementPage() {
   const { rooms, reservations, stays, payments } = useHotelStore();
   const [form, setForm] = useState({
     name: "",
-    role: "frontdesk" as "frontdesk" | "housekeeping" | "accountant",
+    role: "frontdesk" as "manager" | "frontdesk" | "housekeeping" | "maintenance" | "accountant",
     azAccessRole: "staff" as "admin" | "staff",
-    pin: ""
+    email: "",
+    pin: "",
+    quickUnlockEnabled: true
   });
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -39,13 +41,18 @@ export function UserManagementPage() {
     setMessage("");
     setIsSaving(true);
     try {
-      await createStaffUserRequest(form);
+      await createStaffUserRequest({
+        ...form,
+        email: form.email.trim() || undefined
+      });
       await refreshUsers();
       setForm({
         name: "",
         role: "frontdesk",
         azAccessRole: "staff",
-        pin: ""
+        email: "",
+        pin: "",
+        quickUnlockEnabled: true
       });
       if (isGuideMode && onboarding.isOwner) {
         navigate(withGuideMode("/shahmatka/bookings/new"), {
@@ -115,10 +122,19 @@ export function UserManagementPage() {
                 }))
               }
             >
+              <option value="manager">Управляющий</option>
               <option value="frontdesk">Администратор стойки</option>
               <option value="housekeeping">Уборка</option>
+              <option value="maintenance">Техслужба</option>
               <option value="accountant">Бухгалтер</option>
             </select>
+          </label>
+          <label>
+            <span>Email</span>
+            <input
+              value={form.email}
+              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+            />
           </label>
           <label>
             <span>PIN для входа</span>
@@ -126,6 +142,21 @@ export function UserManagementPage() {
               value={form.pin}
               onChange={(event) => setForm((current) => ({ ...current, pin: event.target.value }))}
             />
+          </label>
+          <label>
+            <span>Быстрая разблокировка</span>
+            <select
+              value={form.quickUnlockEnabled ? "on" : "off"}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  quickUnlockEnabled: event.target.value === "on"
+                }))
+              }
+            >
+              <option value="on">Включена</option>
+              <option value="off">Выключена</option>
+            </select>
           </label>
           {message ? <p className="muted">{message}</p> : null}
           <button className="primary-button" type="submit" disabled={isSaving}>
@@ -140,6 +171,8 @@ export function UserManagementPage() {
             <p className="eyebrow">{azAccessRoleLabel(user.azAccessRole)} • {roleLabel(user.role)}</p>
             <h3>{user.name}</h3>
             <p className="muted">ID: {user.id}</p>
+            <p className="muted">Email: {user.email || "не указан"}</p>
+            <p className="muted">Быстрая разблокировка: {user.quickUnlockEnabled ? "да" : "нет"}</p>
             <p className="muted">{user.pinHint}</p>
           </article>
         ))}

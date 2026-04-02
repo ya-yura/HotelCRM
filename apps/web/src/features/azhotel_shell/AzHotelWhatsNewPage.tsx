@@ -41,9 +41,9 @@ export function AzHotelWhatsNewPage() {
   ];
 
   const staffHighlights = [
-    ...(hasAnyRole(["frontdesk"]) ? [{ title: "Начать с обзора дня", detail: "Заезды, выезды и срочные задачи на одном экране.", to: "/shahmatka/today" }] : []),
-    ...(hasAnyRole(["frontdesk"]) ? [{ title: "Открыть брони", detail: "Шахматка и быстрые действия по гостям без лишних переходов.", to: "/shahmatka/bookings" }] : []),
-    ...(hasAnyRole(["housekeeping"]) ? [{ title: "Открыть уборку", detail: "Видны только ваши задачи и грязные номера, которые нужно выпустить.", to: "/shahmatka/housekeeping/tasks" }] : []),
+    ...(hasAnyRole(["manager", "frontdesk"]) ? [{ title: "Начать с обзора дня", detail: "Заезды, выезды и срочные задачи на одном экране.", to: "/shahmatka/today" }] : []),
+    ...(hasAnyRole(["manager", "frontdesk"]) ? [{ title: "Открыть брони", detail: "Шахматка и быстрые действия по гостям без лишних переходов.", to: "/shahmatka/bookings" }] : []),
+    ...(hasAnyRole(["housekeeping", "maintenance"]) ? [{ title: "Открыть уборку", detail: "Видны только ваши задачи и грязные номера, которые нужно выпустить.", to: "/shahmatka/housekeeping/tasks" }] : []),
     ...(hasAnyRole(["accountant"]) ? [{ title: "Открыть оплаты", detail: "Работа с долгами и движением по счёту гостей.", to: "/payments" }] : [])
   ];
 

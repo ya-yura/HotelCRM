@@ -8,7 +8,7 @@ import { requirePropertySession } from "../lib/property";
 import { createHousekeepingTask, listHousekeepingTasks, updateHousekeepingTask } from "../services/housekeepingStore";
 
 export async function registerHousekeepingRoutes(app: FastifyInstance) {
-  app.get("/housekeeping/tasks", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+app.get("/housekeeping/tasks", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -16,7 +16,7 @@ export async function registerHousekeepingRoutes(app: FastifyInstance) {
     return housekeepingTaskSummarySchema.array().parse(await listHousekeepingTasks(propertyId));
   });
 
-  app.post("/housekeeping/tasks", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+app.post("/housekeeping/tasks", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -25,7 +25,7 @@ export async function registerHousekeepingRoutes(app: FastifyInstance) {
     return reply.code(201).send(housekeepingTaskSummarySchema.parse(await createHousekeepingTask(propertyId, payload)));
   });
 
-  app.patch<{ Params: { id: string } }>("/housekeeping/tasks/:id", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+app.patch<{ Params: { id: string } }>("/housekeeping/tasks/:id", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -43,7 +43,7 @@ export async function registerHousekeepingRoutes(app: FastifyInstance) {
     return housekeepingTaskSummarySchema.parse(task);
   });
 
-  app.post<{ Params: { id: string } }>("/housekeeping/tasks/:id/start", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+app.post<{ Params: { id: string } }>("/housekeeping/tasks/:id/start", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -56,7 +56,7 @@ export async function registerHousekeepingRoutes(app: FastifyInstance) {
     return housekeepingTaskSummarySchema.parse(task);
   });
 
-  app.post<{ Params: { id: string } }>("/housekeeping/tasks/:id/complete", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+app.post<{ Params: { id: string } }>("/housekeeping/tasks/:id/complete", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -69,7 +69,7 @@ export async function registerHousekeepingRoutes(app: FastifyInstance) {
     return housekeepingTaskSummarySchema.parse(task);
   });
 
-  app.post<{ Params: { id: string } }>("/housekeeping/tasks/:id/cancel", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+app.post<{ Params: { id: string } }>("/housekeeping/tasks/:id/cancel", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;

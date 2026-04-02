@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import {
   authLoginRequestSchema,
+  authReauthRequestSchema,
   authSessionSchema,
   authStaffCreateRequestSchema,
   authUserSummarySchema
@@ -14,6 +15,7 @@ import {
   listAuthUsers,
   login,
   logoutSession,
+  reauthSession,
   registerOwner
 } from "../services/authStore";
 import { resolveSessionToken } from "../lib/auth";
@@ -33,7 +35,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
     return authUserSummarySchema.array().parse(await listAuthUsers(propertyId));
   });
 
-  app.post("/auth/staff", { preHandler: [requireRoles(["owner", "frontdesk", "housekeeping", "accountant"]), requireAzAccess(["admin"])] }, async (request, reply) => {
+  app.post("/auth/staff", { preHandler: [requireRoles(["owner", "manager"]), requireAzAccess(["admin"])] }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -45,7 +47,9 @@ export async function registerAuthRoutes(app: FastifyInstance) {
       name: payload.name,
       role: payload.role,
       azAccessRole: payload.azAccessRole,
-      pin: payload.pin
+      email: payload.email,
+      pin: payload.pin,
+      quickUnlockEnabled: payload.quickUnlockEnabled
     });
     if (!created) {
       return reply.code(409).send({
@@ -61,7 +65,10 @@ export async function registerAuthRoutes(app: FastifyInstance) {
         role: created.role,
         azAccessRole: created.azAccessRole,
         propertyId: created.propertyId,
-        pinHint: `PIN ends with ${created.pin?.slice(-2) ?? ""}`
+        email: created.email,
+        active: created.active,
+        quickUnlockEnabled: created.quickUnlockEnabled,
+        pinHint: created.pinHint ?? "PIN configured"
       })
     );
   });
@@ -89,6 +96,27 @@ export async function registerAuthRoutes(app: FastifyInstance) {
       return reply.code(401).send({
         code: "INVALID_CREDENTIALS",
         message: "Wrong credentials"
+      });
+    }
+
+    return authSessionSchema.parse(session);
+  });
+
+  app.post("/auth/reauth", async (request, reply) => {
+    const token = resolveSessionToken(request);
+    if (!token) {
+      return reply.code(401).send({
+        code: "AUTH_REQUIRED",
+        message: "Session not found"
+      });
+    }
+
+    const payload = authReauthRequestSchema.parse(request.body);
+    const session = await reauthSession(token, payload.secret);
+    if (!session) {
+      return reply.code(401).send({
+        code: "INVALID_CREDENTIALS",
+        message: "Неверный пароль или PIN для подтверждения"
       });
     }
 

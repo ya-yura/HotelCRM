@@ -39,7 +39,7 @@ function sendFrontdeskError(
 export async function registerAzFrontdeskRoutes(app: FastifyInstance) {
   app.post<{ Params: { id: string } }>(
     "/azhotel/bookings/:id/check-in/quote",
-    { preHandler: requireRoles(["owner", "frontdesk"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -58,7 +58,7 @@ export async function registerAzFrontdeskRoutes(app: FastifyInstance) {
 
   app.post<{ Params: { id: string } }>(
     "/azhotel/bookings/:id/check-in",
-    { preHandler: requireRoles(["owner", "frontdesk"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -77,7 +77,7 @@ export async function registerAzFrontdeskRoutes(app: FastifyInstance) {
 
   app.post<{ Params: { id: string } }>(
     "/azhotel/bookings/:id/check-out/quote",
-    { preHandler: requireRoles(["owner", "frontdesk"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -96,7 +96,7 @@ export async function registerAzFrontdeskRoutes(app: FastifyInstance) {
 
   app.post<{ Params: { id: string } }>(
     "/azhotel/bookings/:id/check-out",
-    { preHandler: requireRoles(["owner", "frontdesk"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {

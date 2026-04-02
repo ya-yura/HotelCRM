@@ -33,7 +33,11 @@ import type {
   FolioSummary,
   PaymentRecord
 } from "@hotel-crm/shared/payments";
-import type { PropertySummary } from "@hotel-crm/shared/properties";
+import type {
+  PropertySummary,
+  PropertyType,
+  PropertyUpdateRequest
+} from "@hotel-crm/shared/properties";
 import type { ReservationCreate, ReservationSummary } from "@hotel-crm/shared/reservations";
 import type { RoomCreate, RoomStatus, RoomSummary } from "@hotel-crm/shared/rooms";
 import type { StayRecord } from "@hotel-crm/shared/stays";
@@ -41,6 +45,16 @@ import type { SyncConflict } from "@hotel-crm/shared/sync";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:3001/api";
 export const AUTH_TOKEN_STORAGE_KEY = "hotel-crm-auth-token";
+
+export class ApiError extends Error {
+  code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+  }
+}
 
 function getStoredToken() {
   if (typeof window === "undefined") {
@@ -84,9 +98,9 @@ async function request<T>(path: string, init?: RequestInit) {
               .filter(Boolean)
               .join(" ")
           : "";
-      throw new Error(detailText || parsed.message || `Ошибка запроса: ${response.status}`);
+      throw new ApiError(detailText || parsed.message || `Ошибка запроса: ${response.status}`, parsed.code);
     } catch {
-      throw new Error(rawBody || `Ошибка запроса: ${response.status}`);
+      throw new ApiError(rawBody || `Ошибка запроса: ${response.status}`);
     }
   }
 
@@ -430,9 +444,11 @@ export async function listAuthUsersRequest() {
 
 export async function createStaffUserRequest(input: {
   name: string;
-  role: "frontdesk" | "housekeeping" | "accountant";
+  role: "manager" | "frontdesk" | "housekeeping" | "maintenance" | "accountant";
   azAccessRole: "admin" | "staff";
+  email?: string;
   pin: string;
+  quickUnlockEnabled: boolean;
 }) {
   return request<AuthUserSummary>("/auth/staff", {
     method: "POST",
@@ -440,10 +456,10 @@ export async function createStaffUserRequest(input: {
   });
 }
 
-export async function loginRequest(identifier: string, secret: string) {
+export async function loginRequest(identifier: string, secret: string, deviceLabel: string) {
   return request<AuthSession>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ identifier, secret })
+    body: JSON.stringify({ identifier, secret, deviceLabel })
   });
 }
 
@@ -452,12 +468,32 @@ export async function registerOwnerRequest(input: {
   hotelName: string;
   email: string;
   password: string;
+  city: string;
   timezone: string;
   currency: string;
   address: string;
+  propertyType: PropertyType;
 }) {
   return request<{ property: PropertySummary; session: AuthSession }>("/auth/register-owner", {
     method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function reauthRequest(secret: string) {
+  return request<AuthSession>("/auth/reauth", {
+    method: "POST",
+    body: JSON.stringify({ secret })
+  });
+}
+
+export async function loadCurrentPropertyRequest() {
+  return request<PropertySummary>("/properties/current");
+}
+
+export async function updateCurrentPropertyRequest(input: PropertyUpdateRequest) {
+  return request<PropertySummary>("/properties/current", {
+    method: "PATCH",
     body: JSON.stringify(input)
   });
 }

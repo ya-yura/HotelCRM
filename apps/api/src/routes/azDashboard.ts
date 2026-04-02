@@ -7,7 +7,7 @@ import { getAzTodayDashboard } from "../services/azDashboardStore";
 export async function registerAzDashboardRoutes(app: FastifyInstance) {
   app.get(
     "/azhotel/dashboard/today",
-    { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {

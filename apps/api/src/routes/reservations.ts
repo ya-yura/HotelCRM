@@ -9,7 +9,7 @@ import { getRoom, updateRoomStatus } from "../services/roomStore";
 import { closeStay, createStay, getActiveStayByReservation } from "../services/stayStore";
 
 export async function registerReservationRoutes(app: FastifyInstance) {
-  app.get("/reservations", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
+  app.get("/reservations", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -17,7 +17,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.array().parse(await listReservations(propertyId));
   });
 
-  app.get<{ Params: { id: string } }>("/reservations/:id", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
+  app.get<{ Params: { id: string } }>("/reservations/:id", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -30,7 +30,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post("/reservations", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post("/reservations", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -50,7 +50,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     });
   });
 
-  app.patch<{ Params: { id: string } }>("/reservations/:id", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.patch<{ Params: { id: string } }>("/reservations/:id", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -70,7 +70,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post<{ Params: { id: string } }>("/reservations/:id/confirm", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/reservations/:id/confirm", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -89,7 +89,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post<{ Params: { id: string } }>("/reservations/:id/check-in", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/reservations/:id/check-in", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -134,7 +134,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post<{ Params: { id: string } }>("/reservations/:id/check-out", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/reservations/:id/check-out", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -170,7 +170,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post<{ Params: { id: string } }>("/reservations/:id/cancel", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/reservations/:id/cancel", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -189,7 +189,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post<{ Params: { id: string } }>("/reservations/:id/no-show", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/reservations/:id/no-show", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -202,7 +202,7 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     return reservationSummarySchema.parse(reservation);
   });
 
-  app.post<{ Params: { id: string } }>("/reservations/:id/reassign-room", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/reservations/:id/reassign-room", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;

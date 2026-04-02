@@ -15,7 +15,7 @@ const transitions: Record<HousekeepingTaskStatus, HousekeepingTaskStatus[]> = {
 export function HousekeepingPage() {
   const { hasAnyRole } = useAuth();
   const { housekeepingTasks: tasks, updateHousekeepingTask } = useHotelStore();
-  const canOperateHousekeeping = hasAnyRole(["owner", "frontdesk", "housekeeping"]);
+  const canOperateHousekeeping = hasAnyRole(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]);
 
   return (
     <div className="screen">

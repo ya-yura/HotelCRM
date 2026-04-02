@@ -62,3 +62,30 @@ export function requireAzAccess(roles: Array<"admin" | "staff">) {
     }
   };
 }
+
+export function requireRecentAuth(maxAgeMinutes = 10) {
+  return async function recentAuthGuard(request: FastifyRequest, reply: FastifyReply) {
+    if (!request.authSession) {
+      return reply.code(401).send({
+        code: "AUTH_REQUIRED",
+        message: "Login is required"
+      });
+    }
+
+    const recentAuthAt = new Date(request.authSession.recentAuthAt).getTime();
+    if (Number.isNaN(recentAuthAt)) {
+      return reply.code(403).send({
+        code: "RECENT_AUTH_REQUIRED",
+        message: "Подтвердите действие повторным вводом пароля или PIN"
+      });
+    }
+
+    const diffMs = Date.now() - recentAuthAt;
+    if (diffMs > maxAgeMinutes * 60_000) {
+      return reply.code(403).send({
+        code: "RECENT_AUTH_REQUIRED",
+        message: "Подтвердите действие повторным вводом пароля или PIN"
+      });
+    }
+  };
+}

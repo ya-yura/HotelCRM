@@ -25,7 +25,7 @@ const defaultChargeForm: CreateCharge = {
 export function PaymentsPage() {
   const { hasAnyRole } = useAuth();
   const { folios, folioDetails, payments, addFolioCharge, recordPayment } = useHotelStore();
-  const canOperatePayments = hasAnyRole(["owner", "frontdesk", "accountant"]);
+  const canOperatePayments = hasAnyRole(["owner", "manager", "frontdesk", "accountant"]);
   const [form, setForm] = useState<CreatePayment>(defaultForm);
   const [chargeForm, setChargeForm] = useState<CreateCharge>(defaultChargeForm);
 

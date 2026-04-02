@@ -5,7 +5,7 @@ import { requirePropertySession } from "../lib/property";
 import { listStays } from "../services/stayStore";
 
 export async function registerStayRoutes(app: FastifyInstance) {
-  app.get("/stays", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.get("/stays", { preHandler: requireRoles(["owner", "manager", "frontdesk"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;

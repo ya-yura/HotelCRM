@@ -10,17 +10,17 @@ import { roleLabel } from "../lib/ru";
 import { AzHotelNav } from "../features/azhotel_shell/AzHotelNav";
 
 const navItems = [
-  { to: "/today", label: "Сегодня", roles: ["owner", "frontdesk", "housekeeping", "accountant"] as HotelRole[] },
-  { to: "/reservations", label: "Брони", roles: ["owner", "frontdesk", "housekeeping", "accountant"] as HotelRole[] },
-  { to: "/rooms", label: "Номера", roles: ["owner", "frontdesk", "housekeeping"] as HotelRole[] },
-  { to: "/housekeeping", label: "Уборка", roles: ["owner", "frontdesk", "housekeeping"] as HotelRole[] },
-  { to: "/payments", label: "Оплаты", roles: ["owner", "frontdesk", "accountant"] as HotelRole[] },
-  { to: "/search", label: "Поиск", roles: ["owner", "frontdesk", "housekeeping", "accountant"] as HotelRole[] },
+  { to: "/today", label: "Сегодня", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"] as HotelRole[] },
+  { to: "/reservations", label: "Брони", roles: ["owner", "manager", "frontdesk", "housekeeping", "accountant"] as HotelRole[] },
+  { to: "/rooms", label: "Номера", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as HotelRole[] },
+  { to: "/housekeeping", label: "Уборка", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as HotelRole[] },
+  { to: "/payments", label: "Оплаты", roles: ["owner", "manager", "frontdesk", "accountant"] as HotelRole[] },
+  { to: "/search", label: "Поиск", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"] as HotelRole[] },
   ...(azhotelFullEnabled
-    ? [{ to: "/shahmatka", label: "Шахматка", roles: ["owner", "frontdesk", "housekeeping", "accountant"] as HotelRole[] }]
+    ? [{ to: "/shahmatka", label: "Шахматка", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"] as HotelRole[] }]
     : []),
   { to: "/setup", label: "Запуск", roles: ["owner"] as HotelRole[] },
-  { to: "/settings", label: "Настройки", roles: ["owner", "frontdesk", "housekeeping", "accountant"] as HotelRole[] }
+  { to: "/settings", label: "Настройки", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"] as HotelRole[] }
 ];
 
 export function AppShell() {

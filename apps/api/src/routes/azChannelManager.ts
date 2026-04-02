@@ -15,7 +15,7 @@ import {
 export async function registerAzChannelManagerRoutes(app: FastifyInstance) {
   app.get(
     "/azhotel/channel-manager",
-    { preHandler: [requireRoles(["owner", "frontdesk"]), requireAzAccess(["admin"])] },
+    { preHandler: [requireRoles(["owner", "manager", "frontdesk"]), requireAzAccess(["admin"])] },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -31,7 +31,7 @@ export async function registerAzChannelManagerRoutes(app: FastifyInstance) {
 
   app.post(
     "/azhotel/channel-manager/sync-inventory",
-    { preHandler: [requireRoles(["owner", "frontdesk"]), requireAzAccess(["admin"])] },
+    { preHandler: [requireRoles(["owner", "manager", "frontdesk"]), requireAzAccess(["admin"])] },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -45,7 +45,7 @@ export async function registerAzChannelManagerRoutes(app: FastifyInstance) {
 
   app.post(
     "/azhotel/channel-manager/sync-prices",
-    { preHandler: [requireRoles(["owner", "frontdesk"]), requireAzAccess(["admin"])] },
+    { preHandler: [requireRoles(["owner", "manager", "frontdesk"]), requireAzAccess(["admin"])] },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {

@@ -5,7 +5,7 @@ import { requirePropertySession } from "../lib/property";
 import { createRoom, getRoom, listRooms, updateRoomStatus } from "../services/roomStore";
 
 export async function registerRoomRoutes(app: FastifyInstance) {
-  app.get("/rooms", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+  app.get("/rooms", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -13,7 +13,7 @@ export async function registerRoomRoutes(app: FastifyInstance) {
     return roomSummarySchema.array().parse(await listRooms(propertyId));
   });
 
-  app.post("/rooms", { preHandler: requireRoles(["owner"]) }, async (request, reply) => {
+  app.post("/rooms", { preHandler: requireRoles(["owner", "manager"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -31,7 +31,7 @@ export async function registerRoomRoutes(app: FastifyInstance) {
     return reply.code(201).send(roomSummarySchema.parse(room));
   });
 
-  app.get<{ Params: { id: string } }>("/rooms/:id", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+  app.get<{ Params: { id: string } }>("/rooms/:id", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -44,7 +44,7 @@ export async function registerRoomRoutes(app: FastifyInstance) {
     return roomSummarySchema.parse(room);
   });
 
-  app.patch<{ Params: { id: string } }>("/rooms/:id", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+  app.patch<{ Params: { id: string } }>("/rooms/:id", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -62,7 +62,7 @@ export async function registerRoomRoutes(app: FastifyInstance) {
     return roomSummarySchema.parse(room);
   });
 
-  app.post<{ Params: { id: string } }>("/rooms/:id/block", { preHandler: requireRoles(["owner", "frontdesk"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/rooms/:id/block", { preHandler: requireRoles(["owner", "manager", "frontdesk", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -75,7 +75,7 @@ export async function registerRoomRoutes(app: FastifyInstance) {
     return roomSummarySchema.parse(room);
   });
 
-  app.post<{ Params: { id: string } }>("/rooms/:id/return-to-service", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/rooms/:id/return-to-service", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;

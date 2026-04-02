@@ -17,7 +17,7 @@ import {
 export async function registerAzRoomRoutes(app: FastifyInstance) {
   app.get(
     "/azhotel/rooms",
-    { preHandler: requireRoles(["owner", "frontdesk"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk", "maintenance"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -29,7 +29,7 @@ export async function registerAzRoomRoutes(app: FastifyInstance) {
 
   app.get<{ Params: { id: string } }>(
     "/azhotel/rooms/:id",
-    { preHandler: requireRoles(["owner", "frontdesk"]) },
+    { preHandler: requireRoles(["owner", "manager", "frontdesk", "maintenance"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -45,7 +45,7 @@ export async function registerAzRoomRoutes(app: FastifyInstance) {
 
   app.post(
     "/azhotel/rooms",
-    { preHandler: requireRoles(["owner"]) },
+    { preHandler: requireRoles(["owner", "manager"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -65,7 +65,7 @@ export async function registerAzRoomRoutes(app: FastifyInstance) {
 
   app.patch<{ Params: { id: string } }>(
     "/azhotel/rooms/:id",
-    { preHandler: requireRoles(["owner"]) },
+    { preHandler: requireRoles(["owner", "manager"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -88,7 +88,7 @@ export async function registerAzRoomRoutes(app: FastifyInstance) {
 
   app.delete<{ Params: { id: string } }>(
     "/azhotel/rooms/:id",
-    { preHandler: requireRoles(["owner"]) },
+    { preHandler: requireRoles(["owner", "manager"]) },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {

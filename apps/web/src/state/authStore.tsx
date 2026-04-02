@@ -7,6 +7,7 @@ import {
   type PropsWithChildren
 } from "react";
 import type { AuthSession, AuthUserSummary, AzAccessRole, HotelRole } from "@hotel-crm/shared/auth";
+import type { PropertyType } from "@hotel-crm/shared/properties";
 import {
   AUTH_TOKEN_STORAGE_KEY,
   listAuthUsersRequest,
@@ -20,16 +21,19 @@ type AuthStoreValue = {
   users: AuthUserSummary[];
   session: AuthSession | null;
   isLoading: boolean;
+  refreshSession: () => Promise<void>;
   refreshUsers: () => Promise<void>;
-  login: (identifier: string, secret: string) => Promise<void>;
+  login: (identifier: string, secret: string, deviceLabel: string) => Promise<void>;
   registerOwner: (input: {
     ownerName: string;
     hotelName: string;
     email: string;
     password: string;
+    city: string;
     timezone: string;
     currency: string;
     address: string;
+    propertyType: PropertyType;
   }) => Promise<void>;
   logout: () => Promise<void>;
   hasAnyRole: (roles: HotelRole[]) => boolean;
@@ -59,6 +63,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
       .finally(() => setIsLoading(false));
   }, []);
 
+  async function refreshSession() {
+    try {
+      const currentSession = await loadSessionRequest();
+      setSession(currentSession);
+    } catch {
+      window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+      setSession(null);
+    }
+  }
+
   async function refreshUsers() {
     if (!session) {
       setUsers([]);
@@ -82,8 +96,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void refreshUsers();
   }, [session]);
 
-  async function login(identifier: string, secret: string) {
-    const nextSession = await loginRequest(identifier, secret);
+  async function login(identifier: string, secret: string, deviceLabel: string) {
+    const nextSession = await loginRequest(identifier, secret, deviceLabel);
     window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, nextSession.token);
     setSession(nextSession);
   }
@@ -93,9 +107,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     hotelName: string;
     email: string;
     password: string;
+    city: string;
     timezone: string;
     currency: string;
     address: string;
+    propertyType: PropertyType;
   }) {
     const created = await registerOwnerRequest(input);
     window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, created.session.token);
@@ -117,6 +133,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       users,
       session,
       isLoading,
+      refreshSession,
       refreshUsers,
       login,
       registerOwner,

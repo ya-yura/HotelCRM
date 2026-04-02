@@ -24,23 +24,23 @@ export function AzHotelHomePage() {
     payments
   });
   const quickActions = [
-    ...(hasAnyRole(["owner", "frontdesk"]) ? [{ to: "/shahmatka/bookings/new", label: "Создать бронь", detail: "Новый заезд или запись по телефону." }] : []),
-    ...(hasAnyRole(["owner", "frontdesk"]) ? [{ to: "/shahmatka/check-in", label: "Заселить гостя", detail: "Быстрый заезд по подтверждённой брони." }] : []),
-    ...(hasAnyRole(["owner", "frontdesk"]) ? [{ to: "/shahmatka/check-out", label: "Закрыть выезд", detail: "Финальный расчёт и освобождение номера." }] : []),
-    ...(hasAnyRole(["owner", "frontdesk", "housekeeping"]) ? [{ to: "/shahmatka/housekeeping/tasks", label: "Задачи уборки", detail: "Что нужно сделать прямо сейчас." }] : []),
-    ...(hasAnyAzAccess(["admin"]) ? [{ to: "/shahmatka/users", label: "Добавить сотрудника", detail: "Новый сотрудник и права доступа." }] : []),
-    ...(hasAnyRole(["owner", "frontdesk"]) ? [{ to: "/shahmatka/rooms", label: "Проверить номера", detail: "Статусы, цены и готовность к продаже." }] : []),
+    ...(hasAnyRole(["owner", "manager", "frontdesk"]) ? [{ to: "/shahmatka/bookings/new", label: "Создать бронь", detail: "Новый заезд или запись по телефону." }] : []),
+    ...(hasAnyRole(["owner", "manager", "frontdesk"]) ? [{ to: "/shahmatka/check-in", label: "Заселить гостя", detail: "Быстрый заезд по подтверждённой брони." }] : []),
+    ...(hasAnyRole(["owner", "manager", "frontdesk"]) ? [{ to: "/shahmatka/check-out", label: "Закрыть выезд", detail: "Финальный расчёт и освобождение номера." }] : []),
+    ...(hasAnyRole(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]) ? [{ to: "/shahmatka/housekeeping/tasks", label: "Задачи уборки", detail: "Что нужно сделать прямо сейчас." }] : []),
+    ...(hasAnyAzAccess(["admin"]) && hasAnyRole(["owner", "manager"]) ? [{ to: "/shahmatka/users", label: "Добавить сотрудника", detail: "Новый сотрудник и права доступа." }] : []),
+    ...(hasAnyRole(["owner", "manager", "frontdesk", "maintenance"]) ? [{ to: "/shahmatka/rooms", label: "Проверить номера", detail: "Статусы, цены и готовность к продаже." }] : []),
   ];
 
   const modules = [
-    ...(azhotelDashboardEnabled ? [{ to: "/shahmatka/today", title: "Обзор дня", detail: "Заезды, выезды, загрузка и быстрые цифры.", roles: ["owner", "frontdesk", "housekeeping"] as const, adminOnly: false }] : []),
-    ...(azhotelBookingsEnabled ? [{ to: "/shahmatka/bookings", title: "Шахматка и брони", detail: "Календарь, создание и редактирование броней.", roles: ["owner", "frontdesk"] as const, adminOnly: false }] : []),
-    ...(azhotelRoomsEnabled ? [{ to: "/shahmatka/rooms", title: "Номера", detail: "Типы, статусы и правила цены.", roles: ["owner", "frontdesk"] as const, adminOnly: false }] : []),
-    ...(azhotelFrontdeskEnabled ? [{ to: "/shahmatka/check-in", title: "Заезд и выезд", detail: "Быстрый поток заселения и выезда с допуслугами.", roles: ["owner", "frontdesk"] as const, adminOnly: false }] : []),
-    ...(azhotelHousekeepingEnabled ? [{ to: "/shahmatka/housekeeping", title: "Уборка", detail: "Очередь задач, грязные номера и назначения.", roles: ["owner", "frontdesk", "housekeeping"] as const, adminOnly: false }] : []),
-    ...(azhotelReportsEnabled ? [{ to: "/shahmatka/reports", title: "Отчёты", detail: "Выручка, загрузка и выгрузка за период.", roles: ["owner", "frontdesk", "accountant"] as const, adminOnly: true }] : []),
-    ...(azhotelChannelManagerEnabled ? [{ to: "/shahmatka/channels", title: "Каналы продаж", detail: "Доступность по площадкам и отправка цен с остатками.", roles: ["owner", "frontdesk"] as const, adminOnly: true }] : []),
-    { to: "/shahmatka/users", title: "Пользователи", detail: "Дополнительные аккаунты и права доступа.", roles: ["owner", "frontdesk", "housekeeping", "accountant"] as const, adminOnly: true }
+    ...(azhotelDashboardEnabled ? [{ to: "/shahmatka/today", title: "Обзор дня", detail: "Заезды, выезды, загрузка и быстрые цифры.", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as const, adminOnly: false }] : []),
+    ...(azhotelBookingsEnabled ? [{ to: "/shahmatka/bookings", title: "Шахматка и брони", detail: "Календарь, создание и редактирование броней.", roles: ["owner", "manager", "frontdesk"] as const, adminOnly: false }] : []),
+    ...(azhotelRoomsEnabled ? [{ to: "/shahmatka/rooms", title: "Номера", detail: "Типы, статусы и правила цены.", roles: ["owner", "manager", "frontdesk", "maintenance"] as const, adminOnly: false }] : []),
+    ...(azhotelFrontdeskEnabled ? [{ to: "/shahmatka/check-in", title: "Заезд и выезд", detail: "Быстрый поток заселения и выезда с допуслугами.", roles: ["owner", "manager", "frontdesk"] as const, adminOnly: false }] : []),
+    ...(azhotelHousekeepingEnabled ? [{ to: "/shahmatka/housekeeping", title: "Уборка", detail: "Очередь задач, грязные номера и назначения.", roles: ["owner", "manager", "frontdesk", "housekeeping", "maintenance"] as const, adminOnly: false }] : []),
+    ...(azhotelReportsEnabled ? [{ to: "/shahmatka/reports", title: "Отчёты", detail: "Выручка, загрузка и выгрузка за период.", roles: ["owner", "manager", "frontdesk", "accountant"] as const, adminOnly: true }] : []),
+    ...(azhotelChannelManagerEnabled ? [{ to: "/shahmatka/channels", title: "Каналы продаж", detail: "Доступность по площадкам и отправка цен с остатками.", roles: ["owner", "manager", "frontdesk"] as const, adminOnly: true }] : []),
+    { to: "/shahmatka/users", title: "Пользователи", detail: "Дополнительные аккаунты и права доступа.", roles: ["owner", "manager"] as const, adminOnly: true }
   ];
 
   return (

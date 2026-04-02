@@ -20,7 +20,7 @@ import {
 } from "../services/paymentStore";
 
 export async function registerPaymentRoutes(app: FastifyInstance) {
-  app.get("/payments", { preHandler: requireRoles(["owner", "frontdesk", "accountant"]) }, async (request, reply) => {
+  app.get("/payments", { preHandler: requireRoles(["owner", "manager", "frontdesk", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -28,7 +28,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     return paymentRecordSchema.array().parse(await listPayments(propertyId));
   });
 
-  app.get("/payments/folios", { preHandler: requireRoles(["owner", "frontdesk", "accountant"]) }, async (request, reply) => {
+  app.get("/payments/folios", { preHandler: requireRoles(["owner", "manager", "frontdesk", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -36,7 +36,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     return folioSummarySchema.array().parse(await listFolios(propertyId));
   });
 
-  app.get("/payments/folio-details", { preHandler: requireRoles(["owner", "frontdesk", "accountant"]) }, async (request, reply) => {
+  app.get("/payments/folio-details", { preHandler: requireRoles(["owner", "manager", "frontdesk", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -44,7 +44,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     return folioDetailsSchema.array().parse(await listFolioDetails(propertyId));
   });
 
-  app.get<{ Params: { reservationId: string } }>("/payments/folios/:reservationId", { preHandler: requireRoles(["owner", "frontdesk", "accountant"]) }, async (request, reply) => {
+  app.get<{ Params: { reservationId: string } }>("/payments/folios/:reservationId", { preHandler: requireRoles(["owner", "manager", "frontdesk", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -56,7 +56,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     return folioDetailsSchema.parse(folio);
   });
 
-  app.post("/payments/charges", { preHandler: requireRoles(["owner", "frontdesk", "accountant"]) }, async (request, reply) => {
+  app.post("/payments/charges", { preHandler: requireRoles(["owner", "manager", "frontdesk", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -70,7 +70,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     });
   });
 
-  app.post("/payments", { preHandler: requireRoles(["owner", "frontdesk", "accountant"]) }, async (request, reply) => {
+  app.post("/payments", { preHandler: requireRoles(["owner", "manager", "frontdesk", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -84,7 +84,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     });
   });
 
-  app.post<{ Params: { id: string } }>("/payments/:id/refund", { preHandler: requireRoles(["owner", "accountant"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/payments/:id/refund", { preHandler: requireRoles(["owner", "manager", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -98,7 +98,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
     return paymentRecordSchema.parse(reversal);
   });
 
-  app.post<{ Params: { id: string } }>("/payments/:id/void", { preHandler: requireRoles(["owner", "accountant"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/payments/:id/void", { preHandler: requireRoles(["owner", "manager", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;

@@ -2,9 +2,11 @@ import {
   createAzHotelCoreSeeds
 } from "@hotel-crm/shared/features/azhotel_core";
 import type { ComplianceSubmission } from "@hotel-crm/shared/compliance";
+import { propertySummarySchema, type PropertySummary, type PropertyType } from "@hotel-crm/shared/properties";
+import { createPinHint, hashSecret } from "../lib/credentials";
 import type { PropertyScoped, HotelData } from "./hotelDataTypes";
 
-export const schemaVersion = 3;
+export const schemaVersion = 4;
 export const demoPropertyId = "prop_demo_1";
 export const hostelPropertyId = "prop_hostel_1";
 export const glampPropertyId = "prop_glamp_1";
@@ -15,20 +17,183 @@ const azSeeds = [
   createAzHotelCoreSeeds(glampPropertyId)
 ];
 
+function buildProperty(input: {
+  id: string;
+  name: string;
+  city: string;
+  timezone: string;
+  currency: string;
+  address: string;
+  propertyType: PropertyType;
+  legalEntityName?: string;
+  taxId?: string;
+  registrationNumber?: string;
+}) {
+  return propertySummarySchema.parse({
+    id: input.id,
+    name: input.name,
+    city: input.city,
+    timezone: input.timezone,
+    currency: input.currency,
+    address: input.address,
+    active: true,
+    propertyType: input.propertyType,
+    legalInfo: {
+      legalEntityName: input.legalEntityName ?? input.name,
+      taxId: input.taxId ?? "",
+      registrationNumber: input.registrationNumber ?? "",
+      vatRate: "none"
+    },
+    notificationSettings: {
+      newReservationPush: true,
+      arrivalReminderPush: true,
+      housekeepingAlerts: true,
+      financeAlerts: true
+    },
+    operationSettings: {
+      defaultCheckInTime: "14:00",
+      defaultCheckOutTime: "12:00",
+      housekeepingStartTime: "09:00",
+      housekeepingEndTime: "18:00",
+      sharedDeviceMode: true
+    }
+  });
+}
+
+function buildUser(input: {
+  id: string;
+  propertyId: string;
+  name: string;
+  email?: string;
+  role: "owner" | "manager" | "frontdesk" | "housekeeping" | "maintenance" | "accountant";
+  azAccessRole: "admin" | "staff";
+  password?: string;
+  pin?: string;
+  quickUnlockEnabled?: boolean;
+}) {
+  return {
+    id: input.id,
+    propertyId: input.propertyId,
+    name: input.name,
+    email: input.email,
+    role: input.role,
+    azAccessRole: input.azAccessRole,
+    passwordHash: input.password ? hashSecret(input.password) : undefined,
+    pinHash: input.pin ? hashSecret(input.pin) : undefined,
+    pinHint: input.pin ? createPinHint(input.pin) : "Password login only",
+    quickUnlockEnabled: input.quickUnlockEnabled ?? true,
+    active: true
+  };
+}
+
 export const defaultData: HotelData = {
   schemaVersion,
   properties: [
-    { id: demoPropertyId, name: "Demo Hotel", timezone: "Europe/Moscow", currency: "RUB", address: "Москва, Demo street 1", active: true },
-    { id: hostelPropertyId, name: "Northern Lights Hostel", timezone: "Europe/Moscow", currency: "RUB", address: "Казань, ул. Баумана, 8", active: true },
-    { id: glampPropertyId, name: "Pine Wind Glamping", timezone: "Europe/Moscow", currency: "RUB", address: "Тверская область, берег озера", active: true }
+    buildProperty({
+      id: demoPropertyId,
+      name: "Demo Hotel",
+      city: "Москва",
+      timezone: "Europe/Moscow",
+      currency: "RUB",
+      address: "Москва, Demo street 1",
+      propertyType: "small_hotel",
+      legalEntityName: "ООО Демо Отель"
+    }),
+    buildProperty({
+      id: hostelPropertyId,
+      name: "Northern Lights Hostel",
+      city: "Казань",
+      timezone: "Europe/Moscow",
+      currency: "RUB",
+      address: "Казань, ул. Баумана, 8",
+      propertyType: "hostel",
+      legalEntityName: "ИП Хостел Север"
+    }),
+    buildProperty({
+      id: glampPropertyId,
+      name: "Pine Wind Glamping",
+      city: "Тверь",
+      timezone: "Europe/Moscow",
+      currency: "RUB",
+      address: "Тверская область, берег озера",
+      propertyType: "glamping",
+      legalEntityName: "ООО Пайн Винд"
+    })
   ],
   users: [
-    { id: "user_owner", propertyId: demoPropertyId, name: "Elena Owner", email: "owner@demo.hotel", role: "owner", azAccessRole: "admin", password: "owner123", pin: "1111", active: true },
-    { id: "user_frontdesk", propertyId: demoPropertyId, name: "Maksim Front Desk", role: "frontdesk", azAccessRole: "staff", pin: "2222", active: true },
-    { id: "user_housekeeping", propertyId: demoPropertyId, name: "Olga Housekeeping", role: "housekeeping", azAccessRole: "staff", pin: "3333", active: true },
-    { id: "user_accountant", propertyId: demoPropertyId, name: "Irina Accountant", role: "accountant", azAccessRole: "staff", pin: "4444", active: true },
-    { id: "user_hostel_owner", propertyId: hostelPropertyId, name: "Artem Hostel Owner", email: "owner@hostel.demo", role: "owner", azAccessRole: "admin", password: "hostel123", pin: "5555", active: true },
-    { id: "user_glamp_owner", propertyId: glampPropertyId, name: "Vera Glamp Owner", email: "owner@glamp.demo", role: "owner", azAccessRole: "admin", password: "glamp123", pin: "6666", active: true }
+    buildUser({
+      id: "user_owner",
+      propertyId: demoPropertyId,
+      name: "Elena Owner",
+      email: "owner@demo.hotel",
+      role: "owner",
+      azAccessRole: "admin",
+      password: "owner123",
+      pin: "1111"
+    }),
+    buildUser({
+      id: "user_manager",
+      propertyId: demoPropertyId,
+      name: "Daria Manager",
+      email: "manager@demo.hotel",
+      role: "manager",
+      azAccessRole: "admin",
+      pin: "1212"
+    }),
+    buildUser({
+      id: "user_frontdesk",
+      propertyId: demoPropertyId,
+      name: "Maksim Front Desk",
+      role: "frontdesk",
+      azAccessRole: "staff",
+      pin: "2222"
+    }),
+    buildUser({
+      id: "user_housekeeping",
+      propertyId: demoPropertyId,
+      name: "Olga Housekeeping",
+      role: "housekeeping",
+      azAccessRole: "staff",
+      pin: "3333"
+    }),
+    buildUser({
+      id: "user_maintenance",
+      propertyId: demoPropertyId,
+      name: "Roman Maintenance",
+      role: "maintenance",
+      azAccessRole: "staff",
+      pin: "3434",
+      quickUnlockEnabled: false
+    }),
+    buildUser({
+      id: "user_accountant",
+      propertyId: demoPropertyId,
+      name: "Irina Accountant",
+      role: "accountant",
+      azAccessRole: "staff",
+      pin: "4444",
+      quickUnlockEnabled: false
+    }),
+    buildUser({
+      id: "user_hostel_owner",
+      propertyId: hostelPropertyId,
+      name: "Artem Hostel Owner",
+      email: "owner@hostel.demo",
+      role: "owner",
+      azAccessRole: "admin",
+      password: "hostel123",
+      pin: "5555"
+    }),
+    buildUser({
+      id: "user_glamp_owner",
+      propertyId: glampPropertyId,
+      name: "Vera Glamp Owner",
+      email: "owner@glamp.demo",
+      role: "owner",
+      azAccessRole: "admin",
+      password: "glamp123",
+      pin: "6666"
+    })
   ],
   authSessions: [],
   guests: [
@@ -104,6 +269,25 @@ function withPropertyId<T extends { propertyId?: string }>(item: T, propertyId: 
   };
 }
 
+function normalizeProperty(item: Partial<PropertySummary>, fallback: PropertySummary) {
+  return propertySummarySchema.parse({
+    ...fallback,
+    ...item,
+    legalInfo: {
+      ...fallback.legalInfo,
+      ...(item.legalInfo ?? {})
+    },
+    notificationSettings: {
+      ...fallback.notificationSettings,
+      ...(item.notificationSettings ?? {})
+    },
+    operationSettings: {
+      ...fallback.operationSettings,
+      ...(item.operationSettings ?? {})
+    }
+  });
+}
+
 export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelData {
   const defaults = cloneDefaults();
   if (!raw) {
@@ -118,18 +302,27 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
     ...defaults,
     ...raw,
     schemaVersion,
-    properties: raw.properties ?? defaults.properties,
+    properties: (raw.properties ?? defaults.properties).map((property, index) =>
+      normalizeProperty(property, defaults.properties[index] ?? defaults.properties[0])
+    ),
     users: (raw.users ?? defaults.users).map((user) => ({
       ...user,
       propertyId: user.propertyId ?? fallbackPropertyId,
       azAccessRole: user.azAccessRole ?? (user.role === "owner" ? "admin" : "staff"),
-      active: user.active ?? true
+      active: user.active ?? true,
+      email: user.email ?? "",
+      pinHint: user.pinHint ?? (user.pin ? createPinHint(user.pin) : "Password login only"),
+      quickUnlockEnabled: user.quickUnlockEnabled ?? true
     })),
     authSessions: (raw.authSessions ?? defaults.authSessions).map((session) => ({
       ...session,
       propertyId: session.propertyId ?? fallbackPropertyId,
       propertyName: session.propertyName ?? fallbackPropertyName,
-      azAccessRole: session.azAccessRole ?? (session.role === "owner" ? "admin" : "staff")
+      azAccessRole: session.azAccessRole ?? (session.role === "owner" ? "admin" : "staff"),
+      authMethod: session.authMethod ?? "password",
+      deviceLabel: session.deviceLabel ?? "Unknown device",
+      quickUnlockEnabled: session.quickUnlockEnabled ?? true,
+      recentAuthAt: session.recentAuthAt ?? session.createdAt
     })),
     guests: (raw.guests ?? defaults.guests).map((item) => withPropertyId(item, fallbackPropertyId)),
     reservations: (raw.reservations ?? defaults.reservations).map((item) => withPropertyId(item, fallbackPropertyId)),

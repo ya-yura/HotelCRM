@@ -49,7 +49,7 @@ const defaultForm: ReservationCreate = createDefaultForm();
 export function ReservationsPage() {
   const { hasAnyRole } = useAuth();
   const { reservations, createReservation } = useHotelStore();
-  const canEditReservations = hasAnyRole(["owner", "frontdesk"]);
+  const canEditReservations = hasAnyRole(["owner", "manager", "frontdesk"]);
   const [form, setForm] = useState<ReservationCreate>(defaultForm);
   const boardDays = buildBoardDays(reservations);
   const boardRows = Array.from(

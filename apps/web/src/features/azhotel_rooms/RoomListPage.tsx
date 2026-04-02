@@ -16,7 +16,7 @@ export function RoomListPage() {
   const [rooms, setRooms] = useState<AzRoom[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const canManageRooms = hasAnyRole(["owner"]);
+  const canManageRooms = hasAnyRole(["owner", "manager"]);
   const onboarding = deriveOnboardingState({
     session,
     users,

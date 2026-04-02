@@ -9,16 +9,19 @@ export function LoginPage() {
   const [mode, setMode] = useState<Mode>("signup");
   const [loginForm, setLoginForm] = useState({
     identifier: "",
-    secret: ""
+    secret: "",
+    deviceLabel: "Стойка ресепшен"
   });
   const [signupForm, setSignupForm] = useState({
     ownerName: "",
     hotelName: "",
     email: "",
     password: "",
+    city: "",
     timezone: "Europe/Moscow",
     currency: "RUB",
-    address: ""
+    address: "",
+    propertyType: "small_hotel" as "small_hotel" | "hostel" | "guest_house" | "glamping"
   });
   const [error, setError] = useState("");
 
@@ -35,6 +38,9 @@ export function LoginPage() {
     if (signupForm.password.length < 6) {
       return "Пароль должен быть не короче 6 символов.";
     }
+    if (signupForm.city.trim().length < 2) {
+      return "Укажите город.";
+    }
     if (signupForm.address.trim().length < 3) {
       return "Укажите адрес: минимум 3 символа.";
     }
@@ -50,7 +56,7 @@ export function LoginPage() {
     setError("");
 
     try {
-      await login(loginForm.identifier, loginForm.secret);
+      await login(loginForm.identifier, loginForm.secret, loginForm.deviceLabel);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Неверный логин, ID сотрудника, пароль или PIN.");
     }
@@ -129,6 +135,31 @@ export function LoginPage() {
               />
             </label>
             <label>
+              <span>Тип объекта</span>
+              <select
+                value={signupForm.propertyType}
+                onChange={(event) =>
+                  setSignupForm((current) => ({
+                    ...current,
+                    propertyType: event.target.value as typeof current.propertyType
+                  }))
+                }
+              >
+                <option value="small_hotel">Небольшой отель</option>
+                <option value="hostel">Хостел</option>
+                <option value="guest_house">Гостевой дом</option>
+                <option value="glamping">Глэмпинг</option>
+              </select>
+            </label>
+            <label>
+              <span>Город</span>
+              <input
+                value={signupForm.city}
+                onChange={(event) => setSignupForm((current) => ({ ...current, city: event.target.value }))}
+                placeholder="Например, Казань"
+              />
+            </label>
+            <label>
               <span>Часовой пояс</span>
               <input value={signupForm.timezone} onChange={(event) => setSignupForm((current) => ({ ...current, timezone: event.target.value }))} />
             </label>
@@ -159,11 +190,20 @@ export function LoginPage() {
               <span>Пароль или PIN</span>
               <input type="password" value={loginForm.secret} onChange={(event) => setLoginForm((current) => ({ ...current, secret: event.target.value }))} />
             </label>
+            <label>
+              <span>Название устройства</span>
+              <input
+                value={loginForm.deviceLabel}
+                onChange={(event) =>
+                  setLoginForm((current) => ({ ...current, deviceLabel: event.target.value }))
+                }
+              />
+            </label>
             {error ? <p className="error-text">{error}</p> : null}
             <button className="primary-button" type="submit">
               Войти
             </button>
-            <p className="muted">Владелец входит по email и паролю. Сотрудник входит по своему ID и PIN.</p>
+            <p className="muted">Владелец входит по email и паролю. Сотрудник входит по своему ID и PIN. Название устройства попадёт в журнал входов.</p>
           </form>
         )}
       </section>

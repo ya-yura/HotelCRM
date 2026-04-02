@@ -2,6 +2,7 @@ import type { AIAssistantItem } from "@hotel-crm/shared/ai";
 import type { AzAccessRole, HotelRole } from "@hotel-crm/shared/auth";
 import type { HousekeepingTaskStatus } from "@hotel-crm/shared/housekeeping";
 import type { CreateCharge, CreatePayment, FolioSummary } from "@hotel-crm/shared/payments";
+import type { PropertyType, PropertyVatRate } from "@hotel-crm/shared/properties";
 import type { ReservationCreate, ReservationSummary } from "@hotel-crm/shared/reservations";
 import type { RoomStatus, RoomSummary } from "@hotel-crm/shared/rooms";
 import type { SyncConflict, SyncQueueItem } from "@hotel-crm/shared/sync";
@@ -17,10 +18,14 @@ export function roleLabel(role?: HotelRole | null) {
   switch (role) {
     case "owner":
       return "Владелец";
+    case "manager":
+      return "Управляющий";
     case "frontdesk":
       return "Администратор";
     case "housekeeping":
       return "Уборка";
+    case "maintenance":
+      return "Техслужба";
     case "accountant":
       return "Бухгалтер";
     default:
@@ -218,5 +223,31 @@ export function roomPriorityLabel(priority: RoomSummary["priority"]) {
       return "Скорый заезд";
     case "blocked":
       return "Блок";
+  }
+}
+
+export function propertyTypeLabel(propertyType: PropertyType) {
+  switch (propertyType) {
+    case "small_hotel":
+      return "Небольшой отель";
+    case "hostel":
+      return "Хостел";
+    case "guest_house":
+      return "Гостевой дом";
+    case "glamping":
+      return "Глэмпинг";
+  }
+}
+
+export function vatRateLabel(vatRate: PropertyVatRate) {
+  switch (vatRate) {
+    case "none":
+      return "Без НДС";
+    case "0":
+      return "НДС 0%";
+    case "10":
+      return "НДС 10%";
+    case "20":
+      return "НДС 20%";
   }
 }

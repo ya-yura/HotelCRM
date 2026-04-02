@@ -21,7 +21,7 @@ export function ReservationDetailPage() {
   } = useHotelStore();
   const [recommendations, setRecommendations] = useState<OccupancyRecommendation[]>([]);
   const { hasAnyRole } = useAuth();
-  const canOperateReservation = hasAnyRole(["owner", "frontdesk"]);
+  const canOperateReservation = hasAnyRole(["owner", "manager", "frontdesk"]);
   const reservation = reservations.find((entry) => entry.id === id);
   const folio = folios.find((entry) => entry.reservationId === id);
   const stay = stays.find((entry) => entry.reservationId === id && entry.status === "active");

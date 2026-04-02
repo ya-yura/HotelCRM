@@ -98,14 +98,14 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: "today", element: <TodayPage /> },
-      { path: "reservations", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping", "accountant"]}><ReservationsPage /></RequireRoles> },
-      { path: "reservations/new", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping", "accountant"]}><ReservationsPage /></RequireRoles> },
-      { path: "reservations/:id", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping", "accountant"]}><ReservationDetailPage /></RequireRoles> },
-      { path: "rooms", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping"]}><RoomsPage /></RequireRoles> },
-      { path: "rooms/:id", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping"]}><RoomDetailPage /></RequireRoles> },
-      { path: "housekeeping", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping"]}><HousekeepingPage /></RequireRoles> },
-      { path: "payments", element: <RequireRoles roles={["owner", "frontdesk", "accountant"]}><PaymentsPage /></RequireRoles> },
-      { path: "search", element: <RequireRoles roles={["owner", "frontdesk", "housekeeping", "accountant"]}><SearchPage /></RequireRoles> },
+      { path: "reservations", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "accountant"]}><ReservationsPage /></RequireRoles> },
+      { path: "reservations/new", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "accountant"]}><ReservationsPage /></RequireRoles> },
+      { path: "reservations/:id", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "accountant"]}><ReservationDetailPage /></RequireRoles> },
+      { path: "rooms", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><RoomsPage /></RequireRoles> },
+      { path: "rooms/:id", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><RoomDetailPage /></RequireRoles> },
+      { path: "housekeeping", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><HousekeepingPage /></RequireRoles> },
+      { path: "payments", element: <RequireRoles roles={["owner", "manager", "frontdesk", "accountant"]}><PaymentsPage /></RequireRoles> },
+      { path: "search", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"]}><SearchPage /></RequireRoles> },
       ...(azhotelFullEnabled
         ? [
             {
@@ -127,7 +127,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/today",
               element: (
-                <RequireRoles roles={["owner", "frontdesk", "housekeeping"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}>
                   <AzTodayDashboardPage />
                 </RequireRoles>
               )
@@ -141,7 +141,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/bookings",
               element: (
-                <RequireRoles roles={["owner", "frontdesk"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk"]}>
                   <BookingCalendarPage />
                 </RequireRoles>
               )
@@ -149,7 +149,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/bookings/new",
               element: (
-                <RequireRoles roles={["owner", "frontdesk"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk"]}>
                   <BookingFormPage />
                 </RequireRoles>
               )
@@ -157,7 +157,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/bookings/:id/edit",
               element: (
-                <RequireRoles roles={["owner", "frontdesk"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk"]}>
                   <BookingFormPage />
                 </RequireRoles>
               )
@@ -174,7 +174,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/check-in",
               element: (
-                <RequireRoles roles={["owner", "frontdesk"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk"]}>
                   <CheckInFlowPage />
                 </RequireRoles>
               )
@@ -182,7 +182,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/check-out",
               element: (
-                <RequireRoles roles={["owner", "frontdesk"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk"]}>
                   <CheckOutFlowPage />
                 </RequireRoles>
               )
@@ -198,7 +198,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/housekeeping",
               element: (
-                <RequireRoles roles={["owner", "frontdesk", "housekeeping"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}>
                   <HousekeepingDashboardPage />
                 </RequireRoles>
               )
@@ -206,7 +206,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/housekeeping/tasks",
               element: (
-                <RequireRoles roles={["owner", "frontdesk", "housekeeping"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}>
                   <TaskListPage />
                 </RequireRoles>
               )
@@ -223,7 +223,7 @@ export const router = createBrowserRouter([
               path: "shahmatka/reports",
               element: (
                 <RequireAzAccess roles={["admin"]}>
-                  <RequireRoles roles={["owner", "frontdesk", "accountant"]}>
+                  <RequireRoles roles={["owner", "manager", "frontdesk", "accountant"]}>
                     <ReportsPage />
                   </RequireRoles>
                 </RequireAzAccess>
@@ -239,7 +239,7 @@ export const router = createBrowserRouter([
               path: "shahmatka/channels",
               element: (
                 <RequireAzAccess roles={["admin"]}>
-                  <RequireRoles roles={["owner", "frontdesk"]}>
+                  <RequireRoles roles={["owner", "manager", "frontdesk"]}>
                     <ChannelManagerPage />
                   </RequireRoles>
                 </RequireAzAccess>
@@ -253,7 +253,9 @@ export const router = createBrowserRouter([
         path: "shahmatka/users",
         element: (
           <RequireAzAccess roles={["admin"]}>
-            <UserManagementPage />
+            <RequireRoles roles={["owner", "manager"]}>
+              <UserManagementPage />
+            </RequireRoles>
           </RequireAzAccess>
         )
       },
@@ -264,7 +266,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/rooms",
               element: (
-                <RequireRoles roles={["owner", "frontdesk"]}>
+                <RequireRoles roles={["owner", "manager", "frontdesk", "maintenance"]}>
                   <RoomListPage />
                 </RequireRoles>
               )
@@ -272,7 +274,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/rooms/new",
               element: (
-                <RequireRoles roles={["owner"]}>
+                <RequireRoles roles={["owner", "manager"]}>
                   <RoomFormPage />
                 </RequireRoles>
               )
@@ -280,7 +282,7 @@ export const router = createBrowserRouter([
             {
               path: "shahmatka/rooms/:id/edit",
               element: (
-                <RequireRoles roles={["owner"]}>
+                <RequireRoles roles={["owner", "manager"]}>
                   <RoomFormPage />
                 </RequireRoles>
               )

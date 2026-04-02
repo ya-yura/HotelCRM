@@ -5,7 +5,7 @@ import { requirePropertySession } from "../lib/property";
 import { enqueueSyncItems, listSyncConflicts, listSyncQueue, resolveSyncConflict } from "../services/syncStore";
 
 export async function registerSyncRoutes(app: FastifyInstance) {
-  app.post("/sync/events/batch", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
+  app.post("/sync/events/batch", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -14,7 +14,7 @@ export async function registerSyncRoutes(app: FastifyInstance) {
     return syncQueueItemSchema.array().parse(await enqueueSyncItems(propertyId, payload));
   });
 
-  app.get("/sync/conflicts", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
+  app.get("/sync/conflicts", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;
@@ -22,7 +22,7 @@ export async function registerSyncRoutes(app: FastifyInstance) {
     return syncConflictSchema.array().parse(await listSyncConflicts(propertyId));
   });
 
-  app.post<{ Params: { id: string } }>("/sync/conflicts/:id/resolve", { preHandler: requireRoles(["owner", "frontdesk", "housekeeping", "accountant"]) }, async (request, reply) => {
+  app.post<{ Params: { id: string } }>("/sync/conflicts/:id/resolve", { preHandler: requireRoles(["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"]) }, async (request, reply) => {
     const propertyId = requirePropertySession(request, reply);
     if (!propertyId) {
       return;

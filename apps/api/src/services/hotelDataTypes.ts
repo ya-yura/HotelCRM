@@ -31,8 +31,12 @@ export type PersistedUser = {
   email?: string;
   role: HotelRole;
   azAccessRole?: "admin" | "staff";
+  pinHint?: string;
+  quickUnlockEnabled?: boolean;
   pin?: string;
   password?: string;
+  pinHash?: string;
+  passwordHash?: string;
   active: boolean;
 };
 

@@ -146,7 +146,7 @@ export function TodayPage() {
         ))}
       </section>
 
-      {session?.role === "owner" || session?.role === "accountant" ? (
+          {session?.role === "owner" || session?.role === "manager" || session?.role === "accountant" ? (
         <section className="panel">
           <p className="eyebrow">Краткая картина</p>
           <h3>Деньги и загрузка в одном месте</h3>

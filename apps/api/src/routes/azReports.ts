@@ -17,7 +17,7 @@ function defaultPeriod() {
 export async function registerAzReportRoutes(app: FastifyInstance) {
   app.get<{ Querystring: { from?: string; to?: string } }>(
     "/azhotel/reports",
-    { preHandler: [requireRoles(["owner", "frontdesk", "accountant"]), requireAzAccess(["admin"])] },
+    { preHandler: [requireRoles(["owner", "manager", "frontdesk", "accountant"]), requireAzAccess(["admin"])] },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
@@ -35,7 +35,7 @@ export async function registerAzReportRoutes(app: FastifyInstance) {
 
   app.get<{ Querystring: { from?: string; to?: string } }>(
     "/azhotel/reports/export.csv",
-    { preHandler: [requireRoles(["owner", "frontdesk", "accountant"]), requireAzAccess(["admin"])] },
+    { preHandler: [requireRoles(["owner", "manager", "frontdesk", "accountant"]), requireAzAccess(["admin"])] },
     async (request, reply) => {
       const propertyId = requirePropertySession(request, reply);
       if (!propertyId) {
