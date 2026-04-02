@@ -39,10 +39,13 @@ import type {
 } from "@hotel-crm/shared/maintenance";
 import type {
   CreateCharge,
+  CreatePaymentLink,
+  FolioCorrection,
   FolioCharge,
   FolioDetails,
   FolioSummary,
-  PaymentRecord
+  PaymentRecord,
+  PaymentRefund
 } from "@hotel-crm/shared/payments";
 import type {
   PropertySummary,
@@ -202,7 +205,7 @@ export async function checkInReservationRequest(reservationId: string) {
 export async function checkInReservationWithDepositRequest(input: {
   reservationId: string;
   depositAmount?: number;
-  paymentMethod?: "cash" | "card" | "bank_transfer";
+  paymentMethod?: PaymentRecord["method"];
 }) {
   return request<ReservationSummary>(`/reservations/${input.reservationId}/check-in`, {
     method: "POST",
@@ -243,11 +246,13 @@ export async function reassignReservationRoomRequest(reservationId: string, room
 
 export async function sendReservationPaymentLinkRequest(
   reservationId: string,
-  channel: "sms" | "whatsapp" | "email"
+  channel: "sms" | "whatsapp" | "email",
+  method: "sbp" | "yookassa" | "tbank",
+  amount?: number
 ) {
   return request<ReservationSummary>(`/reservations/${reservationId}/payment-link`, {
     method: "POST",
-    body: JSON.stringify({ channel })
+    body: JSON.stringify({ channel, method, amount })
   });
 }
 
@@ -496,8 +501,13 @@ export async function recordPaymentRequest(input: {
   reservationId: string;
   guestName: string;
   amount: number;
-  method: "cash" | "card" | "bank_transfer";
+  method: PaymentRecord["method"];
+  provider: PaymentRecord["provider"];
+  kind: PaymentRecord["kind"];
   note: string;
+  reason: string;
+  correlationId: string;
+  paymentLinkId: string | null;
   idempotencyKey: string;
 }) {
   return request<{ payment: PaymentRecord; folio: FolioDetails }>("/payments", {
@@ -508,6 +518,34 @@ export async function recordPaymentRequest(input: {
 
 export async function createChargeRequest(input: CreateCharge) {
   return request<{ charge: FolioCharge; folio: FolioDetails }>("/payments/charges", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function createPaymentLinkRequest(input: CreatePaymentLink) {
+  return request<{ paymentLink: import("@hotel-crm/shared/payments").PaymentLink; folio: FolioDetails }>("/payments/links", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function refundPaymentRequest(paymentId: string, input: PaymentRefund) {
+  return request<{ payment: PaymentRecord; folio: FolioDetails }>(`/payments/${paymentId}/refund`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function voidPaymentRequest(paymentId: string, input: { reason: string; correlationId?: string }) {
+  return request<{ payment: PaymentRecord; folio: FolioDetails }>(`/payments/${paymentId}/void`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function createFolioCorrectionRequest(input: FolioCorrection) {
+  return request<{ charge: FolioCharge; folio: FolioDetails }>("/payments/corrections", {
     method: "POST",
     body: JSON.stringify(input)
   });

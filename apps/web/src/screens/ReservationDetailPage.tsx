@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { OccupancyRecommendation } from "@hotel-crm/shared/ai";
 import type { GuestDuplicateCandidate, GuestProfile } from "@hotel-crm/shared/guests";
+import type { CreateCharge, PaymentRecord } from "@hotel-crm/shared/payments";
 import {
   cancelReservationRequest,
   checkInReservationWithDepositRequest,
@@ -21,7 +22,12 @@ import {
 import { useAuth } from "../state/authStore";
 import { useHotelStore } from "../state/hotelStore";
 import {
+  chargeTypeLabel,
+  fiscalStatusLabel,
   formatDateLabel,
+  paymentKindLabel,
+  paymentLinkStatusLabel,
+  paymentMethodLabel,
   reservationStatusLabel,
   reservationSourceLabel,
   roomShortLabel
@@ -63,16 +69,19 @@ export function ReservationDetailPage() {
     lateCheckoutGranted: false
   });
   const [depositAmount, setDepositAmount] = useState(0);
+  const [depositMethod, setDepositMethod] = useState<PaymentRecord["method"]>("card");
   const [paymentChannel, setPaymentChannel] = useState<"sms" | "whatsapp" | "email">("whatsapp");
+  const [paymentLinkMethod, setPaymentLinkMethod] = useState<"sbp" | "yookassa" | "tbank">("sbp");
+  const [paymentLinkAmount, setPaymentLinkAmount] = useState(0);
   const [selectedRoomLabel, setSelectedRoomLabel] = useState("UNASSIGNED");
   const [chargeForm, setChargeForm] = useState({
-    type: "other" as "room" | "breakfast" | "parking" | "laundry" | "minibar" | "other",
+    type: "other" as CreateCharge["type"],
     description: "",
     amount: 0
   });
   const [paymentForm, setPaymentForm] = useState({
     amount: 0,
-    method: "card" as "cash" | "card" | "bank_transfer",
+    method: "card" as PaymentRecord["method"],
     note: ""
   });
   const { hasAnyRole } = useAuth();
@@ -104,6 +113,7 @@ export function ReservationDetailPage() {
       ...current,
       amount: Math.max(folio?.balanceDue ?? reservation.balanceDue, 0)
     }));
+    setPaymentLinkAmount(Math.max(folio?.balanceDue ?? reservation.balanceDue, 0));
   }, [reservation, folio]);
 
   useEffect(() => {
@@ -218,7 +228,7 @@ export function ReservationDetailPage() {
       await checkInReservationWithDepositRequest({
         reservationId: reservation.id,
         depositAmount: depositAmount > 0 ? depositAmount : undefined,
-        paymentMethod: depositAmount > 0 ? "card" : undefined
+        paymentMethod: depositAmount > 0 ? depositMethod : undefined
       });
       await refreshEverything();
       setDepositAmount(0);
@@ -272,7 +282,12 @@ export function ReservationDetailPage() {
       return;
     }
     try {
-      await sendReservationPaymentLinkRequest(reservation.id, paymentChannel);
+      await sendReservationPaymentLinkRequest(
+        reservation.id,
+        paymentChannel,
+        paymentLinkMethod,
+        paymentLinkAmount > 0 ? paymentLinkAmount : undefined
+      );
       await refreshEverything();
       setMessage("Ссылка на оплату отправлена.");
     } catch (cause) {
@@ -303,7 +318,19 @@ export function ReservationDetailPage() {
         guestName: reservation.guestName,
         amount: paymentForm.amount,
         method: paymentForm.method,
+        provider:
+          paymentForm.method === "sbp"
+            ? "sbp"
+            : paymentForm.method === "yookassa"
+              ? "yookassa"
+              : paymentForm.method === "tbank"
+                ? "tbank"
+                : "manual",
+        kind: "payment",
         note: paymentForm.note,
+        reason: paymentForm.note || "Оплата из карточки брони",
+        correlationId: `folio_payment_${reservation.id}_${Date.now()}`,
+        paymentLinkId: null,
         idempotencyKey: `pay_${Date.now()}`
       });
       await refreshEverything();
@@ -324,6 +351,8 @@ export function ReservationDetailPage() {
         type: chargeForm.type,
         description: chargeForm.description,
         amount: chargeForm.amount,
+        reason: "Начисление из карточки брони",
+        correlationId: `charge_${reservation.id}_${Date.now()}`,
         idempotencyKey: `charge_${Date.now()}`
       });
       await refreshEverything();
@@ -645,6 +674,20 @@ export function ReservationDetailPage() {
                 />
               </label>
               <label>
+                <span>Способ депозита</span>
+                <select
+                  value={depositMethod}
+                  onChange={(event) =>
+                    setDepositMethod(event.target.value as PaymentRecord["method"])
+                  }
+                >
+                  <option value="card">Карта</option>
+                  <option value="cash">Наличные</option>
+                  <option value="bank_transfer">Перевод</option>
+                  <option value="sbp">СБП</option>
+                </select>
+              </label>
+              <label>
                 <span>Канал ссылки на оплату</span>
                 <select
                   value={paymentChannel}
@@ -656,6 +699,28 @@ export function ReservationDetailPage() {
                   <option value="sms">SMS</option>
                   <option value="email">Email</option>
                 </select>
+              </label>
+              <label>
+                <span>Провайдер ссылки</span>
+                <select
+                  value={paymentLinkMethod}
+                  onChange={(event) =>
+                    setPaymentLinkMethod(event.target.value as typeof paymentLinkMethod)
+                  }
+                >
+                  <option value="sbp">СБП</option>
+                  <option value="yookassa">ЮKassa</option>
+                  <option value="tbank">T-Bank</option>
+                </select>
+              </label>
+              <label>
+                <span>Сумма по ссылке</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={paymentLinkAmount}
+                  onChange={(event) => setPaymentLinkAmount(Number(event.target.value))}
+                />
               </label>
             </div>
             <div className="status-actions">
@@ -699,6 +764,9 @@ export function ReservationDetailPage() {
                   <option value="card">Карта</option>
                   <option value="cash">Наличные</option>
                   <option value="bank_transfer">Перевод</option>
+                  <option value="sbp">СБП</option>
+                  <option value="yookassa">ЮKassa</option>
+                  <option value="tbank">T-Bank</option>
                 </select>
               </label>
               <label>
@@ -732,6 +800,10 @@ export function ReservationDetailPage() {
                   <option value="laundry">Прачечная</option>
                   <option value="minibar">Мини-бар</option>
                   <option value="room">Проживание</option>
+                  <option value="service">Услуга</option>
+                  <option value="damage">Порча имущества</option>
+                  <option value="tax_fee">Сбор / налог</option>
+                  <option value="discount">Скидка</option>
                 </select>
               </label>
               <label>
@@ -762,6 +834,34 @@ export function ReservationDetailPage() {
         ) : null}
       </section>
 
+      {folio?.paymentLinks.length ? (
+        <section className="screen">
+          {folio.paymentLinks.map((link) => (
+            <article className="panel" key={link.id}>
+              <p className="eyebrow">
+                Ссылка • {paymentMethodLabel(link.method)} • {paymentLinkStatusLabel(link.status)}
+              </p>
+              <h3>{link.amount}</h3>
+              <p className="muted">{link.note || "Без комментария"}</p>
+              <p className="muted">{link.url}</p>
+            </article>
+          ))}
+        </section>
+      ) : null}
+
+      {folio?.charges.length ? (
+        <section className="screen">
+          {folio.charges.slice(0, 6).map((charge) => (
+            <article className="panel" key={charge.id}>
+              <p className="eyebrow">{chargeTypeLabel(charge.type)}</p>
+              <h3>{charge.amount}</h3>
+              <p className="muted">{charge.description}</p>
+              <p className="muted">{charge.postedAt}</p>
+            </article>
+          ))}
+        </section>
+      ) : null}
+
       {payments.filter((entry) => entry.reservationId === reservation.id).length > 0 ? (
         <section className="screen">
           {payments
@@ -769,9 +869,12 @@ export function ReservationDetailPage() {
             .slice(0, 6)
             .map((payment) => (
               <article className="panel" key={payment.id}>
-                <p className="eyebrow">Оплата • {payment.method}</p>
+                <p className="eyebrow">
+                  {paymentKindLabel(payment.kind)} • {paymentMethodLabel(payment.method)}
+                </p>
                 <h3>{payment.amount}</h3>
-                <p className="muted">{payment.note || "Без комментария"}</p>
+                <p className="muted">{payment.note || payment.reason || "Без комментария"}</p>
+                <p className="muted">Фискальный статус: {fiscalStatusLabel(payment.fiscalization.status)}</p>
                 <p className="muted">{payment.receivedAt}</p>
               </article>
             ))}

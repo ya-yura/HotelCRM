@@ -2,7 +2,14 @@ import type { AIAssistantItem } from "@hotel-crm/shared/ai";
 import type { AzAccessRole, HotelRole } from "@hotel-crm/shared/auth";
 import type { HousekeepingTaskStatus } from "@hotel-crm/shared/housekeeping";
 import type { MaintenancePriority, MaintenanceStatus } from "@hotel-crm/shared/maintenance";
-import type { CreateCharge, CreatePayment, FolioSummary } from "@hotel-crm/shared/payments";
+import type {
+  CreateCharge,
+  CreatePayment,
+  FiscalReceiptStatus,
+  FolioSummary,
+  PaymentLink,
+  PaymentRecord
+} from "@hotel-crm/shared/payments";
 import type { PropertyType, PropertyVatRate } from "@hotel-crm/shared/properties";
 import type { ReservationCreate, ReservationSummary } from "@hotel-crm/shared/reservations";
 import type { RoomStatus, RoomSummary } from "@hotel-crm/shared/rooms";
@@ -147,6 +154,8 @@ export function chargeTypeLabel(type: CreateCharge["type"]) {
   switch (type) {
     case "room":
       return "Проживание";
+    case "service":
+      return "Услуга";
     case "breakfast":
       return "Завтрак";
     case "parking":
@@ -155,6 +164,14 @@ export function chargeTypeLabel(type: CreateCharge["type"]) {
       return "Прачечная";
     case "minibar":
       return "Мини-бар";
+    case "damage":
+      return "Порча имущества";
+    case "tax_fee":
+      return "Сбор / налог";
+    case "discount":
+      return "Скидка";
+    case "correction":
+      return "Корректировка";
     case "other":
       return "Другое";
   }
@@ -168,6 +185,55 @@ export function paymentMethodLabel(method: CreatePayment["method"]) {
       return "Карта";
     case "bank_transfer":
       return "Перевод";
+    case "sbp":
+      return "СБП";
+    case "yookassa":
+      return "ЮKassa";
+    case "tbank":
+      return "T-Bank";
+  }
+}
+
+export function paymentKindLabel(kind: PaymentRecord["kind"]) {
+  switch (kind) {
+    case "payment":
+      return "Оплата";
+    case "deposit":
+      return "Депозит";
+    case "refund":
+      return "Возврат";
+    case "void":
+      return "Сторно";
+  }
+}
+
+export function fiscalStatusLabel(status: FiscalReceiptStatus) {
+  switch (status) {
+    case "not_required":
+      return "Не требуется";
+    case "pending":
+      return "Ожидает отправки";
+    case "sent":
+      return "Отправлен";
+    case "acknowledged":
+      return "Подтвержден";
+    case "failed":
+      return "Ошибка";
+  }
+}
+
+export function paymentLinkStatusLabel(status: PaymentLink["status"]) {
+  switch (status) {
+    case "draft":
+      return "Черновик";
+    case "sent":
+      return "Отправлена";
+    case "paid":
+      return "Оплачена";
+    case "expired":
+      return "Истекла";
+    case "cancelled":
+      return "Отменена";
   }
 }
 

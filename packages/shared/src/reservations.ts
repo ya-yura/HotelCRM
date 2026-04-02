@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paymentMethodSchema } from "./payments";
 
 export const reservationStatusSchema = z.enum([
   "inquiry",
@@ -78,11 +79,13 @@ export const reservationUpdateSchema = reservationSummarySchema
 
 export const reservationCheckInRequestSchema = z.object({
   depositAmount: z.number().nonnegative().optional(),
-  paymentMethod: z.enum(["cash", "card", "bank_transfer"]).optional()
+  paymentMethod: paymentMethodSchema.optional()
 }).partial();
 
 export const reservationPaymentLinkRequestSchema = z.object({
-  channel: z.enum(["sms", "whatsapp", "email"]).default("whatsapp")
+  channel: z.enum(["sms", "whatsapp", "email"]).default("whatsapp"),
+  method: z.enum(["sbp", "yookassa", "tbank"]).default("sbp"),
+  amount: z.number().positive().optional()
 });
 
 export type ReservationCreate = z.infer<typeof reservationCreateSchema>;

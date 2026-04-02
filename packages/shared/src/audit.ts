@@ -6,6 +6,8 @@ export const auditLogSchema = z.object({
   entityId: z.string(),
   action: z.string(),
   reason: z.string(),
+  actor: z.string().optional(),
+  correlationId: z.string().optional(),
   createdAt: z.string()
 });
 

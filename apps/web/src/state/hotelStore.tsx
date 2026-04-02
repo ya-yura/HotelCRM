@@ -19,7 +19,10 @@ import type {
 import type {
   CreateCharge,
   CreatePayment,
+  FiscalizationInfo,
+  FolioCharge,
   FolioDetails,
+  FolioLine,
   FolioSummary,
   PaymentRecord
 } from "@hotel-crm/shared/payments";
@@ -303,6 +306,120 @@ function derivePaymentStatus(totalAmount: number, paidAmount: number): FolioSumm
   return "partially_paid";
 }
 
+function signedChargeAmount(type: CreateCharge["type"], amount: number) {
+  return type === "discount" ? -amount : amount;
+}
+
+function buildLocalFiscalization(method: PaymentRecord["method"]): FiscalizationInfo {
+  const now = new Date().toISOString();
+  if (method === "cash") {
+    return {
+      provider: "atol",
+      status: "acknowledged",
+      receiptNumber: `local_receipt_${Date.now()}`,
+      requestedAt: now,
+      acknowledgedAt: now,
+      errorMessage: ""
+    };
+  }
+
+  if (method === "bank_transfer") {
+    return {
+      provider: "atol",
+      status: "pending",
+      receiptNumber: "",
+      requestedAt: now,
+      acknowledgedAt: null,
+      errorMessage: ""
+    };
+  }
+
+  return {
+    provider: "atol",
+    status: "sent",
+    receiptNumber: `local_receipt_${Date.now()}`,
+    requestedAt: now,
+    acknowledgedAt: null,
+    errorMessage: ""
+  };
+}
+
+function buildLocalFolioLines(folio: Pick<FolioDetails, "reservationId" | "charges" | "payments">): FolioLine[] {
+  const chargeLines = folio.charges.map((charge) => ({
+    id: `line_${charge.id}`,
+    reservationId: charge.reservationId,
+    createdAt: charge.postedAt,
+    kind: "charge" as const,
+    title: charge.type.replaceAll("_", " "),
+    description: charge.description,
+    amount: charge.amount,
+    sourceId: charge.id,
+    sourceType: "charge" as const,
+    paymentMethod: null,
+    fiscalStatus: "not_required" as const
+  }));
+
+  const paymentLines = folio.payments.map((payment) => ({
+    id: `line_${payment.id}`,
+    reservationId: payment.reservationId,
+    createdAt: payment.receivedAt,
+    kind: payment.kind === "refund" || payment.kind === "void" ? "refund" as const : "payment" as const,
+    title: payment.kind.replaceAll("_", " "),
+    description: payment.note || payment.reason || payment.method,
+    amount: payment.amount,
+    sourceId: payment.id,
+    sourceType: "payment" as const,
+    paymentMethod: payment.method,
+    fiscalStatus: payment.fiscalization.status
+  }));
+
+  return [...chargeLines, ...paymentLines].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+}
+
+function normalizeLocalFolioDetails(folio: FolioDetails): FolioDetails {
+  const charges = folio.charges ?? [];
+  const payments = folio.payments ?? [];
+  const paymentLinks = folio.paymentLinks ?? [];
+
+  return {
+    ...folio,
+    charges,
+    payments,
+    paymentLinks,
+    pendingFiscalReceipts: payments.filter((payment) =>
+      ["pending", "sent", "failed"].includes(payment.fiscalization.status)
+    ).length,
+    lines: buildLocalFolioLines({
+      reservationId: folio.reservationId,
+      charges,
+      payments
+    })
+  };
+}
+
+function buildLocalFolioDetails(input: {
+  reservationId: string;
+  guestName: string;
+  totalAmount: number;
+  paidAmount: number;
+  charges: FolioCharge[];
+  payments: PaymentRecord[];
+}): FolioDetails {
+  return normalizeLocalFolioDetails({
+    reservationId: input.reservationId,
+    guestName: input.guestName,
+    totalAmount: input.totalAmount,
+    paidAmount: input.paidAmount,
+    balanceDue: Math.max(input.totalAmount - input.paidAmount, 0),
+    status: derivePaymentStatus(input.totalAmount, input.paidAmount),
+    pendingFiscalReceipts: 0,
+    charges: input.charges,
+    payments: input.payments,
+    lines: [],
+    paymentLinks: []
+  });
+}
+
 function toSearchResults(
   query: string,
   reservations: ReservationSummary[],
@@ -345,11 +462,15 @@ function toSearchResults(
 }
 
 function deriveFolioDetails(folios: FolioSummary[], payments: PaymentRecord[]): FolioDetails[] {
-  return folios.map((folio) => ({
-    ...folio,
-    charges: [],
-    payments: payments.filter((payment) => payment.reservationId === folio.reservationId)
-  }));
+  return folios.map((folio) =>
+    normalizeLocalFolioDetails({
+      ...folio,
+      charges: [],
+      payments: payments.filter((payment) => payment.reservationId === folio.reservationId),
+      lines: [],
+      paymentLinks: []
+    })
+  );
 }
 
 function deriveAssistantItems(
@@ -675,7 +796,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
                     totalAmount: remotePayment.folio.totalAmount,
                     paidAmount: remotePayment.folio.paidAmount,
                     balanceDue: remotePayment.folio.balanceDue,
-                    status: remotePayment.folio.status
+                    status: remotePayment.folio.status,
+                    pendingFiscalReceipts: remotePayment.folio.pendingFiscalReceipts
                   }
                 : folio
             )
@@ -706,7 +828,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
                     totalAmount: remoteCharge.folio.totalAmount,
                     paidAmount: remoteCharge.folio.paidAmount,
                     balanceDue: remoteCharge.folio.balanceDue,
-                    status: remoteCharge.folio.status
+                    status: remoteCharge.folio.status,
+                    pendingFiscalReceipts: remoteCharge.folio.pendingFiscalReceipts
                   }
                 : folio
             )
@@ -818,7 +941,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         totalAmount: input.totalAmount,
         paidAmount: 0,
         balanceDue: input.totalAmount,
-        status: input.totalAmount > 0 ? "unpaid" : "paid"
+        status: input.totalAmount > 0 ? "unpaid" : "paid",
+        pendingFiscalReceipts: 0
       },
       ...current
     ]);
@@ -1392,6 +1516,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
             type: "minibar",
             description: `${item.item} x${item.quantity}`,
             amount: item.unitPrice * item.quantity,
+            reason: "Списание мини-бара после уборки",
+            correlationId: `consumable_${taskId}_${item.id}`,
             idempotencyKey: `${taskId}_${item.id}`
           });
         });
@@ -1580,14 +1706,17 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
   }
 
   function addFolioCharge(input: CreateCharge) {
-    const charge = {
+    const chargeAmount = signedChargeAmount(input.type, input.amount);
+    const charge: FolioCharge = {
       id: `charge_${input.idempotencyKey}`,
       reservationId: input.reservationId,
       guestName: input.guestName,
       type: input.type,
       description: input.description,
-      amount: input.amount,
-      postedAt: new Date().toISOString()
+      amount: chargeAmount,
+      postedAt: new Date().toISOString(),
+      reason: input.reason,
+      correlationId: input.correlationId
     };
 
     setFolios((current) => {
@@ -1597,23 +1726,27 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
           {
             reservationId: input.reservationId,
             guestName: input.guestName,
-            totalAmount: input.amount,
+            totalAmount: Math.max(chargeAmount, 0),
             paidAmount: 0,
-            balanceDue: input.amount,
-            status: "unpaid"
+            balanceDue: Math.max(chargeAmount, 0),
+            status: derivePaymentStatus(Math.max(chargeAmount, 0), 0),
+            pendingFiscalReceipts: 0
           },
           ...current
         ];
       }
+
+      const totalAmount = Math.max(existing.totalAmount + chargeAmount, 0);
+      const paidAmount = existing.paidAmount;
 
       return current.map((folio) =>
         folio.reservationId === input.reservationId
           ? {
               ...folio,
               guestName: input.guestName,
-              totalAmount: folio.totalAmount + input.amount,
-              balanceDue: folio.balanceDue + input.amount,
-              status: derivePaymentStatus(folio.totalAmount + input.amount, folio.paidAmount)
+              totalAmount,
+              balanceDue: Math.max(totalAmount - paidAmount, 0),
+              status: derivePaymentStatus(totalAmount, paidAmount)
             }
           : folio
       );
@@ -1623,30 +1756,30 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       const existing = current.find((folio) => folio.reservationId === input.reservationId);
       if (!existing) {
         return [
-          {
+          buildLocalFolioDetails({
             reservationId: input.reservationId,
             guestName: input.guestName,
-            totalAmount: input.amount,
+            totalAmount: Math.max(chargeAmount, 0),
             paidAmount: 0,
-            balanceDue: input.amount,
-            status: "unpaid",
             charges: [charge],
             payments: []
-          },
+          }),
           ...current
         ];
       }
 
+      const totalAmount = Math.max(existing.totalAmount + chargeAmount, 0);
+
       return current.map((folio) =>
         folio.reservationId === input.reservationId
-          ? {
+          ? normalizeLocalFolioDetails({
               ...folio,
               guestName: input.guestName,
-              totalAmount: folio.totalAmount + input.amount,
-              balanceDue: folio.balanceDue + input.amount,
-              status: derivePaymentStatus(folio.totalAmount + input.amount, folio.paidAmount),
+              totalAmount,
+              balanceDue: Math.max(totalAmount - folio.paidAmount, 0),
+              status: derivePaymentStatus(totalAmount, folio.paidAmount),
               charges: [charge, ...folio.charges]
-            }
+            })
           : folio
       );
     });
@@ -1656,7 +1789,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         reservation.id === input.reservationId
           ? {
               ...reservation,
-              balanceDue: reservation.balanceDue + input.amount
+              totalAmount: Math.max((reservation.totalAmount ?? 0) + chargeAmount, 0),
+              balanceDue: Math.max(reservation.balanceDue + chargeAmount, 0)
             }
           : reservation
       )
@@ -1694,8 +1828,14 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       guestName: input.guestName,
       amount: input.amount,
       method: input.method,
+      provider: input.provider,
+      kind: input.kind,
       receivedAt: new Date().toISOString(),
-      note: input.note
+      note: input.note,
+      reason: input.reason,
+      correlationId: input.correlationId,
+      paymentLinkId: input.paymentLinkId,
+      fiscalization: buildLocalFiscalization(input.method)
     };
 
     setPayments((current) => [payment, ...current]);
@@ -1710,41 +1850,8 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
             totalAmount: input.amount,
             paidAmount: input.amount,
             balanceDue: 0,
-            status: "paid"
-          },
-          ...current
-        ];
-      }
-
-      return current.map((folio) => {
-        if (folio.reservationId !== input.reservationId) {
-          return folio;
-        }
-
-        const paidAmount = folio.paidAmount + input.amount;
-        return {
-          ...folio,
-          guestName: input.guestName,
-          paidAmount,
-          balanceDue: Math.max(folio.totalAmount - paidAmount, 0),
-          status: derivePaymentStatus(folio.totalAmount, paidAmount)
-        };
-      });
-    });
-
-    setFolioDetails((current) => {
-      const existing = current.find((folio) => folio.reservationId === input.reservationId);
-      if (!existing) {
-        return [
-          {
-            reservationId: input.reservationId,
-            guestName: input.guestName,
-            totalAmount: input.amount,
-            paidAmount: input.amount,
-            balanceDue: 0,
             status: "paid",
-            charges: [],
-            payments: [payment]
+            pendingFiscalReceipts: payment.fiscalization.status === "acknowledged" ? 0 : 1
           },
           ...current
         ];
@@ -1762,8 +1869,43 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
           paidAmount,
           balanceDue: Math.max(folio.totalAmount - paidAmount, 0),
           status: derivePaymentStatus(folio.totalAmount, paidAmount),
-          payments: [payment, ...folio.payments]
+          pendingFiscalReceipts:
+            folio.pendingFiscalReceipts +
+            (["pending", "sent", "failed"].includes(payment.fiscalization.status) ? 1 : 0)
         };
+      });
+    });
+
+    setFolioDetails((current) => {
+      const existing = current.find((folio) => folio.reservationId === input.reservationId);
+      if (!existing) {
+        return [
+          buildLocalFolioDetails({
+            reservationId: input.reservationId,
+            guestName: input.guestName,
+            totalAmount: input.amount,
+            paidAmount: input.amount,
+            charges: [],
+            payments: [payment]
+          }),
+          ...current
+        ];
+      }
+
+      return current.map((folio) => {
+        if (folio.reservationId !== input.reservationId) {
+          return folio;
+        }
+
+        const paidAmount = folio.paidAmount + input.amount;
+        return normalizeLocalFolioDetails({
+          ...folio,
+          guestName: input.guestName,
+          paidAmount,
+          balanceDue: Math.max(folio.totalAmount - paidAmount, 0),
+          status: derivePaymentStatus(folio.totalAmount, paidAmount),
+          payments: [payment, ...folio.payments]
+        });
       });
     });
 
@@ -1772,6 +1914,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         reservation.id === input.reservationId
           ? {
               ...reservation,
+              paidAmount: (reservation.paidAmount ?? 0) + input.amount,
               balanceDue: Math.max(reservation.balanceDue - input.amount, 0)
             }
           : reservation

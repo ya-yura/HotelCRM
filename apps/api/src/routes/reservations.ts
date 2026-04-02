@@ -9,7 +9,7 @@ import {
 import { requireRoles } from "../lib/auth";
 import { requirePropertySession } from "../lib/property";
 import { appendAuditLog } from "../services/auditStore";
-import { createPayment, getFolio, getFolioDetails } from "../services/paymentStore";
+import { createPayment, createPaymentLink, getFolio, getFolioDetails } from "../services/paymentStore";
 import { createHousekeepingTask } from "../services/housekeepingStore";
 import {
   findReservationRoomConflict,
@@ -168,7 +168,12 @@ export async function registerReservationRoutes(app: FastifyInstance) {
         guestName: current.guestName,
         amount: payload.depositAmount,
         method: payload.paymentMethod ?? "card",
+        provider: payload.paymentMethod === "sbp" ? "sbp" : payload.paymentMethod === "yookassa" ? "yookassa" : payload.paymentMethod === "tbank" ? "tbank" : "manual",
+        kind: "deposit",
         note: "Deposit at check-in",
+        reason: "Deposit captured at front desk",
+        correlationId: `checkin_${current.id}`,
+        paymentLinkId: null,
         idempotencyKey: `deposit_${current.id}_${Date.now()}`
       });
     }
@@ -357,6 +362,20 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     if (!current) {
       return reply.code(404).send({ code: "NOT_FOUND", message: "Reservation not found" });
     }
+    const folio = await getFolioDetails(propertyId, request.params.id);
+    const amount = payload.amount ?? Math.max(folio?.balanceDue ?? current.balanceDue, 0);
+    if (amount <= 0) {
+      return reply.code(409).send({ code: "BALANCE_ALREADY_SETTLED", message: "No balance available for payment link" });
+    }
+
+    await createPaymentLink(propertyId, {
+      reservationId: current.id,
+      guestName: current.guestName,
+      amount,
+      method: payload.method,
+      note: `Sent via ${payload.channel}`,
+      correlationId: `link_${current.id}_${Date.now()}`
+    });
 
     const reservation = await updateReservation(propertyId, request.params.id, {
       paymentLinkSentAt: new Date().toISOString()
@@ -365,12 +384,11 @@ export async function registerReservationRoutes(app: FastifyInstance) {
       return reply.code(404).send({ code: "NOT_FOUND", message: "Reservation not found" });
     }
 
-    const folio = await getFolioDetails(propertyId, request.params.id);
     await appendAuditLog(propertyId, {
       entityType: "payment",
       entityId: reservation.id,
       action: "payment_link_sent",
-      reason: `Payment link sent via ${payload.channel} for balance ${folio?.balanceDue ?? reservation.balanceDue}`
+      reason: `Payment link sent via ${payload.channel} using ${payload.method} for ${amount}`
     });
 
     return reservationSummarySchema.parse(reservation);

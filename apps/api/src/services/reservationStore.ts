@@ -121,8 +121,11 @@ export async function createReservation(propertyId: string, input: ReservationCr
         paidAmount: 0,
         balanceDue: input.totalAmount,
         status: input.totalAmount > 0 ? "unpaid" : "paid",
+        pendingFiscalReceipts: 0,
         charges: [],
-        payments: []
+        payments: [],
+        lines: [],
+        paymentLinks: []
       });
     }
 

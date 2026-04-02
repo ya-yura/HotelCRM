@@ -6,7 +6,7 @@ import { propertySummarySchema, type PropertySummary, type PropertyType } from "
 import { createPinHint, hashSecret } from "../lib/credentials";
 import type { PropertyScoped, HotelData } from "./hotelDataTypes";
 
-export const schemaVersion = 5;
+export const schemaVersion = 6;
 export const demoPropertyId = "prop_demo_1";
 export const hostelPropertyId = "prop_hostel_1";
 export const glampPropertyId = "prop_glamp_1";
@@ -226,14 +226,14 @@ export const defaultData: HotelData = {
     { propertyId: demoPropertyId, id: "maint_room_305", roomId: "room_305", roomNumber: "305", title: "Bathroom leak", description: "Leak behind sink cabinet", priority: "high", status: "open", assignee: "Engineering", reportedBy: "Olga Housekeeping", locationLabel: "Bathroom sink", impact: "block_from_sale", roomBlocked: true, resolutionNote: "", linkedHousekeepingTaskId: null, evidence: [], createdAt: "2026-03-25T07:20:00.000Z", updatedAt: "2026-03-25T08:10:00.000Z", resolvedAt: null }
   ],
   folios: [
-    { propertyId: demoPropertyId, reservationId: "resv_demo_1", guestName: "Anna Petrova", totalAmount: 12000, paidAmount: 7500, balanceDue: 4500, status: "partially_paid", charges: [{ id: "charge_room_resv_demo_1", reservationId: "resv_demo_1", guestName: "Anna Petrova", type: "room", description: "Room charge", amount: 12000, postedAt: "2026-03-25T08:00:00.000Z" }], payments: [] },
-    { propertyId: demoPropertyId, reservationId: "resv_demo_2", guestName: "Sergey Ivanov", totalAmount: 9600, paidAmount: 0, balanceDue: 9600, status: "unpaid", charges: [{ id: "charge_room_resv_demo_2", reservationId: "resv_demo_2", guestName: "Sergey Ivanov", type: "room", description: "Room charge", amount: 9600, postedAt: "2026-03-25T08:00:00.000Z" }], payments: [] },
-    { propertyId: hostelPropertyId, reservationId: "resv_hostel_1", guestName: "Oleg Sidorov", totalAmount: 2100, paidAmount: 0, balanceDue: 2100, status: "unpaid", charges: [], payments: [] },
-    { propertyId: glampPropertyId, reservationId: "resv_glamp_1", guestName: "Maria Volkova", totalAmount: 7200, paidAmount: 3000, balanceDue: 4200, status: "partially_paid", charges: [], payments: [] }
+    { propertyId: demoPropertyId, reservationId: "resv_demo_1", guestName: "Anna Petrova", totalAmount: 12000, paidAmount: 7500, balanceDue: 4500, status: "partially_paid", pendingFiscalReceipts: 1, charges: [{ id: "charge_room_resv_demo_1", reservationId: "resv_demo_1", guestName: "Anna Petrova", type: "room", description: "Room charge", amount: 12000, postedAt: "2026-03-25T08:00:00.000Z", reason: "Base accommodation", correlationId: "folio_demo_1" }], payments: [{ id: "pay_demo_1", reservationId: "resv_demo_1", guestName: "Anna Petrova", amount: 7500, method: "card", provider: "manual", kind: "deposit", receivedAt: "2026-03-25T09:00:00.000Z", note: "Deposit at arrival", reason: "Arrival deposit", correlationId: "deposit_demo_1", paymentLinkId: null, fiscalization: { provider: "atol", status: "sent", receiptNumber: "atol_sale_demo_1", requestedAt: "2026-03-25T09:00:00.000Z", acknowledgedAt: null, errorMessage: "" } }], lines: [], paymentLinks: [] },
+    { propertyId: demoPropertyId, reservationId: "resv_demo_2", guestName: "Sergey Ivanov", totalAmount: 9600, paidAmount: 0, balanceDue: 9600, status: "unpaid", pendingFiscalReceipts: 0, charges: [{ id: "charge_room_resv_demo_2", reservationId: "resv_demo_2", guestName: "Sergey Ivanov", type: "room", description: "Room charge", amount: 9600, postedAt: "2026-03-25T08:00:00.000Z", reason: "Base accommodation", correlationId: "folio_demo_2" }], payments: [], lines: [], paymentLinks: [{ id: "plink_sbp_demo_2", reservationId: "resv_demo_2", guestName: "Sergey Ivanov", amount: 3000, method: "sbp", provider: "sbp", url: "https://payments.demo.local/sbp/resv_demo_2?amount=3000", status: "sent", createdAt: "2026-03-25T09:30:00.000Z", expiresAt: "2026-03-26T09:30:00.000Z", lastSentAt: "2026-03-25T09:30:00.000Z", note: "Deposit request" }] },
+    { propertyId: hostelPropertyId, reservationId: "resv_hostel_1", guestName: "Oleg Sidorov", totalAmount: 2100, paidAmount: 0, balanceDue: 2100, status: "unpaid", pendingFiscalReceipts: 0, charges: [], payments: [], lines: [], paymentLinks: [] },
+    { propertyId: glampPropertyId, reservationId: "resv_glamp_1", guestName: "Maria Volkova", totalAmount: 7200, paidAmount: 3000, balanceDue: 4200, status: "partially_paid", pendingFiscalReceipts: 1, charges: [], payments: [{ id: "pay_glamp_1", reservationId: "resv_glamp_1", guestName: "Maria Volkova", amount: 3000, method: "bank_transfer", provider: "manual", kind: "payment", receivedAt: "2026-03-26T12:00:00.000Z", note: "Advance payment", reason: "Advance payment", correlationId: "advance_glamp_1", paymentLinkId: null, fiscalization: { provider: "atol", status: "pending", receiptNumber: "", requestedAt: "2026-03-26T12:00:00.000Z", acknowledgedAt: null, errorMessage: "" } }], lines: [], paymentLinks: [] }
   ],
   payments: [
-    { propertyId: demoPropertyId, id: "pay_demo_1", reservationId: "resv_demo_1", guestName: "Anna Petrova", amount: 7500, method: "card", receivedAt: "2026-03-25T09:00:00.000Z", note: "Deposit at arrival" },
-    { propertyId: glampPropertyId, id: "pay_glamp_1", reservationId: "resv_glamp_1", guestName: "Maria Volkova", amount: 3000, method: "bank_transfer", receivedAt: "2026-03-26T12:00:00.000Z", note: "Advance payment" }
+    { propertyId: demoPropertyId, id: "pay_demo_1", reservationId: "resv_demo_1", guestName: "Anna Petrova", amount: 7500, method: "card", provider: "manual", kind: "deposit", receivedAt: "2026-03-25T09:00:00.000Z", note: "Deposit at arrival", reason: "Arrival deposit", correlationId: "deposit_demo_1", paymentLinkId: null, fiscalization: { provider: "atol", status: "sent", receiptNumber: "atol_sale_demo_1", requestedAt: "2026-03-25T09:00:00.000Z", acknowledgedAt: null, errorMessage: "" } },
+    { propertyId: glampPropertyId, id: "pay_glamp_1", reservationId: "resv_glamp_1", guestName: "Maria Volkova", amount: 3000, method: "bank_transfer", provider: "manual", kind: "payment", receivedAt: "2026-03-26T12:00:00.000Z", note: "Advance payment", reason: "Advance payment", correlationId: "advance_glamp_1", paymentLinkId: null, fiscalization: { provider: "atol", status: "pending", receiptNumber: "", requestedAt: "2026-03-26T12:00:00.000Z", acknowledgedAt: null, errorMessage: "" } }
   ],
   stays: [],
   auditLogs: [],
@@ -393,10 +393,62 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
       evidence: item.evidence ?? [],
       updatedAt: item.updatedAt ?? item.createdAt ?? new Date().toISOString()
     })),
-    folios: (raw.folios ?? defaults.folios).map((item) => ({ ...withPropertyId(item, fallbackPropertyId), charges: item.charges ?? [], payments: item.payments ?? [] })),
-    payments: (raw.payments ?? defaults.payments).map((item) => withPropertyId(item, fallbackPropertyId)),
+    folios: (raw.folios ?? defaults.folios).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      pendingFiscalReceipts: item.pendingFiscalReceipts ?? 0,
+      charges: (item.charges ?? []).map((charge) => ({
+        ...charge,
+        reason: charge.reason ?? "",
+        correlationId: charge.correlationId ?? ""
+      })),
+      payments: (item.payments ?? []).map((payment) => ({
+        ...payment,
+        provider: payment.provider ?? "manual",
+        kind: payment.kind ?? (payment.amount < 0 ? "refund" : "payment"),
+        reason: payment.reason ?? payment.note ?? "",
+        correlationId: payment.correlationId ?? "",
+        paymentLinkId: payment.paymentLinkId ?? null,
+        fiscalization: {
+          provider: payment.fiscalization?.provider ?? "none",
+          status: payment.fiscalization?.status ?? "not_required",
+          receiptNumber: payment.fiscalization?.receiptNumber ?? "",
+          requestedAt: payment.fiscalization?.requestedAt ?? null,
+          acknowledgedAt: payment.fiscalization?.acknowledgedAt ?? null,
+          errorMessage: payment.fiscalization?.errorMessage ?? ""
+        }
+      })),
+      lines: item.lines ?? [],
+      paymentLinks: (item.paymentLinks ?? []).map((link) => ({
+        ...link,
+        provider: link.provider ?? (link.method === "sbp" ? "sbp" : link.method),
+        status: link.status ?? "draft",
+        expiresAt: link.expiresAt ?? null,
+        lastSentAt: link.lastSentAt ?? null,
+        note: link.note ?? ""
+      }))
+    })),
+    payments: (raw.payments ?? defaults.payments).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      provider: item.provider ?? "manual",
+      kind: item.kind ?? (item.amount < 0 ? "refund" : "payment"),
+      reason: item.reason ?? item.note ?? "",
+      correlationId: item.correlationId ?? "",
+      paymentLinkId: item.paymentLinkId ?? null,
+      fiscalization: {
+        provider: item.fiscalization?.provider ?? "none",
+        status: item.fiscalization?.status ?? "not_required",
+        receiptNumber: item.fiscalization?.receiptNumber ?? "",
+        requestedAt: item.fiscalization?.requestedAt ?? null,
+        acknowledgedAt: item.fiscalization?.acknowledgedAt ?? null,
+        errorMessage: item.fiscalization?.errorMessage ?? ""
+      }
+    })),
     stays: (raw.stays ?? defaults.stays).map((item) => withPropertyId(item, fallbackPropertyId)),
-    auditLogs: (raw.auditLogs ?? defaults.auditLogs).map((item) => withPropertyId(item, fallbackPropertyId)),
+    auditLogs: (raw.auditLogs ?? defaults.auditLogs).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      actor: item.actor,
+      correlationId: item.correlationId
+    })),
     syncQueue: (raw.syncQueue ?? defaults.syncQueue).map((item) => withPropertyId(item, fallbackPropertyId)),
     syncConflicts: (raw.syncConflicts ?? defaults.syncConflicts).map((item) => withPropertyId(item, fallbackPropertyId)),
     assistantItems: raw.assistantItems ?? defaults.assistantItems,
