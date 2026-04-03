@@ -2,11 +2,14 @@ import {
   createContext,
   useEffect,
   useContext,
+  useRef,
   useState,
   type PropsWithChildren
 } from "react";
 import type { AIAssistantItem, AISearchResult } from "@hotel-crm/shared/ai";
 import type { AuditLog } from "@hotel-crm/shared/audit";
+import type { ComplianceSubmission } from "@hotel-crm/shared/compliance";
+import type { GuestProfile } from "@hotel-crm/shared/guests";
 import type {
   HousekeepingTaskStatus,
   HousekeepingTaskSummary
@@ -33,6 +36,7 @@ import type { SyncConflict, SyncQueueItem } from "@hotel-crm/shared/sync";
 import { initialAssistantItems } from "../lib/aiFixtures";
 import { initialAuditLogs } from "../lib/auditFixtures";
 import { initialMaintenanceIncidents } from "../lib/maintenanceFixtures";
+import { showDeviceNotification } from "../lib/deviceCapabilities";
 import { loadRemoteSnapshot, resolveSyncConflictRequest } from "../lib/api";
 import { initialHousekeepingTasks } from "../lib/housekeepingFixtures";
 import { initialFolios, initialPayments } from "../lib/paymentFixtures";
@@ -60,16 +64,19 @@ type HousekeepingTaskPatch = {
 type HotelStoreValue = {
   reservations: ReservationSummary[];
   rooms: RoomSummary[];
+  guests: GuestProfile[];
   housekeepingTasks: HousekeepingTaskSummary[];
   maintenanceIncidents: MaintenanceIncident[];
   folios: FolioSummary[];
   folioDetails: FolioDetails[];
   payments: PaymentRecord[];
   stays: StayRecord[];
+  complianceSubmissions: ComplianceSubmission[];
   auditLogs: AuditLog[];
   syncQueue: SyncQueueItem[];
   syncConflicts: SyncConflict[];
   assistantItems: AIAssistantItem[];
+  isOnline: boolean;
   reloadFromRemote: () => Promise<void>;
   retrySyncItemNow: (syncId: string) => void;
   resolveSyncConflict: (conflictId: string) => void;
@@ -93,12 +100,14 @@ type HotelStoreSnapshot = Pick<
   HotelStoreValue,
   | "reservations"
   | "rooms"
+  | "guests"
   | "housekeepingTasks"
   | "maintenanceIncidents"
   | "folios"
   | "folioDetails"
   | "payments"
   | "stays"
+  | "complianceSubmissions"
   | "auditLogs"
   | "syncQueue"
   | "syncConflicts"
@@ -558,8 +567,15 @@ function deriveAssistantItems(
 
 export function HotelStoreProvider({ children }: PropsWithChildren) {
   const { session } = useAuth();
+  const syncInFlightRef = useRef(false);
+  const notificationKeysRef = useRef<Set<string>>(new Set());
+  const notificationsPrimedRef = useRef(false);
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator === "undefined" ? true : navigator.onLine
+  );
   const [reservations, setReservations] = useState(initialReservations);
   const [rooms, setRooms] = useState(initialRooms);
+  const [guests, setGuests] = useState<GuestProfile[]>([]);
   const [housekeepingTasks, setHousekeepingTasks] = useState(initialHousekeepingTasks);
   const [maintenanceIncidents, setMaintenanceIncidents] = useState(initialMaintenanceIncidents);
   const [folios, setFolios] = useState(initialFolios);
@@ -568,6 +584,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
   );
   const [payments, setPayments] = useState(initialPayments);
   const [stays, setStays] = useState(initialStays);
+  const [complianceSubmissions, setComplianceSubmissions] = useState<ComplianceSubmission[]>([]);
   const [auditLogs, setAuditLogs] = useState(initialAuditLogs);
   const [syncQueue, setSyncQueue] = useState(normalizeSyncQueue(initialSyncQueue));
   const [syncConflicts, setSyncConflicts] = useState(normalizeSyncConflicts(initialSyncConflicts));
@@ -577,6 +594,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     const snapshot = await loadRemoteSnapshot();
     setReservations(snapshot.reservations);
     setRooms(snapshot.rooms);
+    setGuests(snapshot.guests);
     setHousekeepingTasks(snapshot.housekeepingTasks);
     setMaintenanceIncidents(snapshot.maintenanceIncidents);
     setPayments(snapshot.payments);
@@ -587,6 +605,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
         : deriveFolioDetails(snapshot.folios, snapshot.payments)
     );
     setStays(snapshot.stays);
+    setComplianceSubmissions(snapshot.complianceSubmissions);
     setAuditLogs(snapshot.auditLogs);
     setSyncConflicts(normalizeSyncConflicts(snapshot.syncConflicts));
     setAssistantItems(snapshot.assistantItems);
@@ -612,12 +631,14 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
 
         setReservations(snapshot.reservations);
         setRooms(snapshot.rooms);
+        setGuests(snapshot.guests ?? []);
         setHousekeepingTasks(snapshot.housekeepingTasks);
         setMaintenanceIncidents(snapshot.maintenanceIncidents ?? initialMaintenanceIncidents);
         setFolios(snapshot.folios);
         setFolioDetails(snapshot.folioDetails ?? deriveFolioDetails(snapshot.folios, snapshot.payments));
         setPayments(snapshot.payments);
         setStays(snapshot.stays);
+        setComplianceSubmissions(snapshot.complianceSubmissions ?? []);
         setAuditLogs(snapshot.auditLogs);
         setSyncQueue(normalizeSyncQueue(snapshot.syncQueue));
         setSyncConflicts(normalizeSyncConflicts(snapshot.syncConflicts));
@@ -632,12 +653,14 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     void writeSnapshot({
       reservations,
       rooms,
+      guests,
       housekeepingTasks,
       maintenanceIncidents,
       folios,
       folioDetails,
       payments,
       stays,
+      complianceSubmissions,
       auditLogs,
       syncQueue,
       syncConflicts,
@@ -645,7 +668,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
     }).catch(() => {
       // Persistence is best-effort in the scaffold phase.
     });
-  }, [assistantItems, auditLogs, folioDetails, folios, housekeepingTasks, maintenanceIncidents, payments, reservations, rooms, stays, syncConflicts, syncQueue]);
+  }, [assistantItems, auditLogs, complianceSubmissions, folioDetails, folios, guests, housekeepingTasks, maintenanceIncidents, payments, reservations, rooms, stays, syncConflicts, syncQueue]);
 
   useEffect(() => {
     setAssistantItems(
@@ -654,24 +677,168 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
   }, [folios, housekeepingTasks, maintenanceIncidents, reservations, rooms, syncConflicts]);
 
   useEffect(() => {
-    const retryableItem = syncQueue.find((item) => item.status === "failed_retryable");
+    const today = new Date().toISOString().slice(0, 10);
+    const keysToPrime = [
+      ...reservations
+        .filter((reservation) => reservation.status !== "cancelled" && reservation.status !== "no_show")
+        .flatMap((reservation) => {
+          const keys = [`reservation:new:${reservation.id}`];
+          if (
+            reservation.checkInDate === today &&
+            reservation.status !== "checked_in" &&
+            reservation.status !== "checked_out"
+          ) {
+            keys.push(`reservation:arrival:${reservation.id}:${reservation.checkInDate}`);
+          }
+          return keys;
+        }),
+      ...folios
+        .filter((folio) => folio.balanceDue > 0)
+        .map((folio) => `folio:unpaid:${folio.reservationId}`),
+      ...maintenanceIncidents
+        .filter((incident) => incident.status !== "resolved" && incident.status !== "cancelled")
+        .map((incident) => `maintenance:${incident.id}:${incident.status}`),
+      ...complianceSubmissions
+        .filter((submission) => submission.status === "failed")
+        .map((submission) => `compliance:${submission.id}:${submission.attemptCount}`)
+    ];
+
+    if (!notificationsPrimedRef.current) {
+      notificationKeysRef.current = new Set(keysToPrime);
+      notificationsPrimedRef.current = true;
+      return;
+    }
+
+    const notifications = [
+      ...reservations
+        .filter((reservation) => !notificationKeysRef.current.has(`reservation:new:${reservation.id}`))
+        .map((reservation) => ({
+          key: `reservation:new:${reservation.id}`,
+          title: "Новая бронь",
+          body: `${reservation.guestName} • ${reservation.checkInDate} - ${reservation.checkOutDate}`
+        })),
+      ...reservations
+        .filter(
+          (reservation) =>
+            reservation.checkInDate === today &&
+            reservation.status !== "checked_in" &&
+            reservation.status !== "checked_out" &&
+            !notificationKeysRef.current.has(`reservation:arrival:${reservation.id}:${reservation.checkInDate}`)
+        )
+        .map((reservation) => ({
+          key: `reservation:arrival:${reservation.id}:${reservation.checkInDate}`,
+          title: "Заезд сегодня",
+          body: `${reservation.guestName} приезжает сегодня в ${reservation.roomLabel === "UNASSIGNED" ? "неназначенный номер" : `номер ${reservation.roomLabel}`}`
+        })),
+      ...folios
+        .filter(
+          (folio) =>
+            folio.balanceDue > 0 &&
+            reservations.some(
+              (reservation) =>
+                reservation.id === folio.reservationId && reservation.status === "checked_in"
+            ) &&
+            !notificationKeysRef.current.has(`folio:unpaid:${folio.reservationId}`)
+        )
+        .map((folio) => ({
+          key: `folio:unpaid:${folio.reservationId}`,
+          title: "Неоплаченный выезд",
+          body: `${folio.guestName}: долг ${folio.balanceDue} RUB перед выездом`
+        })),
+      ...maintenanceIncidents
+        .filter(
+          (incident) =>
+            incident.status !== "resolved" &&
+            incident.status !== "cancelled" &&
+            (incident.priority === "high" || incident.priority === "critical" || incident.roomBlocked) &&
+            !notificationKeysRef.current.has(`maintenance:${incident.id}:${incident.status}`)
+        )
+        .map((incident) => ({
+          key: `maintenance:${incident.id}:${incident.status}`,
+          title: "Срочная проблема в номере",
+          body: `${incident.roomNumber}: ${incident.title}`
+        })),
+      ...complianceSubmissions
+        .filter(
+          (submission) =>
+            submission.status === "failed" &&
+            !notificationKeysRef.current.has(`compliance:${submission.id}:${submission.attemptCount}`)
+        )
+        .map((submission) => ({
+          key: `compliance:${submission.id}:${submission.attemptCount}`,
+          title: "Сбой комплаенса",
+          body: `${submission.kind.toUpperCase()}: ${submission.errorMessage || "требуется повторная отправка"}`
+        }))
+    ];
+
+    notifications.forEach((notification) => {
+      notificationKeysRef.current.add(notification.key);
+      void showDeviceNotification({
+        title: notification.title,
+        body: notification.body,
+        tag: notification.key
+      });
+    });
+  }, [complianceSubmissions, folios, maintenanceIncidents, reservations]);
+
+  useEffect(() => {
+    if (!isOnline) {
+      setSyncQueue((current) => {
+        let changed = false;
+        const next = current.map((item) => {
+          if (
+            (item.status === "queued" || item.status === "failed_retryable") &&
+            item.lastAttemptLabel !== "Оффлайн, ждём сети"
+          ) {
+            changed = true;
+            return { ...item, lastAttemptLabel: "Оффлайн, ждём сети" };
+          }
+
+          return item;
+        });
+
+        return changed ? next : current;
+      });
+      return;
+    }
+
+    const retryableItem = [...syncQueue]
+      .reverse()
+      .find((item) => item.status === "failed_retryable");
     if (!retryableItem) {
       return;
     }
 
     const timeoutMs = Math.min(2000 * 2 ** retryableItem.retryCount, 15000);
     const timeout = window.setTimeout(() => {
-      void syncNow(retryableItem, {
-        successLabel: "Повторная отправка прошла успешно",
-        failureLabel: "Повторная отправка не удалась, ждём следующую попытку",
-        failureStatus: "failed_retryable",
-        nextRetryCount: retryableItem.retryCount + 1,
-        createConflictOnFailure: false
-      });
+      void flushSyncQueue();
     }, timeoutMs);
 
     return () => window.clearTimeout(timeout);
-  }, [syncQueue]);
+  }, [isOnline, syncQueue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!session || !isOnline) {
+      return;
+    }
+
+    void flushSyncQueue();
+  }, [isOnline, session, syncQueue]);
 
   function enqueueSyncItem(item: Omit<SyncQueueItem, "id">) {
     const syncId = `sync_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -852,6 +1019,169 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       : "failed_retryable";
   }
 
+  function syncLabelsFor(item: SyncQueueItem) {
+    if (item.retryCount > 0 || item.status === "failed_retryable") {
+      return {
+        successLabel: "Повторная отправка прошла успешно",
+        failureLabel: "Повторная отправка не удалась, ждём следующую попытку",
+        failureStatus: "failed_retryable" as SyncFailureStatus,
+        createConflictOnFailure: false
+      };
+    }
+
+    switch (item.action) {
+      case "create_reservation":
+        return {
+          successLabel: "Бронь синхронизирована",
+          failureLabel: "Не удалось отправить бронь на сервер",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "confirm_reservation":
+        return {
+          successLabel: "Подтверждение синхронизировано",
+          failureLabel: "Не удалось подтвердить на сервере",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "reassign_room":
+        return {
+          successLabel: "Назначение номера синхронизировано",
+          failureLabel: "Не удалось отправить назначение номера",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "check_in":
+        return {
+          successLabel: "Заселение синхронизировано",
+          failureLabel: "Сервер отклонил заселение",
+          failureStatus: "failed_conflict" as SyncFailureStatus,
+          createConflictOnFailure: true
+        };
+      case "check_out":
+        return {
+          successLabel: "Выезд синхронизирован",
+          failureLabel: "Сервер отклонил выезд",
+          failureStatus: "failed_conflict" as SyncFailureStatus,
+          createConflictOnFailure: true
+        };
+      case "update_room_status":
+        return {
+          successLabel: "Статус номера синхронизирован",
+          failureLabel: "Не удалось обновить номер на сервере",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "update_housekeeping":
+      case "patch_housekeeping":
+        return {
+          successLabel: "Изменение по уборке синхронизировано",
+          failureLabel: "Не удалось обновить уборку на сервере",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "create_maintenance_incident":
+      case "update_maintenance_incident":
+      case "resolve_maintenance_incident":
+        return {
+          successLabel: "Техзаявка синхронизирована",
+          failureLabel: "Не удалось обновить техзаявку на сервере",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "record_payment":
+        return {
+          successLabel: "Оплата синхронизирована",
+          failureLabel: "Не удалось отправить оплату",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      case "create_charge":
+        return {
+          successLabel: "Начисление синхронизировано",
+          failureLabel: "Не удалось отправить начисление",
+          failureStatus: "failed_retryable" as SyncFailureStatus,
+          createConflictOnFailure: false
+        };
+      default:
+        return {
+          successLabel: "Синхронизация выполнена",
+          failureLabel: "Не удалось синхронизировать изменение",
+          failureStatus: syncFailureStatusFor(item),
+          createConflictOnFailure: false
+        };
+    }
+  }
+
+  function reservationDependencyKey(item: SyncQueueItem) {
+    try {
+      const payload = JSON.parse(item.payloadJson) as { reservationId?: string };
+      if (payload.reservationId) {
+        return payload.reservationId;
+      }
+    } catch {
+      return item.entityType === "reservation" ? item.entityId : "";
+    }
+
+    return item.entityType === "reservation" ? item.entityId : "";
+  }
+
+  function hasBlockingDependency(previous: SyncQueueItem, current: SyncQueueItem) {
+    if (previous.id === current.id || previous.status === "synced") {
+      return false;
+    }
+
+    if (previous.entityType === current.entityType && previous.entityId === current.entityId) {
+      return true;
+    }
+
+    const previousReservationKey = reservationDependencyKey(previous);
+    const currentReservationKey = reservationDependencyKey(current);
+    if (!previousReservationKey || !currentReservationKey || previousReservationKey !== currentReservationKey) {
+      return false;
+    }
+
+    if (previous.entityType === "reservation") {
+      return true;
+    }
+
+    return current.action === "record_payment" || current.action === "create_charge";
+  }
+
+  function nextSyncCandidate(items: SyncQueueItem[]) {
+    const ordered = [...items]
+      .reverse()
+      .filter((item) => item.status === "queued" || item.status === "failed_retryable");
+
+    for (let index = 0; index < ordered.length; index += 1) {
+      const candidate = ordered[index];
+      const blocked = ordered
+        .slice(0, index)
+        .some((previous) => hasBlockingDependency(previous, candidate));
+      if (!blocked) {
+        return candidate;
+      }
+    }
+
+    return null;
+  }
+
+  async function flushSyncQueue() {
+    if (!session || !isOnline || syncInFlightRef.current) {
+      return;
+    }
+
+    const candidate = nextSyncCandidate(syncQueue);
+    if (!candidate) {
+      return;
+    }
+
+    await syncNow(candidate, {
+      ...syncLabelsFor(candidate),
+      nextRetryCount: candidate.retryCount + 1
+    });
+  }
+
   async function syncNow(
     item: SyncQueueItem,
     options: {
@@ -863,6 +1193,19 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       onFailure?: (error: Error) => void;
     }
   ) {
+    if (!session || !isOnline) {
+      updateSyncItem(item.id, {
+        status: item.status === "failed_retryable" ? "failed_retryable" : "queued",
+        lastAttemptLabel: !session ? "Нет активной сессии, ждём вход" : "Оффлайн, ждём сети"
+      });
+      return;
+    }
+
+    if (syncInFlightRef.current) {
+      return;
+    }
+
+    syncInFlightRef.current = true;
     updateSyncItem(item.id, {
       status: "syncing",
       lastAttemptLabel: "Идёт обмен с сервером"
@@ -900,6 +1243,11 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       }
 
       options.onFailure?.(error);
+    } finally {
+      syncInFlightRef.current = false;
+      window.setTimeout(() => {
+        void flushSyncQueue();
+      }, 0);
     }
   }
 
@@ -966,10 +1314,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reason: "Создано на этом устройстве"
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Синхронизировано с сервером",
-      failureLabel: "Не удалось синхронизировать с сервером"
-    });
+    void flushSyncQueue();
   }
 
   function confirmReservation(reservationId: string) {
@@ -1002,10 +1347,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       retryCount: 0
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Подтверждение отправлено",
-      failureLabel: "Не удалось подтвердить на сервере"
-    });
+    void flushSyncQueue();
   }
 
   function reassignReservationRoom(reservationId: string, roomId: string) {
@@ -1049,10 +1391,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reason: `Assigned room ${room.number}`
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Назначение номера синхронизировано",
-      failureLabel: "Не удалось отправить назначение номера"
-    });
+    void flushSyncQueue();
   }
 
   function checkInReservation(reservationId: string) {
@@ -1136,11 +1475,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       retryCount: 0
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Check-in synced",
-      failureLabel: "Check-in rejected by API",
-      failureStatus: "failed_conflict"
-    });
+    void flushSyncQueue();
   }
 
   function checkOutReservation(reservationId: string) {
@@ -1247,11 +1582,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       retryCount: 0
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Checkout synced",
-      failureLabel: "Checkout rejected by API",
-      failureStatus: "failed_conflict"
-    });
+    void flushSyncQueue();
   }
 
   function getAllowedRoomTransitions(room: RoomSummary) {
@@ -1425,10 +1756,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reason: `Room moved to ${status.replaceAll("_", " ")}`
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Room status synced",
-      failureLabel: "Room API update failed"
-    });
+    void flushSyncQueue();
   }
 
   function updateHousekeepingTask(taskId: string, input: HousekeepingTaskStatus | HousekeepingTaskPatch) {
@@ -1555,10 +1883,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reason: `Housekeeping moved to ${status.replaceAll("_", " ")}`
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Housekeeping synced",
-      failureLabel: "Housekeeping API update failed"
-    });
+    void flushSyncQueue();
   }
 
   function createMaintenanceIncident(input: MaintenanceCreate) {
@@ -1605,10 +1930,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       retryCount: 0
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Maintenance incident synced",
-      failureLabel: "Maintenance API update failed"
-    });
+    void flushSyncQueue();
   }
 
   function updateMaintenanceIncident(incidentId: string, input: MaintenanceUpdate) {
@@ -1697,10 +2019,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       retryCount: 0
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Maintenance incident synced",
-      failureLabel: "Maintenance API update failed"
-    });
+    void flushSyncQueue();
   }
 
   function resolveMaintenanceIncident(incidentId: string, resolutionNote = "Resolved from mobile") {
@@ -1820,10 +2139,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reason: `${input.description} added to folio`
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Charge synced",
-      failureLabel: "Charge API sync failed"
-    });
+    void flushSyncQueue();
   }
 
   function recordPayment(input: CreatePayment) {
@@ -1956,10 +2272,7 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       reason: `Payment of ${input.amount} recorded for ${input.guestName}`
     });
 
-    void syncNow(syncItem, {
-      successLabel: "Payment synced",
-      failureLabel: "Payment API sync failed"
-    });
+    void flushSyncQueue();
   }
 
   function retrySyncItemNow(syncId: string) {
@@ -2007,16 +2320,19 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       value={{
         reservations,
         rooms,
+        guests,
         housekeepingTasks,
         maintenanceIncidents,
         folios,
         folioDetails,
         payments,
         stays,
+        complianceSubmissions,
         auditLogs,
         syncQueue,
         syncConflicts,
         assistantItems,
+        isOnline,
         reloadFromRemote,
         retrySyncItemNow,
         resolveSyncConflict,

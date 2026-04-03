@@ -16,6 +16,23 @@ export default defineConfig({
         display: "standalone",
         background_color: "#F6F3EC",
         theme_color: "#146356",
+        shortcuts: [
+          {
+            name: "Заезды сегодня",
+            short_name: "Заезды",
+            url: "/reservations"
+          },
+          {
+            name: "Уборка",
+            short_name: "Уборка",
+            url: "/housekeeping"
+          },
+          {
+            name: "Оплаты",
+            short_name: "Оплаты",
+            url: "/payments"
+          }
+        ],
         icons: [
           {
             src: "/icon-192.svg",

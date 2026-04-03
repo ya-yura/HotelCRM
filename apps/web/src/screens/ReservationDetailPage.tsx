@@ -72,10 +72,12 @@ export function ReservationDetailPage() {
   const {
     reservations,
     rooms,
+    guests,
     folioDetails,
     payments,
     stays,
     auditLogs,
+    complianceSubmissions: cachedComplianceSubmissions,
     reloadFromRemote
   } = useHotelStore();
   const [recommendations, setRecommendations] = useState<OccupancyRecommendation[]>([]);
@@ -168,10 +170,20 @@ export function ReservationDetailPage() {
         setDuplicates(duplicateItems);
       })
       .catch(() => {
-        setGuest(emptyGuest);
-        setDuplicates([]);
+        const fallbackGuest = guests.find((entry) => entry.id === reservation.guestId) ?? emptyGuest;
+        setGuest(fallbackGuest);
+        setDuplicates(
+          guests
+            .filter((entry) => entry.id !== fallbackGuest.id && !entry.mergedIntoGuestId)
+            .filter(
+              (entry) =>
+                (fallbackGuest.phone && entry.phone && fallbackGuest.phone === entry.phone) ||
+                (fallbackGuest.fullName && entry.fullName === fallbackGuest.fullName)
+            )
+            .map((entry) => ({ guest: entry, reasons: ["локальный офлайн-поиск"] }))
+        );
       });
-  }, [reservation?.guestId]);
+  }, [guests, reservation?.guestId]);
 
   useEffect(() => {
     if (!reservation) {
@@ -194,9 +206,11 @@ export function ReservationDetailPage() {
       })
       .catch(() => {
         setComplianceReadiness(null);
-        setComplianceSubmissions([]);
+        setComplianceSubmissions(
+          cachedComplianceSubmissions.filter((entry) => entry.entityId === reservation.id)
+        );
       });
-  }, [reservation]);
+  }, [cachedComplianceSubmissions, reservation]);
 
   async function refreshEverything() {
     await reloadFromRemote();

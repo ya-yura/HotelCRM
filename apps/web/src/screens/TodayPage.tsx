@@ -16,6 +16,8 @@ export function TodayPage() {
     folios,
     stays,
     payments,
+    complianceSubmissions,
+    isOnline,
     syncQueue,
     syncConflicts,
     assistantItems,
@@ -24,6 +26,7 @@ export function TodayPage() {
   } = useHotelStore();
   const queued = syncQueue.filter((item) => item.status !== "synced").length;
   const failed = syncQueue.filter((item) => item.status === "failed_retryable" || item.status === "failed_conflict").length;
+  const retrying = syncQueue.filter((item) => item.status === "failed_retryable").length;
   const conflicts = syncConflicts.length;
   const actionableSyncItems = syncQueue.filter((item) => item.status !== "synced").slice(0, 6);
   const activeReservations = reservations.filter(
@@ -85,7 +88,9 @@ export function TodayPage() {
       </section>
 
       <SyncBanner
+        isOnline={isOnline}
         queuedCount={queued}
+        retryingCount={retrying}
         failedCount={failed}
         conflictCount={conflicts}
         onRetryFailed={() => {
@@ -145,6 +150,21 @@ export function TodayPage() {
           <DashboardCard key={card.title} {...card} />
         ))}
       </section>
+
+      {complianceSubmissions.filter((item) => item.status === "failed").length > 0 ? (
+        <section className="panel tone-danger">
+          <p className="eyebrow">Комплаенс</p>
+          <h3>Есть сбои отправки в государственные системы</h3>
+          <p className="muted">
+            Ошибок: {complianceSubmissions.filter((item) => item.status === "failed").length}. Откройте раздел комплаенса и повторите отправку.
+          </p>
+          <div className="status-actions">
+            <Link className="secondary-link" to="/compliance">
+              Открыть комплаенс
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
           {session?.role === "owner" || session?.role === "manager" || session?.role === "accountant" ? (
         <section className="panel">

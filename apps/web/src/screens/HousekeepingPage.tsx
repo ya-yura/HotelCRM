@@ -2,6 +2,7 @@ import { useState } from "react";
 import type {
   HousekeepingTaskStatus,
 } from "@hotel-crm/shared/housekeeping";
+import { captureImageFromDevice } from "../lib/deviceCapabilities";
 import { useAuth } from "../state/authStore";
 import { useHotelStore } from "../state/hotelStore";
 import { housekeepingStatusLabel } from "../lib/ru";
@@ -21,6 +22,31 @@ export function HousekeepingPage() {
   const { housekeepingTasks: tasks, createMaintenanceIncident, updateHousekeepingTask } = useHotelStore();
   const canOperateHousekeeping = hasAnyRole(["owner", "manager", "frontdesk", "housekeeping", "maintenance"]);
   const [problemDrafts, setProblemDrafts] = useState<Record<string, string>>({});
+
+  async function handleCaptureEvidence(taskId: string) {
+    const task = tasks.find((entry) => entry.id === taskId);
+    if (!task) {
+      return;
+    }
+
+    const captured = await captureImageFromDevice();
+    if (!captured) {
+      return;
+    }
+
+    updateHousekeepingTask(taskId, {
+      evidence: [
+        {
+          id: `hk_evidence_${Date.now()}`,
+          localUri: captured.localUri,
+          uploadedUrl: "",
+          caption: "Фото с устройства",
+          createdAt: new Date().toISOString()
+        },
+        ...task.evidence
+      ]
+    });
+  }
 
   return (
     <div className="screen">
@@ -87,6 +113,16 @@ export function HousekeepingPage() {
               </p>
             ) : null}
             {task.problemNote ? <p className="muted">Проблема: {task.problemNote}</p> : null}
+            {task.evidence.length > 0 ? (
+              <div className="evidence-grid">
+                {task.evidence.map((evidence) => (
+                  <figure className="evidence-card" key={evidence.id}>
+                    <img alt={evidence.caption || "Фото задачи"} src={evidence.localUri || evidence.uploadedUrl} />
+                    <figcaption>{evidence.caption || "Фото задачи"}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            ) : null}
 
             <div className="status-actions">
               {canOperateHousekeeping ? transitions[task.status].map((nextStatus) => (
@@ -99,6 +135,15 @@ export function HousekeepingPage() {
                   {housekeepingStatusLabel(nextStatus)}
                 </button>
               )) : null}
+              {canOperateHousekeeping ? (
+                <button
+                  className="secondary-button"
+                  onClick={() => void handleCaptureEvidence(task.id)}
+                  type="button"
+                >
+                  Добавить фото
+                </button>
+              ) : null}
             </div>
 
             <div className="status-actions">

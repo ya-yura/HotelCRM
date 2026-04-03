@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import type { MaintenanceEvidence } from "@hotel-crm/shared/maintenance";
+import { captureImageFromDevice } from "../lib/deviceCapabilities";
 import { useAuth } from "../state/authStore";
 import { useHotelStore } from "../state/hotelStore";
 import { maintenancePriorityLabel, maintenanceStatusLabel } from "../lib/ru";
@@ -18,6 +20,7 @@ export function MaintenancePage() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "normal" | "high" | "critical">("normal");
   const [roomBlocked, setRoomBlocked] = useState(true);
+  const [draftEvidence, setDraftEvidence] = useState<MaintenanceEvidence[]>([]);
 
   const selectedRoom = useMemo(
     () => rooms.find((entry) => entry.id === roomId) ?? rooms[0],
@@ -26,6 +29,49 @@ export function MaintenancePage() {
   const activeIncidents = maintenanceIncidents.filter(
     (entry) => entry.status === "open" || entry.status === "in_progress"
   );
+
+  async function captureDraftEvidence() {
+    const captured = await captureImageFromDevice();
+    if (!captured) {
+      return;
+    }
+
+    setDraftEvidence((current) => [
+      {
+        id: `maint_draft_${Date.now()}`,
+        localUri: captured.localUri,
+        uploadedUrl: "",
+        caption: "Фото с устройства",
+        createdAt: new Date().toISOString()
+      },
+      ...current
+    ]);
+  }
+
+  async function captureIncidentEvidence(incidentId: string) {
+    const incident = maintenanceIncidents.find((entry) => entry.id === incidentId);
+    if (!incident) {
+      return;
+    }
+
+    const captured = await captureImageFromDevice();
+    if (!captured) {
+      return;
+    }
+
+    updateMaintenanceIncident(incidentId, {
+      evidence: [
+        {
+          id: `maint_evidence_${Date.now()}`,
+          localUri: captured.localUri,
+          uploadedUrl: "",
+          caption: "Фото с устройства",
+          createdAt: new Date().toISOString()
+        },
+        ...incident.evidence
+      ]
+    });
+  }
 
   return (
     <div className="screen">
@@ -117,16 +163,30 @@ export function MaintenancePage() {
                 impact: roomBlocked ? "block_from_sale" : "housekeeping_delay",
                 roomBlocked,
                 linkedHousekeepingTaskId: null,
-                evidence: []
+                evidence: draftEvidence
               });
               setTitle("");
               setDescription("");
+              setDraftEvidence([]);
             }}
             type="button"
           >
             Создать заявку
           </button>
+          <button className="secondary-button" onClick={() => void captureDraftEvidence()} type="button">
+            Добавить фото
+          </button>
         </div>
+        {draftEvidence.length > 0 ? (
+          <div className="evidence-grid">
+            {draftEvidence.map((evidence) => (
+              <figure className="evidence-card" key={evidence.id}>
+                <img alt={evidence.caption || "Черновик фото"} src={evidence.localUri || evidence.uploadedUrl} />
+                <figcaption>{evidence.caption || "Фото проблемы"}</figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className="screen housekeeping-list">
@@ -152,8 +212,27 @@ export function MaintenancePage() {
               Локация: {incident.locationLabel || "не указана"} • Блок продажи: {incident.roomBlocked ? "да" : "нет"}
             </p>
             {incident.resolutionNote ? <p className="muted">Решение: {incident.resolutionNote}</p> : null}
+            {incident.evidence.length > 0 ? (
+              <div className="evidence-grid">
+                {incident.evidence.map((evidence) => (
+                  <figure className="evidence-card" key={evidence.id}>
+                    <img alt={evidence.caption || "Фото инцидента"} src={evidence.localUri || evidence.uploadedUrl} />
+                    <figcaption>{evidence.caption || "Фото инцидента"}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            ) : null}
 
             <div className="status-actions">
+              {canOperate ? (
+                <button
+                  className="secondary-button"
+                  onClick={() => void captureIncidentEvidence(incident.id)}
+                  type="button"
+                >
+                  Добавить фото
+                </button>
+              ) : null}
               {canOperate && incident.status === "open" ? (
                 <button
                   className="secondary-button"

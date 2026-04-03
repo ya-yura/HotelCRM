@@ -147,6 +147,7 @@ export async function loadRemoteSnapshot() {
   const [
     reservations,
     rooms,
+    guests,
     housekeepingTasks,
     maintenanceIncidents,
     payments,
@@ -155,10 +156,12 @@ export async function loadRemoteSnapshot() {
     stays,
     auditLogs,
     syncConflicts,
-    assistantItems
+    assistantItems,
+    complianceSubmissions
   ] = await Promise.all([
     safeRequest<ReservationSummary[]>("/reservations", []),
     safeRequest<RoomSummary[]>("/rooms", []),
+    safeRequest<GuestProfile[]>("/guests", []),
     safeRequest<HousekeepingTaskSummary[]>("/housekeeping/tasks", []),
     safeRequest<MaintenanceIncident[]>("/maintenance/incidents", []),
     safeRequest<PaymentRecord[]>("/payments", []),
@@ -170,12 +173,14 @@ export async function loadRemoteSnapshot() {
     safeRequest<AIAssistantItem[]>("/ai/daily-summary", [], {
       method: "POST",
       body: "{}"
-    })
+    }),
+    safeRequest<ComplianceSubmission[]>("/compliance/submissions", [])
   ]);
 
   return {
     reservations,
     rooms,
+    guests,
     housekeepingTasks,
     maintenanceIncidents,
     payments,
@@ -184,7 +189,8 @@ export async function loadRemoteSnapshot() {
     stays,
     auditLogs,
     syncConflicts,
-    assistantItems
+    assistantItems,
+    complianceSubmissions
   };
 }
 

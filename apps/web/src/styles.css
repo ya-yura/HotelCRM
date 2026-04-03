@@ -301,6 +301,37 @@ canvas {
   margin-top: 12px;
 }
 
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.evidence-card {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(246, 243, 236, 0.8);
+}
+
+.evidence-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  background: rgba(217, 209, 197, 0.4);
+}
+
+.evidence-card figcaption {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;

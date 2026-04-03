@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { PropertySummary } from "@hotel-crm/shared/properties";
 import { ApiError, createRoomRequest, createStaffUserRequest, loadCurrentPropertyRequest, reauthRequest, updateCurrentPropertyRequest } from "../lib/api";
+import {
+  getDeviceCapabilitySnapshot,
+  loadPushRegistrationToken,
+  requestDeviceNotificationPermission,
+  savePushRegistrationToken
+} from "../lib/deviceCapabilities";
 import { azAccessRoleLabel, propertyTypeLabel, roleLabel, vatRateLabel } from "../lib/ru";
 import { useAuth } from "../state/authStore";
 import { useHotelStore } from "../state/hotelStore";
@@ -78,6 +84,9 @@ export function SettingsPage() {
   const [roomMessage, setRoomMessage] = useState("");
   const [isPropertyLoading, setIsPropertyLoading] = useState(true);
   const [isPropertySaving, setIsPropertySaving] = useState(false);
+  const [deviceSnapshot, setDeviceSnapshot] = useState(() => getDeviceCapabilitySnapshot());
+  const [deviceMessage, setDeviceMessage] = useState("");
+  const [pushTokenDraft, setPushTokenDraft] = useState(() => loadPushRegistrationToken());
 
   useEffect(() => {
     if (!session) {
@@ -90,6 +99,10 @@ export function SettingsPage() {
       .then((property) => setPropertyForm(property))
       .catch(() => setPropertyMessage("Не удалось загрузить настройки объекта."))
       .finally(() => setIsPropertyLoading(false));
+  }, [session]);
+
+  useEffect(() => {
+    setDeviceSnapshot(getDeviceCapabilitySnapshot());
   }, [session]);
 
   async function handleCreateStaff(event: React.FormEvent<HTMLFormElement>) {
@@ -177,6 +190,24 @@ export function SettingsPage() {
     }
   }
 
+  async function handleEnableNotifications() {
+    const permission = await requestDeviceNotificationPermission();
+    setDeviceSnapshot(getDeviceCapabilitySnapshot());
+    setDeviceMessage(
+      permission === "granted"
+        ? "Уведомления включены на этом устройстве."
+        : permission === "denied"
+          ? "Браузер заблокировал уведомления. Разрешите их в настройках сайта."
+          : "Устройство не поддерживает веб-уведомления."
+    );
+  }
+
+  function handleSavePushToken() {
+    savePushRegistrationToken(pushTokenDraft.trim());
+    setDeviceMessage(pushTokenDraft.trim() ? "Токен устройства сохранён локально для будущей native-обвязки." : "Токен устройства очищен.");
+    setDeviceSnapshot(getDeviceCapabilitySnapshot());
+  }
+
   return (
     <div className="screen">
       <section className="panel">
@@ -199,6 +230,33 @@ export function SettingsPage() {
             Выйти с этого устройства
           </button>
         </div>
+      </section>
+
+      <section className="panel">
+        <p className="eyebrow">Устройство</p>
+        <h3>Offline, уведомления и будущая native-упаковка</h3>
+        <p className="muted">Сеть: {deviceSnapshot.isOnline ? "онлайн" : "офлайн"} • Установка: {deviceSnapshot.isStandalone ? "открыто как приложение" : "браузерный режим"}</p>
+        <p className="muted">Уведомления: {deviceSnapshot.notificationPermission} • Камера: {deviceSnapshot.cameraSupported ? "есть" : "нет"} • File access: {deviceSnapshot.fileSystemSupported ? "есть" : "нет"}</p>
+        <p className="muted">Share API: {deviceSnapshot.shareSupported ? "есть" : "нет"} • App badge: {deviceSnapshot.badgingSupported ? "есть" : "нет"}</p>
+        <div className="form-grid">
+          <label>
+            <span>Push token / native bridge token</span>
+            <input
+              value={pushTokenDraft}
+              onChange={(event) => setPushTokenDraft(event.target.value)}
+              placeholder="Например, expo_push_xxx или fcm_xxx"
+            />
+          </label>
+        </div>
+        <div className="status-actions">
+          <button className="secondary-button" type="button" onClick={() => void handleEnableNotifications()}>
+            Включить уведомления
+          </button>
+          <button className="secondary-button" type="button" onClick={handleSavePushToken}>
+            Сохранить токен устройства
+          </button>
+        </div>
+        {deviceMessage ? <p className="muted">{deviceMessage}</p> : null}
       </section>
 
       <section className="screen">
