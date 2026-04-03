@@ -7,6 +7,13 @@ import type {
 import type { AuditLog } from "@hotel-crm/shared/audit";
 import type { AuthSession, AuthUserSummary } from "@hotel-crm/shared/auth";
 import type {
+  ComplianceDataset,
+  ComplianceDocument,
+  ComplianceKind,
+  ComplianceReadiness,
+  ComplianceSubmission
+} from "@hotel-crm/shared/compliance";
+import type {
   AzBookingCreate,
   AzChannelDashboard,
   AzChannelBookingIngest,
@@ -666,6 +673,47 @@ export async function mergeGuestsRequest(primaryGuestId: string, duplicateGuestI
     method: "POST",
     body: JSON.stringify({ primaryGuestId, duplicateGuestId })
   });
+}
+
+export async function loadReservationComplianceReadinessRequest(reservationId: string) {
+  return request<ComplianceReadiness>(`/compliance/reservations/${reservationId}/readiness`);
+}
+
+export async function listComplianceSubmissionsRequest(reservationId?: string) {
+  const suffix = reservationId ? `?reservationId=${encodeURIComponent(reservationId)}` : "";
+  return request<ComplianceSubmission[]>(`/compliance/submissions${suffix}`);
+}
+
+export async function prepareReservationComplianceRequest(
+  reservationId: string,
+  kinds: ComplianceKind[] = ["mvd", "rosstat"]
+) {
+  return request<ComplianceSubmission[]>("/compliance/prepare", {
+    method: "POST",
+    body: JSON.stringify({ reservationId, kinds })
+  });
+}
+
+export async function submitComplianceSubmissionRequest(submissionId: string) {
+  return request<ComplianceSubmission>(`/compliance/submissions/${submissionId}/submit`, {
+    method: "POST",
+    body: "{}"
+  });
+}
+
+export async function retryComplianceSubmissionRequest(submissionId: string) {
+  return request<ComplianceSubmission>(`/compliance/submissions/${submissionId}/retry`, {
+    method: "POST",
+    body: "{}"
+  });
+}
+
+export async function loadReservationComplianceDocumentsRequest(reservationId: string) {
+  return request<ComplianceDocument[]>(`/compliance/reservations/${reservationId}/documents`);
+}
+
+export async function loadReservationComplianceDatasetsRequest(reservationId: string) {
+  return request<ComplianceDataset[]>(`/compliance/reservations/${reservationId}/datasets`);
 }
 
 export async function createStaffUserRequest(input: {

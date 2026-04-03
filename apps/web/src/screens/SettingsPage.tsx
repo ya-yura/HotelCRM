@@ -33,6 +33,15 @@ const emptyProperty: PropertySummary = {
     housekeepingStartTime: "09:00",
     housekeepingEndTime: "18:00",
     sharedDeviceMode: true
+  },
+  complianceSettings: {
+    requireDocumentBeforeCheckIn: true,
+    requireBirthDateBeforeCheckIn: true,
+    requireMigrationCardForForeignGuests: true,
+    autoPrepareMvdSubmission: true,
+    autoPrepareRosstatSubmission: true,
+    mvdProvider: "manual",
+    rosstatProvider: "manual"
   }
 };
 
@@ -151,6 +160,7 @@ export function SettingsPage() {
         legalInfo: propertyForm.legalInfo,
         notificationSettings: propertyForm.notificationSettings,
         operationSettings: propertyForm.operationSettings,
+        complianceSettings: propertyForm.complianceSettings,
         active: propertyForm.active
       });
       await refreshSession();
@@ -500,6 +510,139 @@ export function SettingsPage() {
               >
                 <option value="on">Включён</option>
                 <option value="off">Выключен</option>
+              </select>
+            </label>
+            <label>
+              <span>Документ обязателен до заезда</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.requireDocumentBeforeCheckIn ? "on" : "off"}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      requireDocumentBeforeCheckIn: event.target.value === "on"
+                    }
+                  }))
+                }
+              >
+                <option value="on">Да</option>
+                <option value="off">Нет</option>
+              </select>
+            </label>
+            <label>
+              <span>Дата рождения обязательна</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.requireBirthDateBeforeCheckIn ? "on" : "off"}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      requireBirthDateBeforeCheckIn: event.target.value === "on"
+                    }
+                  }))
+                }
+              >
+                <option value="on">Да</option>
+                <option value="off">Нет</option>
+              </select>
+            </label>
+            <label>
+              <span>Миграционная карта для иностранцев</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.requireMigrationCardForForeignGuests ? "on" : "off"}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      requireMigrationCardForForeignGuests: event.target.value === "on"
+                    }
+                  }))
+                }
+              >
+                <option value="on">Да</option>
+                <option value="off">Нет</option>
+              </select>
+            </label>
+            <label>
+              <span>Автоподготовка пакета МВД</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.autoPrepareMvdSubmission ? "on" : "off"}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      autoPrepareMvdSubmission: event.target.value === "on"
+                    }
+                  }))
+                }
+              >
+                <option value="on">Да</option>
+                <option value="off">Нет</option>
+              </select>
+            </label>
+            <label>
+              <span>Автоподготовка пакета Росстат</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.autoPrepareRosstatSubmission ? "on" : "off"}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      autoPrepareRosstatSubmission: event.target.value === "on"
+                    }
+                  }))
+                }
+              >
+                <option value="on">Да</option>
+                <option value="off">Нет</option>
+              </select>
+            </label>
+            <label>
+              <span>Провайдер МВД</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.mvdProvider}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      mvdProvider: event.target.value
+                    }
+                  }))
+                }
+              >
+                <option value="manual">Manual</option>
+                <option value="mock_mvd_gateway">Mock MVD gateway</option>
+              </select>
+            </label>
+            <label>
+              <span>Провайдер Росстат</span>
+              <select
+                disabled={!canManageProperty}
+                value={propertyForm.complianceSettings.rosstatProvider}
+                onChange={(event) =>
+                  setPropertyForm((current) => ({
+                    ...current,
+                    complianceSettings: {
+                      ...current.complianceSettings,
+                      rosstatProvider: event.target.value
+                    }
+                  }))
+                }
+              >
+                <option value="manual">Manual</option>
+                <option value="mock_rosstat_gateway">Mock Rosstat gateway</option>
               </select>
             </label>
             {propertyMessage ? <p className="muted">{propertyMessage}</p> : null}

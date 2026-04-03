@@ -1102,9 +1102,14 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
       {
         id: `stay_${Date.now()}`,
         reservationId,
+        guestId: reservation.guestId ?? "",
         roomId: room.id,
         roomLabel: room.number,
         guestName: reservation.guestName,
+        citizenship: "RU",
+        purposeOfVisit: "tourism",
+        documentNumberMasked: "",
+        migrationRegistrationStatus: "ready",
         status: "active",
         checkedInAt: new Date().toISOString(),
         checkedOutAt: null

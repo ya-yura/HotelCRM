@@ -17,6 +17,10 @@ function mergeProperty(current: PropertySummary, patch: PropertyUpdateRequest) {
     operationSettings: {
       ...current.operationSettings,
       ...(patch.operationSettings ?? {})
+    },
+    complianceSettings: {
+      ...current.complianceSettings,
+      ...(patch.complianceSettings ?? {})
     }
   });
 }

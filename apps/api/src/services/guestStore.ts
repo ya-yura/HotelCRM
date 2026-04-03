@@ -63,12 +63,18 @@ function matchReasons(left: GuestProfile, right: GuestProfile) {
 function mergeGuestRecords<T extends GuestProfile>(primary: T, duplicate: GuestProfile) {
   return {
     ...primary,
+    gender: primary.gender !== "unspecified" ? primary.gender : duplicate.gender,
     phone: primary.phone || duplicate.phone,
     email: primary.email || duplicate.email,
     birthDate: primary.birthDate || duplicate.birthDate,
+    citizenship: primary.citizenship || duplicate.citizenship,
+    residentialAddress: primary.residentialAddress || duplicate.residentialAddress,
+    arrivalPurpose: primary.arrivalPurpose || duplicate.arrivalPurpose,
     notes: [primary.notes, duplicate.notes].filter(Boolean).join("\n").trim(),
     preferences: Array.from(new Set([...primary.preferences, ...duplicate.preferences])),
     document: primary.document ?? duplicate.document,
+    visa: primary.visa ?? duplicate.visa,
+    migrationCard: primary.migrationCard ?? duplicate.migrationCard,
     stayHistory: Array.from(new Set([...primary.stayHistory, ...duplicate.stayHistory])),
     mergedGuestIds: Array.from(
       new Set([
@@ -114,12 +120,18 @@ export async function createOrMatchGuest(propertyId: string, input: GuestUpsert)
     const candidate: GuestProfile = {
       id: "",
       fullName: input.fullName,
+      gender: input.gender ?? "unspecified",
       phone: input.phone ?? "",
       email: input.email ?? "",
       birthDate: input.birthDate ?? "",
+      citizenship: input.citizenship ?? "RU",
+      residentialAddress: input.residentialAddress ?? "",
+      arrivalPurpose: input.arrivalPurpose ?? "tourism",
       notes: input.notes ?? "",
       preferences: input.preferences ?? [],
       document: input.document,
+      visa: input.visa,
+      migrationCard: input.migrationCard,
       stayHistory: [],
       mergedGuestIds: [],
       mergedIntoGuestId: null
@@ -156,7 +168,9 @@ export async function updateGuest(propertyId: string, guestId: string, patch: Pa
       ...current,
       ...patch,
       preferences: patch.preferences ?? current.preferences,
-      document: patch.document ?? current.document
+      document: patch.document ?? current.document,
+      visa: patch.visa ?? current.visa,
+      migrationCard: patch.migrationCard ?? current.migrationCard
     };
     data.guests[index] = updated;
     return updated as GuestProfile;

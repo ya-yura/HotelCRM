@@ -25,6 +25,16 @@ export const propertyOperationSettingsSchema = z.object({
   sharedDeviceMode: z.boolean().default(true)
 });
 
+export const propertyComplianceSettingsSchema = z.object({
+  requireDocumentBeforeCheckIn: z.boolean().default(true),
+  requireBirthDateBeforeCheckIn: z.boolean().default(true),
+  requireMigrationCardForForeignGuests: z.boolean().default(true),
+  autoPrepareMvdSubmission: z.boolean().default(true),
+  autoPrepareRosstatSubmission: z.boolean().default(true),
+  mvdProvider: z.string().default("manual"),
+  rosstatProvider: z.string().default("manual")
+});
+
 export const propertySummarySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -36,7 +46,8 @@ export const propertySummarySchema = z.object({
   propertyType: propertyTypeSchema.default("small_hotel"),
   legalInfo: propertyLegalInfoSchema.default({}),
   notificationSettings: propertyNotificationSettingsSchema.default({}),
-  operationSettings: propertyOperationSettingsSchema.default({})
+  operationSettings: propertyOperationSettingsSchema.default({}),
+  complianceSettings: propertyComplianceSettingsSchema.default({})
 });
 
 export const propertyCreateRequestSchema = z.object({
@@ -59,3 +70,4 @@ export type PropertySummary = z.infer<typeof propertySummarySchema>;
 export type PropertyUpdateRequest = z.infer<typeof propertyUpdateRequestSchema>;
 export type PropertyType = z.infer<typeof propertyTypeSchema>;
 export type PropertyVatRate = z.infer<typeof propertyVatRateSchema>;
+export type PropertyComplianceSettings = z.infer<typeof propertyComplianceSettingsSchema>;

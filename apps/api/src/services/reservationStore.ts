@@ -87,9 +87,13 @@ export async function findReservationRoomConflict(
 export async function createReservation(propertyId: string, input: ReservationCreate) {
   const guestPayload: GuestUpsert = {
     fullName: input.guestName,
+    gender: "unspecified",
     phone: input.guestPhone ?? "",
     email: input.guestEmail ?? "",
     birthDate: input.guestBirthDate ?? "",
+    citizenship: "RU",
+    residentialAddress: "",
+    arrivalPurpose: "tourism",
     notes: input.notes ?? "",
     preferences: []
   };

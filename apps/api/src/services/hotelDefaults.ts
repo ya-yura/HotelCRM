@@ -6,7 +6,7 @@ import { propertySummarySchema, type PropertySummary, type PropertyType } from "
 import { createPinHint, hashSecret } from "../lib/credentials";
 import type { PropertyScoped, HotelData } from "./hotelDataTypes";
 
-export const schemaVersion = 7;
+export const schemaVersion = 8;
 export const demoPropertyId = "prop_demo_1";
 export const hostelPropertyId = "prop_hostel_1";
 export const glampPropertyId = "prop_glamp_1";
@@ -56,6 +56,15 @@ function buildProperty(input: {
       housekeepingStartTime: "09:00",
       housekeepingEndTime: "18:00",
       sharedDeviceMode: true
+    },
+    complianceSettings: {
+      requireDocumentBeforeCheckIn: true,
+      requireBirthDateBeforeCheckIn: true,
+      requireMigrationCardForForeignGuests: true,
+      autoPrepareMvdSubmission: true,
+      autoPrepareRosstatSubmission: true,
+      mvdProvider: "manual",
+      rosstatProvider: "manual"
     }
   });
 }
@@ -197,9 +206,9 @@ export const defaultData: HotelData = {
   ],
   authSessions: [],
   guests: [
-    { propertyId: demoPropertyId, id: "guest_demo_anna", fullName: "Anna Petrova", phone: "+79990000001", email: "anna@example.com", birthDate: "", notes: "Prefers quiet room", preferences: ["quiet_room"], stayHistory: ["resv_demo_1"], mergedGuestIds: [], mergedIntoGuestId: null },
-    { propertyId: hostelPropertyId, id: "guest_hostel_oleg", fullName: "Oleg Sidorov", phone: "+79991111111", email: "", birthDate: "", notes: "", preferences: [], stayHistory: ["resv_hostel_1"], mergedGuestIds: [], mergedIntoGuestId: null },
-    { propertyId: glampPropertyId, id: "guest_glamp_maria", fullName: "Maria Volkova", phone: "+79992222222", email: "maria@example.com", birthDate: "", notes: "Needs late arrival instructions", preferences: ["late_arrival"], stayHistory: ["resv_glamp_1"], mergedGuestIds: [], mergedIntoGuestId: null }
+    { propertyId: demoPropertyId, id: "guest_demo_anna", fullName: "Anna Petrova", gender: "female", phone: "+79990000001", email: "anna@example.com", birthDate: "1991-02-18", citizenship: "RU", residentialAddress: "Москва, ул. Народная, 12", arrivalPurpose: "tourism", notes: "Prefers quiet room", preferences: ["quiet_room"], document: { type: "passport_rf", series: "4510", number: "223344", issuedBy: "ОВД Таганский", issuedAt: "2015-06-11", issuerCode: "770-123", birthPlace: "Москва", registrationAddress: "Москва, ул. Народная, 12", citizenship: "RU" }, stayHistory: ["resv_demo_1"], mergedGuestIds: [], mergedIntoGuestId: null },
+    { propertyId: hostelPropertyId, id: "guest_hostel_oleg", fullName: "Oleg Sidorov", gender: "male", phone: "+79991111111", email: "", birthDate: "1998-07-04", citizenship: "RU", residentialAddress: "Казань, ул. Чистопольская, 7", arrivalPurpose: "tourism", notes: "", preferences: [], document: { type: "passport_rf", series: "9211", number: "554433", issuedBy: "ОВД Казань", issuedAt: "2019-02-21", issuerCode: "160-002", birthPlace: "Казань", registrationAddress: "Казань, ул. Чистопольская, 7", citizenship: "RU" }, stayHistory: ["resv_hostel_1"], mergedGuestIds: [], mergedIntoGuestId: null },
+    { propertyId: glampPropertyId, id: "guest_glamp_maria", fullName: "Maria Volkova", gender: "female", phone: "+79992222222", email: "maria@example.com", birthDate: "1989-11-29", citizenship: "BY", residentialAddress: "Минск, ул. Победы, 3", arrivalPurpose: "tourism", notes: "Needs late arrival instructions", preferences: ["late_arrival"], document: { type: "international_passport", series: "MP", number: "7788990", issuedBy: "Minsk authority", issuedAt: "2023-05-12", issuerCode: "", birthPlace: "Минск", registrationAddress: "Минск, ул. Победы, 3", citizenship: "BY" }, migrationCard: { number: "MC-883211", issuedAt: "2026-03-27", expiresAt: "2026-06-27" }, stayHistory: ["resv_glamp_1"], mergedGuestIds: [], mergedIntoGuestId: null }
   ],
   reservations: [
     { propertyId: demoPropertyId, id: "resv_demo_1", guestId: "guest_demo_anna", guestName: "Anna Petrova", guestPhone: "+79990000001", guestEmail: "anna@example.com", roomLabel: "203", roomTypeId: "double", checkInDate: "2026-03-25", checkOutDate: "2026-03-28", status: "confirmed", source: "phone", sourceAttribution: { channel: "", externalBookingId: "", externalRoomTypeId: "", externalRatePlanId: "", partnerName: "", campaignCode: "", commissionRate: 0 }, totalAmount: 12000, paidAmount: 7500, balanceDue: 4500, notes: "Prefers quiet room", createdAt: "2026-03-20T09:00:00.000Z", updatedAt: "2026-03-25T09:00:00.000Z" },
@@ -308,6 +317,10 @@ function normalizeProperty(item: Partial<PropertySummary>, fallback: PropertySum
     operationSettings: {
       ...fallback.operationSettings,
       ...(item.operationSettings ?? {})
+    },
+    complianceSettings: {
+      ...fallback.complianceSettings,
+      ...(item.complianceSettings ?? {})
     }
   });
 }
@@ -350,11 +363,36 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
     })),
     guests: (raw.guests ?? defaults.guests).map((item) => ({
       ...withPropertyId(item, fallbackPropertyId),
+      gender: item.gender ?? "unspecified",
       phone: item.phone ?? "",
       email: item.email ?? "",
       birthDate: item.birthDate ?? "",
+      citizenship: item.citizenship ?? item.document?.citizenship ?? "RU",
+      residentialAddress: item.residentialAddress ?? "",
+      arrivalPurpose: item.arrivalPurpose ?? "tourism",
       notes: item.notes ?? "",
       preferences: item.preferences ?? [],
+      document: item.document ? {
+        type: item.document.type,
+        series: item.document.series ?? "",
+        number: item.document.number ?? "",
+        issuedBy: item.document.issuedBy ?? "",
+        issuedAt: item.document.issuedAt ?? "",
+        issuerCode: item.document.issuerCode ?? "",
+        birthPlace: item.document.birthPlace ?? "",
+        registrationAddress: item.document.registrationAddress ?? "",
+        citizenship: item.document.citizenship ?? item.citizenship ?? "RU"
+      } : undefined,
+      visa: item.visa ? {
+        number: item.visa.number ?? "",
+        validUntil: item.visa.validUntil ?? "",
+        issueCountry: item.visa.issueCountry ?? ""
+      } : undefined,
+      migrationCard: item.migrationCard ? {
+        number: item.migrationCard.number ?? "",
+        issuedAt: item.migrationCard.issuedAt ?? "",
+        expiresAt: item.migrationCard.expiresAt ?? ""
+      } : undefined,
       stayHistory: item.stayHistory ?? [],
       mergedGuestIds: item.mergedGuestIds ?? [],
       mergedIntoGuestId: item.mergedIntoGuestId ?? null
@@ -476,7 +514,14 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
         errorMessage: item.fiscalization?.errorMessage ?? ""
       }
     })),
-    stays: (raw.stays ?? defaults.stays).map((item) => withPropertyId(item, fallbackPropertyId)),
+    stays: (raw.stays ?? defaults.stays).map((item) => ({
+      ...withPropertyId(item, fallbackPropertyId),
+      guestId: item.guestId ?? "",
+      citizenship: item.citizenship ?? "RU",
+      purposeOfVisit: item.purposeOfVisit ?? "tourism",
+      documentNumberMasked: item.documentNumberMasked ?? "",
+      migrationRegistrationStatus: item.migrationRegistrationStatus ?? "not_required"
+    })),
     auditLogs: (raw.auditLogs ?? defaults.auditLogs).map((item) => ({
       ...withPropertyId(item, fallbackPropertyId),
       actor: item.actor,
@@ -486,7 +531,14 @@ export function hydrateData(raw: Partial<HotelData> | null | undefined): HotelDa
     syncConflicts: (raw.syncConflicts ?? defaults.syncConflicts).map((item) => withPropertyId(item, fallbackPropertyId)),
     assistantItems: raw.assistantItems ?? defaults.assistantItems,
     notificationDeliveries: (raw.notificationDeliveries ?? defaults.notificationDeliveries).map((item) => ({ ...item, propertyId: item.propertyId ?? fallbackPropertyId })),
-    complianceSubmissions: (raw.complianceSubmissions ?? defaults.complianceSubmissions).map((item: ComplianceSubmission) => ({ ...item, propertyId: item.propertyId ?? fallbackPropertyId })),
+    complianceSubmissions: (raw.complianceSubmissions ?? defaults.complianceSubmissions).map((item: ComplianceSubmission) => ({
+      ...item,
+      propertyId: item.propertyId ?? fallbackPropertyId,
+      provider: item.provider ?? "manual",
+      lastAttemptAt: item.lastAttemptAt ?? null,
+      attemptCount: item.attemptCount ?? 0,
+      errorMessage: item.errorMessage ?? ""
+    })),
     backgroundJobs: raw.backgroundJobs ?? defaults.backgroundJobs,
     azRooms: (raw.azRooms ?? defaults.azRooms).map((item) => ({ ...withPropertyId(item, fallbackPropertyId), priceRules: item.priceRules ?? [] })),
     azBookings: (raw.azBookings ?? defaults.azBookings).map((item) => ({ ...withPropertyId(item, fallbackPropertyId), services: item.services ?? [] })),

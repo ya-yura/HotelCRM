@@ -12,6 +12,7 @@ import { registerAzRoomRoutes } from "./routes/azRooms";
 import { registerAzReportRoutes } from "./routes/azReports";
 import { registerAuthRoutes } from "./routes/auth";
 import { registerAuditRoutes } from "./routes/audit";
+import { registerComplianceRoutes } from "./routes/compliance";
 import { registerHealthRoutes } from "./routes/health";
 import { registerGuestRoutes } from "./routes/guests";
 import { registerHousekeepingRoutes } from "./routes/housekeeping";
@@ -69,6 +70,7 @@ export function buildApp() {
   app.register(registerAzRoomRoutes, { prefix: "/api" });
   app.register(registerAuthRoutes, { prefix: "/api" });
   app.register(registerAuditRoutes, { prefix: "/api" });
+  app.register(registerComplianceRoutes, { prefix: "/api" });
   app.register(registerHealthRoutes, { prefix: "/api" });
   app.register(registerGuestRoutes, { prefix: "/api" });
   app.register(registerHousekeepingRoutes, { prefix: "/api" });

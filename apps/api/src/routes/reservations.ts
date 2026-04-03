@@ -9,6 +9,11 @@ import {
 import { requireRoles } from "../lib/auth";
 import { requirePropertySession } from "../lib/property";
 import { appendAuditLog } from "../services/auditStore";
+import {
+  getReservationComplianceReadiness,
+  maskSensitiveDocumentNumber,
+  prepareComplianceSubmissions
+} from "../services/complianceStore";
 import { createPayment, createPaymentLink, getFolio, getFolioDetails } from "../services/paymentStore";
 import { createHousekeepingTask } from "../services/housekeepingStore";
 import {
@@ -20,7 +25,8 @@ import {
 } from "../services/reservationStore";
 import { getRoom, updateRoomStatus } from "../services/roomStore";
 import { closeStay, createStay, getActiveStayByReservation } from "../services/stayStore";
-import { updateGuest } from "../services/guestStore";
+import { getGuest, updateGuest } from "../services/guestStore";
+import { getPropertyById } from "../services/propertyStore";
 
 function roomIdFromLabel(roomLabel: string) {
   return `room_${roomLabel.toLowerCase()}`;
@@ -162,6 +168,25 @@ export async function registerReservationRoutes(app: FastifyInstance) {
       return reply.code(409).send({ code: "ROOM_NOT_READY", message: "Room is not ready for check-in" });
     }
 
+    const property = await getPropertyById(propertyId);
+    if (!property) {
+      return reply.code(404).send({ code: "PROPERTY_NOT_FOUND", message: "Property not found" });
+    }
+
+    const readiness = await getReservationComplianceReadiness(propertyId, current.id);
+    if (!readiness) {
+      return reply.code(404).send({ code: "NOT_FOUND", message: "Compliance profile not found" });
+    }
+    if (!readiness.complianceReady) {
+      return reply.code(409).send({
+        code: "COMPLIANCE_BLOCKED",
+        message: "Check-in blocked until required guest and compliance fields are fixed.",
+        details: readiness.issues
+      });
+    }
+
+    const guest = current.guestId ? await getGuest(propertyId, current.guestId) : null;
+
     if (payload.depositAmount && payload.depositAmount > 0) {
       await createPayment(propertyId, {
         reservationId: current.id,
@@ -195,10 +220,22 @@ export async function registerReservationRoutes(app: FastifyInstance) {
     }
     await createStay(propertyId, {
       reservationId: reservation.id,
+      guestId: reservation.guestId ?? "",
       roomId: roomIdFromLabel(reservation.roomLabel),
       roomLabel: reservation.roomLabel,
-      guestName: reservation.guestName
+      guestName: reservation.guestName,
+      citizenship: guest?.citizenship ?? "RU",
+      purposeOfVisit: guest?.arrivalPurpose ?? "tourism",
+      documentNumberMasked: maskSensitiveDocumentNumber(guest?.document?.number),
+      migrationRegistrationStatus: "ready"
     });
+    const complianceKinds = [
+      ...(property.complianceSettings.autoPrepareMvdSubmission ? ["mvd" as const] : []),
+      ...(property.complianceSettings.autoPrepareRosstatSubmission ? ["rosstat" as const] : [])
+    ];
+    if (complianceKinds.length > 0) {
+      await prepareComplianceSubmissions(propertyId, reservation.id, complianceKinds);
+    }
     await updateRoomStatus(propertyId, roomIdFromLabel(reservation.roomLabel), "occupied");
     await appendAuditLog(propertyId, {
       entityType: "stay",

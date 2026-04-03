@@ -1,5 +1,11 @@
 import type { AIAssistantItem } from "@hotel-crm/shared/ai";
 import type { AzAccessRole, HotelRole } from "@hotel-crm/shared/auth";
+import type {
+  ComplianceDocumentKind,
+  ComplianceKind,
+  ComplianceSeverity,
+  ComplianceSubmissionStatus
+} from "@hotel-crm/shared/compliance";
 import type { HousekeepingTaskStatus } from "@hotel-crm/shared/housekeeping";
 import type { MaintenancePriority, MaintenanceStatus } from "@hotel-crm/shared/maintenance";
 import type {
@@ -356,5 +362,55 @@ export function vatRateLabel(vatRate: PropertyVatRate) {
       return "НДС 10%";
     case "20":
       return "НДС 20%";
+  }
+}
+
+export function complianceKindLabel(kind: ComplianceKind) {
+  switch (kind) {
+    case "mvd":
+      return "МВД";
+    case "rosstat":
+      return "Росстат";
+    case "internal":
+      return "Внутренний";
+  }
+}
+
+export function complianceSubmissionStatusLabel(status: ComplianceSubmissionStatus) {
+  switch (status) {
+    case "draft":
+      return "Черновик";
+    case "ready":
+      return "Готово к отправке";
+    case "submitted":
+      return "Отправлено";
+    case "failed":
+      return "Ошибка";
+    case "corrected":
+      return "Исправлено";
+  }
+}
+
+export function complianceDocumentKindLabel(kind: ComplianceDocumentKind) {
+  switch (kind) {
+    case "registration_card":
+      return "Регистрационная карта";
+    case "stay_confirmation":
+      return "Подтверждение проживания";
+    case "invoice_summary":
+      return "Сводка по folio";
+    case "housekeeping_print":
+      return "Печать уборки";
+    case "maintenance_print":
+      return "Печать техслужбы";
+  }
+}
+
+export function complianceSeverityLabel(severity: ComplianceSeverity) {
+  switch (severity) {
+    case "error":
+      return "Ошибка";
+    case "warning":
+      return "Предупреждение";
   }
 }
