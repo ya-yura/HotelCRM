@@ -6,7 +6,9 @@ export const aiAssistantItemSchema = z.object({
   title: z.string(),
   detail: z.string(),
   confidence: z.number().min(0).max(1),
-  actionLabel: z.string()
+  actionLabel: z.string(),
+  actionTarget: z.string().default(""),
+  dismissible: z.boolean().default(true)
 });
 
 export const occupancyRecommendationSchema = z.object({

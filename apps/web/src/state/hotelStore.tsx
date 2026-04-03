@@ -33,6 +33,7 @@ import type { ReservationCreate, ReservationSummary } from "@hotel-crm/shared/re
 import type { RoomStatus, RoomSummary } from "@hotel-crm/shared/rooms";
 import type { StayRecord } from "@hotel-crm/shared/stays";
 import type { SyncConflict, SyncQueueItem } from "@hotel-crm/shared/sync";
+import { buildManagementAlerts } from "@hotel-crm/shared/management";
 import { initialAssistantItems } from "../lib/aiFixtures";
 import { initialAuditLogs } from "../lib/auditFixtures";
 import { initialMaintenanceIncidents } from "../lib/maintenanceFixtures";
@@ -488,81 +489,20 @@ function deriveAssistantItems(
   housekeepingTasks: HousekeepingTaskSummary[],
   maintenanceIncidents: MaintenanceIncident[],
   folios: FolioSummary[],
+  payments: PaymentRecord[],
+  complianceSubmissions: ComplianceSubmission[],
   syncConflicts: SyncConflict[]
 ): AIAssistantItem[] {
-  const items: AIAssistantItem[] = [];
-  const activeArrivals = reservations.filter((entry) =>
-    ["draft", "confirmed", "pending_confirmation"].includes(entry.status)
-  );
-  const unpaidArrivals = activeArrivals.filter((entry) => {
-    const folio = folios.find((item) => item.reservationId === entry.id);
-    return (folio?.balanceDue ?? entry.balanceDue) > 0;
+  return buildManagementAlerts({
+    reservations,
+    rooms,
+    housekeepingTasks,
+    maintenanceIncidents,
+    folios,
+    payments,
+    complianceSubmissions,
+    syncConflictCount: syncConflicts.length
   });
-  const dirtyRooms = rooms.filter((entry) => entry.status === "dirty" || entry.status === "cleaning");
-  const activeMaintenance = maintenanceIncidents.filter((entry) => entry.status === "open" || entry.status === "in_progress");
-  const unassignedConfirmed = reservations.filter(
-    (entry) => entry.status === "confirmed" && entry.roomLabel === "UNASSIGNED"
-  );
-
-  if (unpaidArrivals.length > 0) {
-    items.push({
-      id: "ai_daily_unpaid",
-      type: "daily_summary",
-      title: `Нужно проверить оплату по ${unpaidArrivals.length} заезд${unpaidArrivals.length > 1 ? "ам" : "у"}`,
-      detail: unpaidArrivals
-        .slice(0, 2)
-        .map((entry) => `У гостя ${entry.guestName} остался долг`)
-        .join("; "),
-      confidence: 0.93,
-      actionLabel: "Открыть неоплаченные"
-    });
-  }
-
-  if (dirtyRooms.length > 0) {
-    items.push({
-      id: "ai_admin_turnover",
-      type: "admin_routine",
-      title: `${dirtyRooms.length} номер${dirtyRooms.length > 1 ? "ов требуют" : " требует"} внимания по уборке`,
-      detail: `${housekeepingTasks.filter((task) => task.status !== "completed" && task.status !== "cancelled").length} активных задач ещё блокируют выпуск номеров.`,
-      confidence: 0.9,
-      actionLabel: "Открыть уборку"
-    });
-  }
-
-  if (unassignedConfirmed.length > 0) {
-    items.push({
-      id: "ai_occupancy_pending",
-      type: "occupancy_hint",
-      title: `${unassignedConfirmed.length} подтверждённ${unassignedConfirmed.length > 1 ? "ые брони ждут" : "ая бронь ждёт"} назначения номера`,
-      detail: "Откройте бронь и используйте подсказки ИИ, чтобы плотнее заполнить шахматку.",
-      confidence: 0.86,
-      actionLabel: "Выбрать номер"
-    });
-  }
-
-  if (activeMaintenance.length > 0) {
-    items.push({
-      id: "ai_maintenance_watch",
-      type: "anomaly",
-      title: `${activeMaintenance.length} техзаяв${activeMaintenance.length > 1 ? "ки" : "ка"} влияет на инвентарь`,
-      detail: "Проверьте блокировки номеров и сроки возврата в продажу.",
-      confidence: 0.9,
-      actionLabel: "Открыть техслужбу"
-    });
-  }
-
-  if (syncConflicts.length > 0) {
-    items.push({
-      id: "ai_sync_conflicts",
-      type: "anomaly",
-      title: `${syncConflicts.length} конфликт${syncConflicts.length > 1 ? "а" : ""} синхронизации требуют проверки`,
-      detail: "Разберите конфликты, пока они не превратились в расхождения по номерам и оплатам.",
-      confidence: 0.88,
-      actionLabel: "Разобрать конфликты"
-    });
-  }
-
-  return items;
 }
 
 export function HotelStoreProvider({ children }: PropsWithChildren) {
@@ -672,9 +612,18 @@ export function HotelStoreProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     setAssistantItems(
-      deriveAssistantItems(reservations, rooms, housekeepingTasks, maintenanceIncidents, folios, syncConflicts)
+      deriveAssistantItems(
+        reservations,
+        rooms,
+        housekeepingTasks,
+        maintenanceIncidents,
+        folios,
+        payments,
+        complianceSubmissions,
+        syncConflicts
+      )
     );
-  }, [folios, housekeepingTasks, maintenanceIncidents, reservations, rooms, syncConflicts]);
+  }, [complianceSubmissions, folios, housekeepingTasks, maintenanceIncidents, payments, reservations, rooms, syncConflicts]);
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);

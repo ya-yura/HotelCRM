@@ -19,6 +19,7 @@
     "./audit": "./dist/audit.js",
     "./auth": "./dist/auth.js",
     "./properties": "./dist/properties.js",
+    "./management": "./dist/management.js",
     "./features/azhotel_core": "./dist/features/azhotel_core/index.js"
   },
   "scripts": {

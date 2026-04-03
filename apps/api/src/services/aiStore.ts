@@ -4,9 +4,12 @@ import type {
   BookingParseResult,
   OccupancyRecommendation
 } from "@hotel-crm/shared/ai";
+import { buildManagementAlerts } from "@hotel-crm/shared/management";
+import { listComplianceSubmissions } from "./complianceStore";
 import { listGuests } from "./guestStore";
 import { listHousekeepingTasks } from "./housekeepingStore";
-import { listFolios } from "./paymentStore";
+import { listMaintenanceIncidents } from "./maintenanceStore";
+import { listFolios, listPayments } from "./paymentStore";
 import { listReservations, getReservation } from "./reservationStore";
 import { listRooms } from "./roomStore";
 import { listSyncConflicts } from "./syncStore";
@@ -84,72 +87,21 @@ export async function listAssistantItems(propertyId: string) {
   const reservations = await listReservations(propertyId);
   const rooms = await listRooms(propertyId);
   const folios = await listFolios(propertyId);
+  const payments = await listPayments(propertyId);
   const tasks = await listHousekeepingTasks(propertyId);
+  const maintenanceIncidents = await listMaintenanceIncidents(propertyId);
+  const complianceSubmissions = await listComplianceSubmissions(propertyId);
   const conflicts = await listSyncConflicts(propertyId);
-  const arrivals = reservations.filter((entry) => ["draft", "confirmed"].includes(entry.status));
-  const unpaidArrivals = arrivals.filter((entry) => {
-    const folio = folios.find((item) => item.reservationId === entry.id);
-    return (folio?.balanceDue ?? entry.balanceDue) > 0;
+  return buildManagementAlerts({
+    reservations,
+    rooms,
+    folios,
+    housekeepingTasks: tasks,
+    maintenanceIncidents,
+    payments,
+    complianceSubmissions,
+    syncConflictCount: conflicts.length
   });
-  const dirtyRooms = rooms.filter((entry) => entry.status === "dirty" || entry.status === "cleaning");
-  const unassignedConfirmed = reservations.filter(
-    (entry) => entry.status === "confirmed" && entry.roomLabel === "UNASSIGNED"
-  );
-
-  const items: AIAssistantItem[] = [];
-
-  if (unpaidArrivals.length > 0) {
-    items.push({
-      id: "ai_daily_unpaid",
-      type: "daily_summary",
-      title: `${unpaidArrivals.length} arrival${unpaidArrivals.length > 1 ? "s" : ""} need payment review`,
-      detail: unpaidArrivals
-        .slice(0, 2)
-        .map((entry) => `${entry.guestName} still has balance due`)
-        .join("; "),
-      confidence: 0.94,
-      actionLabel: "Open unpaid arrivals"
-    });
-  }
-
-  if (dirtyRooms.length > 0) {
-    items.push({
-      id: "ai_admin_turnover",
-      type: "admin_routine",
-      title: `${dirtyRooms.length} room${dirtyRooms.length > 1 ? "s" : ""} need turnover attention`,
-      detail: `${tasks.filter((task) => task.status !== "completed" && task.status !== "cancelled").length} active housekeeping task(s) are blocking room release.`,
-      confidence: 0.9,
-      actionLabel: "Open housekeeping"
-    });
-  }
-
-  if (unassignedConfirmed.length > 0) {
-    const topReservation = unassignedConfirmed[0];
-    const topRecommendation = (await getOccupancyRecommendations(propertyId, topReservation.id))[0];
-    if (topRecommendation) {
-      items.push({
-        id: `ai_occupancy_${topReservation.id}`,
-        type: "occupancy_hint",
-        title: `Best-fit room suggestion for ${topReservation.guestName}`,
-        detail: `${topRecommendation.explanation} Suggested room: ${topRecommendation.roomLabel}.`,
-        confidence: topRecommendation.score,
-        actionLabel: "Review room options"
-      });
-    }
-  }
-
-  if (conflicts.length > 0) {
-    items.push({
-      id: "ai_anomaly_conflicts",
-      type: "anomaly",
-      title: `${conflicts.length} sync conflict${conflicts.length > 1 ? "s" : ""} need review`,
-      detail: "Operational mismatches are now visible in the inbox instead of staying hidden behind retries.",
-      confidence: 0.88,
-      actionLabel: "Resolve conflict"
-    });
-  }
-
-  return items;
 }
 
 export async function searchWithAI(propertyId: string, query: string): Promise<AISearchResult[]> {

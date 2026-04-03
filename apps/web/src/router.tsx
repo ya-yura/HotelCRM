@@ -27,6 +27,7 @@ import { RoomDetailPage } from "./screens/RoomDetailPage";
 import { RoomsPage } from "./screens/RoomsPage";
 import { HousekeepingPage } from "./screens/HousekeepingPage";
 import { PaymentsPage } from "./screens/PaymentsPage";
+import { ManagementReportsPage } from "./screens/ManagementReportsPage";
 import { SearchPage } from "./screens/SearchPage";
 import { SetupPage } from "./screens/SetupPage";
 import { SettingsPage } from "./screens/SettingsPage";
@@ -109,6 +110,7 @@ export const router = createBrowserRouter([
       { path: "maintenance", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance"]}><MaintenancePage /></RequireRoles> },
       { path: "compliance", element: <RequireRoles roles={["owner", "manager", "frontdesk", "accountant"]}><CompliancePage /></RequireRoles> },
       { path: "payments", element: <RequireRoles roles={["owner", "manager", "frontdesk", "accountant"]}><PaymentsPage /></RequireRoles> },
+      { path: "reports", element: <RequireRoles roles={["owner", "manager", "accountant"]}><ManagementReportsPage /></RequireRoles> },
       { path: "search", element: <RequireRoles roles={["owner", "manager", "frontdesk", "housekeeping", "maintenance", "accountant"]}><SearchPage /></RequireRoles> },
       ...(azhotelFullEnabled
         ? [

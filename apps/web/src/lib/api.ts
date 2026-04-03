@@ -67,6 +67,10 @@ import type {
   PropertyUpdateRequest
 } from "@hotel-crm/shared/properties";
 import type {
+  ManagementDashboardSummary,
+  ManagementReportSummary
+} from "@hotel-crm/shared/management";
+import type {
   ReservationCreate,
   ReservationSummary,
   ReservationUpdate
@@ -405,6 +409,53 @@ export async function loadAzReportRequest(filters?: { from?: string; to?: string
   }
   const suffix = params.size > 0 ? `?${params.toString()}` : "";
   return request<AzReportSummary>(`/azhotel/reports${suffix}`);
+}
+
+export async function loadManagementDashboardRequest(filters?: { from?: string; to?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.from) {
+    params.set("from", filters.from);
+  }
+  if (filters?.to) {
+    params.set("to", filters.to);
+  }
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return request<ManagementDashboardSummary>(`/management/dashboard${suffix}`);
+}
+
+export async function loadManagementReportRequest(filters?: { from?: string; to?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.from) {
+    params.set("from", filters.from);
+  }
+  if (filters?.to) {
+    params.set("to", filters.to);
+  }
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  return request<ManagementReportSummary>(`/management/reports${suffix}`);
+}
+
+export async function downloadManagementReportCsvRequest(filters?: { from?: string; to?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.from) {
+    params.set("from", filters.from);
+  }
+  if (filters?.to) {
+    params.set("to", filters.to);
+  }
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+  const token = getStoredToken();
+  const response = await fetch(`${API_BASE_URL}/management/reports/export.csv${suffix}`, {
+    headers: {
+      ...(token ? { "x-session-token": token } : {})
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Не удалось выгрузить CSV: ${response.status}`);
+  }
+
+  return response.text();
 }
 
 export async function downloadAzReportCsvRequest(filters?: { from?: string; to?: string }) {

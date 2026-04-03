@@ -7,7 +7,9 @@ export const initialAssistantItems: AIAssistantItem[] = [
     title: "По двум заездам нужна проверка оплаты",
     detail: "У Анны Петровой долг 4500, а у Сергея Иванова не отмечена предоплата.",
     confidence: 0.93,
-    actionLabel: "Открыть неоплаченные"
+    actionLabel: "Открыть неоплаченные",
+    actionTarget: "/payments",
+    dismissible: true
   },
   {
     id: "ai_anomaly_1",
@@ -15,7 +17,9 @@ export const initialAssistantItems: AIAssistantItem[] = [
     title: "Статусы по номеру 203 расходятся",
     detail: "На этом устройстве номер ещё грязный, но на другом уже начали уборку.",
     confidence: 0.89,
-    actionLabel: "Разобрать конфликт"
+    actionLabel: "Разобрать конфликт",
+    actionTarget: "/today#conflict-inbox",
+    dismissible: true
   }
 ];
 
